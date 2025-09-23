@@ -1,0 +1,9 @@
+[project]
+name = "at"
+version = "0.1.0.beta"
+description = "Track, log, and evaluate AI models. Supports OpenAI, Claude, Google API and custom Pytorch models."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "openai>=1.108.2",
+]
