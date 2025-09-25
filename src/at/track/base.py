@@ -1,9 +1,24 @@
 from typing import Callable, Any, Tuple, Dict
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 import functools
 
+@dataclass
 class TrackerOptions:
-    ...
+    """ tracker options
+    Controls how tracker tracks the llm input and output.
+    
+    Args:
+        trace_turn_on(bool): whether log trace
+        record_turn_on(bool): whether log record
+        trace_inactivity_timeout(int|None): how long the trace is active. It belongs to the same trace when the previous is the same if it's None.
+        func_name(str|None): function name. Default to None.
+    """
+
+    trace_turn_on: bool
+    record_turn_on: bool
+    trace_inactivity_timeout: int | None = None
+    func_name: str | None = None
 
 class BaseTracker(ABC):
     """ Base tracker to track all output
@@ -20,7 +35,11 @@ class BaseTracker(ABC):
     def track(
         self,
         func_name:Callable | str | None = None,
-        project_name: str | None = None
+        project_name: str | None = None,
+        trace_turn_on: bool = True,
+        record_turn_on: bool = True,
+        trace_inactivity_timeout: int | None = 600,
+
     ) -> Callable:
         """ track decorator
 
@@ -37,9 +56,17 @@ class BaseTracker(ABC):
             # if caller has `default project` name project, create a project named like default project - 2 
             project_name = "Default project"
 
+        tracker_options = TrackerOptions(
+            trace_turn_on=trace_turn_on,
+            record_turn_on=record_turn_on,
+            trace_inactivity_timeout=trace_inactivity_timeout
+        )
+    
         if callable(func_name):
             func = func_name
-            return self._decorator(func=func)
+            return self._decorator(func=func, tracker_options=tracker_options)
+        
+        tracker_options.func_name = func_name
 
         def decorator(func:Callable):
             return self._decorator(func=func)
@@ -48,12 +75,14 @@ class BaseTracker(ABC):
     
     def _decorator(
         self,
-        func:Callable,
+        func: Callable,
+        tracker_options: TrackerOptions
     ) -> Callable:
         """ construct a decorator 
         
         Args:
             func(Callable): a callable function
+            tracker_options(TrackerOptions): tracker options
         
         Returns:
             Callable: track decorator
