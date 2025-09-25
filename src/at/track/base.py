@@ -19,13 +19,14 @@ class BaseTracker(ABC):
 
     def track(
         self,
-        func:Callable,
+        func_name:Callable | str | None = None,
         project_name: str | None = None
     ) -> Callable:
         """ track decorator
 
         Args:
-            project_name(Optional[str]): project name to be tracked. Default to None
+            func_name(Callable|str|None): function name. Default to None.
+            project_name(Optional[str]): project name to be tracked. Default to None.
         
         Returns:
             Callable: a decorator
@@ -36,7 +37,14 @@ class BaseTracker(ABC):
             # if caller has `default project` name project, create a project named like default project - 2 
             project_name = "Default project"
 
-        return self._decorator(func=func)
+        if callable(func_name):
+            func = func_name
+            return self._decorator(func=func)
+
+        def decorator(func:Callable):
+            return self._decorator(func=func)
+        
+        return decorator
     
     def _decorator(
         self,
@@ -85,7 +93,7 @@ class BaseTracker(ABC):
         kwargs:Dict[str, Any]
     ):
         """ preparation for logging input before track function """
-        ...
+        print(f"_before_calling_function: {args}")
 
     def _after_calling_function(
         self,
@@ -93,4 +101,4 @@ class BaseTracker(ABC):
         error_info:str
     ):
         """ preparation for logging output after track function """
-        ...
+        print(f"_after_calling_function: {output}")
