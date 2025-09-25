@@ -55,7 +55,7 @@ class BaseTracker(ABC):
         def wrapper(*args, **kwargs) -> Any:
             result = None
             func_exception: Exception | None = None
-            error_info: Exception | None = None
+            error_info: str | None = None
             # before track
             self._before_calling_function(
                 func=func,
@@ -66,6 +66,7 @@ class BaseTracker(ABC):
             try:
                 result = func(*args, **kwargs)
             except Exception as e:
+                error_info = str(e)
                 func_exception = e
             finally:
                 # after track
