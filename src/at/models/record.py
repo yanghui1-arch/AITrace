@@ -1,3 +1,5 @@
+from typing import List, Dict
+from datetime import datetime
 
 class Record:
     """Record is to record input for llm everytime.
@@ -39,5 +41,24 @@ class Record:
     The mission of record is to make user can check whether a module input is expectation and it's easy to implement it.
     """
 
-    def __init__(self):
-        ...
+    def __init__(
+        self,
+        caller_function_name: str,
+        tags: List[str] | None = None,
+        provider: str | None = None,
+        passing_llm_input_output: List[Dict] | None = None
+    ):
+        """ Initialize record
+
+        Args:
+            caller_function_name(str): caller function name
+            tags(List[str] None): record tags. Default to `None`.
+            provider(str | None): llm provider. Default to `None`.
+            passing_llm_input_output(List[Dict] | None): a list of dictionary consisting of a complete messages passing into the llm. Default to `None`.
+        """
+        
+        self.caller_function_name = caller_function_name
+        self.tags = tags
+        self.provider = provider
+        self.passing_llm_input_output = passing_llm_input_output
+        self.record_time = datetime.now()
