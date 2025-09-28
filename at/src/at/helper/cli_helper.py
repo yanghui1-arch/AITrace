@@ -1,7 +1,7 @@
 from enum import Enum
 
 class PlatformType(Enum):
-    CLOUD = (1, "AT Cloud Platform(default)")
+    CLOUD = (1, "AT Cloud Platform (default)")
 
     @classmethod
     def find_platform(cls, value: int) -> "PlatformType":
@@ -37,7 +37,7 @@ def ask_for_deployment_type() -> PlatformType:
     for deployment in PlatformType:
         query.append(f'{deployment.value[0]} - {deployment.value[1]}')
 
-    query.append('\Please input the choice number.>')
+    query.append('Please input the choice number.>')
     query = '\n'.join(query)
 
     while True:
@@ -48,7 +48,7 @@ def ask_for_deployment_type() -> PlatformType:
         if choice_str == '':
             choice = 1
         else:
-            choice = int(choice)
+            choice = int(choice_str)
         
         choose_platform = PlatformType.find_platform(choice)
         return choose_platform

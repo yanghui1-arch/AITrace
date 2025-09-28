@@ -1,7 +1,7 @@
 import click
 from importlib.metadata import version, PackageNotFoundError
 
-import src.config as at_config
+from . import config as at_config
 from .helper import cli_helper
 
 CONTEXT_SETTINGS = {'help_option_names': ['--help', '-h']}
