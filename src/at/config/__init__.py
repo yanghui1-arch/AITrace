@@ -1,3 +1,4 @@
+import os
 from typing import Final
 
 CLOUD_BASE_URL: Final[str] = "http://www.petmate.fun/"
@@ -71,4 +72,43 @@ class ATConfigurator:
     @property
     def url(self) -> str:
         return self._url
- 
+
+def _set_configuration_in_os(
+    api_key:str | None,
+    workspace: str | None
+):
+    """Set apikey and worksapce into OS enviroment.
+    Only call it using cloud serve.
+
+    Args:
+        api_key(str | None): AT api key
+        workspace(str | None): AT workspace
+    """
+
+    if api_key is not None:
+        os.environ["AT_API_KEY"] = api_key
+    if workspace is not None:
+        os.environ["AT_WORKSPACE"] = workspace
+
+def configure(
+    api_key: str | None = None,
+    workspace: str | None = None,
+    use_local: bool = False,
+    url: str | None = None 
+):
+    """Configure AT
+    
+    Args:
+        api_key(str | None): AT api key. Default to `None`.
+        worksapce(str | None): workspace. Default to `None`.
+        use_local(bool): whether start local serve option. Default to `False`.
+        url(str | None): connect url
+    """
+
+    configurator = ATConfigurator(
+        api_key=api_key,
+        workspace=workspace,
+        use_local=use_local,
+        url=url
+    )
+    configurator.configure()
