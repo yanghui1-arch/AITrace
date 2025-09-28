@@ -1,18 +1,18 @@
-<div style="width: 50%"><img src='./images/logo.png'/></div>
+<p align="center"><img src='./images/logo.webp'/></p>
 
-# AT
-AT: Track, log, and evaluate AI models. Supports OpenAI, Claude, Google API and custom PyTorch models.<br/>
+# AI Trace
+AI Trace: Track, log, and evaluate AI models. Supports OpenAI, Claude, Google API and custom PyTorch models.<br/>
 Our goal is to make llm application more valuable and effortlessly improve llm capabilities.
 
 # Quickstart
 You can use pip install AT.
 ```bash
-pip install at
+pip install aitrace
 ```
 OR pip install from source.
 ```bash
 git clone git@github.com:yanghui1-arch/AT.git
-cd at
+cd src
 pip install -e .
 ```
 Then you need to configure AT through CLI.
@@ -22,7 +22,7 @@ aitrace configure
 
 Finally use `@track` to track your llm input and output
 ```python
-from at import track
+from aitrace import track
 from openai import OpenAI
 
 class LLMClient:
@@ -57,6 +57,7 @@ think_result = llm_clinet.think([
 # Development
 AT project package manager is uv. If you are a beginner uver, please click uv link: [uv official link](https://docs.astral.sh/uv/guides/projects/#creating-a-new-project)
 ```bash
+cd src
 uv install
 uv .venv/Script/activate
 ```
