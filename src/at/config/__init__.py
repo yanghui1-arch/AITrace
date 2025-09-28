@@ -12,10 +12,19 @@ class ATConfigurator:
 
     def __init__(
         self,
-        api_key: str | None,
-        workspace: str | None,
+        api_key: str | None = None,
+        workspace: str | None = None,
         use_local: bool = False
     ):
+       """Initialize ATConfigurator
+       ATConfigurator duty is to configure apikey, workspace and whether user start local option.
+       
+       Args:
+            api_key(str | None): AT api key. Default to `None`.
+            worksapce(str | None): workspace. Default to `None`.
+            use_local(bool): whether start local serve option. Default to `False`.
+       """
+
        self._apikey = api_key
        self._workspace = workspace
        self._use_local = use_local
@@ -27,7 +36,7 @@ class ATConfigurator:
         if self.use_local is False:
             self._configure_cloud()
         else:
-            self._configure_local
+            self._configure_local()
 
     def _configure_cloud(self):
         """configure AT cloud"""
