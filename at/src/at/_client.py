@@ -54,3 +54,5 @@ class ATClient:
 
         headers = {"Authorization": f"Bearer {api_key}"}
         return requests.get(url=url, params=params, headers=headers, timeout=timeout)
+
+client = ATClient()
