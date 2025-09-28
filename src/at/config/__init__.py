@@ -14,20 +14,28 @@ class ATConfigurator:
         self,
         api_key: str | None = None,
         workspace: str | None = None,
-        use_local: bool = False
+        use_local: bool = False,
+        url: str | None = None 
     ):
-       """Initialize ATConfigurator
-       ATConfigurator duty is to configure apikey, workspace and whether user start local option.
-       
-       Args:
-            api_key(str | None): AT api key. Default to `None`.
-            worksapce(str | None): workspace. Default to `None`.
-            use_local(bool): whether start local serve option. Default to `False`.
-       """
+        """Initialize ATConfigurator
+        ATConfigurator duty is to configure apikey, workspace and whether user start local option.
 
-       self._apikey = api_key
-       self._workspace = workspace
-       self._use_local = use_local
+        Args:
+             api_key(str | None): AT api key. Default to `None`.
+             worksapce(str | None): workspace. Default to `None`.
+             use_local(bool): whether start local serve option. Default to `False`.
+             url(str | None): connect url
+        """
+
+        self._apikey = api_key
+        self._workspace = workspace
+        self._use_local = use_local
+
+        if url is None:
+            self._url = CLOUD_BASE_URL if self._use_local is False else localhost_base_url
+        else:
+            self._url = url
+        
 
     def configure(self):
         """configure AT"""
@@ -44,17 +52,23 @@ class ATConfigurator:
 
     def _configure_local(self):
         """configure AT local"""
-        ...
+        # configure local doesn't need an apikey
+        self._apikey = None
+        raise NotImplementedError("It is not supported currently. Please wait for a few days and switch to use cloud serve. Thanks.")
 
     @property
-    def apikey(self) -> str:
+    def apikey(self) -> str | None:
         return self._apikey
 
     @property
-    def workspace(self) -> str:
+    def workspace(self) -> str | None:
         return self._workspace
 
     @property
     def use_local(self) -> bool:
         return self._use_local
+    
+    @property
+    def url(self) -> str:
+        return self._url
  
