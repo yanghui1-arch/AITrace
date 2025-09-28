@@ -9,8 +9,18 @@ You can use pip install AT.
 ```bash
 pip install at
 ```
+OR pip install from source.
+```bash
+git clone git@github.com:yanghui1-arch/AT.git
+cd at
+pip install -e .
+```
+Then you need to configure AT through CLI.
+```bash
+aitrace configure
+```
 
-Then use `@track` to track your llm input and output
+Finally use `@track` to track your llm input and output
 ```python
 from at import track
 from openai import OpenAI
