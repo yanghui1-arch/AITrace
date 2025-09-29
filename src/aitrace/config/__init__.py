@@ -1,8 +1,13 @@
+import sys
 import os
-from typing import Final
+import getpass
+from typing import Final, Dict
 
-CLOUD_BASE_URL: Final[str] = "http://www.petmate.fun/"
-localhost_base_url: str  = "http://localhost:5173/"
+from .._client import client as at_client
+from .._exception import APIKeyException
+
+CLOUD_BASE_URL: Final[str] = "http://www.petmate.fun"
+localhost_base_url: str  = "http://localhost:5173"
 
 class ATConfigurator:
     """AI trace configurator
@@ -48,7 +53,7 @@ class ATConfigurator:
         
         if not self._apikey:
             self._ask_for_apikey()
-        
+            _set_configuration_in_os(apikey=self._apikey)
 
     def _configure_local(self):
         """configure AT local"""
@@ -58,7 +63,49 @@ class ATConfigurator:
 
     def _ask_for_apikey(self):
         """ask user to input apikey and store it in OS."""
-        ...
+        if not self._apikey:
+            apikey = getpass.getpass(prompt="No aitrace API key was detected in your environment. Please enter your API key:")
+            # validate apikey
+            try:
+                self._validate_apikey(apikey=apikey)
+                self._apikey = apikey
+
+            except APIKeyException as apikey_exception:
+                sys.stderr.write(str(apikey_exception))
+            except Exception as exception:
+                sys.stderr.write(str(exception))
+
+    def _validate_apikey(self, apikey: str | None):
+        """ validate apikey is correct 
+        
+        Args:
+            apikey(str | None): apikey to validate
+
+        Raises:
+            ValueError: pass a None apikey
+            APIKeyException: APIKey is not valid
+            Exception: something errors during requesting cloud serve.
+        """
+        
+        if apikey is None:
+            raise ValueError("Please set aitrace valid apikey first.")
+        
+        if self.use_local:
+            import warnings
+            warnings.warn("You are using local aitrace serve. So aitrace will not validate your apikey now.") 
+        else:
+            # using cloud serve
+            import requests
+            # TODO: encode apikey
+            response:requests.Response = at_client.post(self.url + "/apikey/validate", json_data={"apikey": apikey})
+            response_json:Dict = response.json()
+            validation = response_json.get("apikey_valid", None)
+            if validation is False:
+                raise APIKeyException(error_msg=f"Invalid APIKey. You can check/get your apikey on the `{CLOUD_BASE_URL}`", apikey=apikey)
+            if validation is True:
+                sys.stdout.write("Success to validate apikey! Welcome to AItrace")
+            else:
+                raise Exception("Error happens when validate apikey.")
 
     @property
     def apikey(self) -> str | None:
@@ -73,8 +120,7 @@ class ATConfigurator:
         return self._url
 
 def _set_configuration_in_os(
-    api_key:str | None,
-    workspace: str | None
+    api_key:str | None
 ):
     """Set apikey and worksapce into OS enviroment.
     Only call it using cloud serve.
