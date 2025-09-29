@@ -14,7 +14,6 @@ class ATConfigurator:
     def __init__(
         self,
         api_key: str | None = None,
-        workspace: str | None = None,
         use_local: bool = False,
         url: str | None = None 
     ):
@@ -23,13 +22,11 @@ class ATConfigurator:
 
         Args:
              api_key(str | None): AT api key. Default to `None`.
-             worksapce(str | None): workspace. Default to `None`.
              use_local(bool): whether start local serve option. Default to `False`.
              url(str | None): connect url
         """
 
         self._apikey = api_key
-        self._workspace = workspace
         self._use_local = use_local
 
         if url is None:
@@ -37,7 +34,6 @@ class ATConfigurator:
         else:
             self._url = url
         
-
     def configure(self):
         """configure AT"""
         # TODO: skip configure when user configure one last time.
@@ -49,7 +45,10 @@ class ATConfigurator:
 
     def _configure_cloud(self):
         """configure AT cloud"""
-        ...
+        
+        if not self._apikey:
+            self._ask_for_apikey()
+        
 
     def _configure_local(self):
         """configure AT local"""
@@ -57,13 +56,13 @@ class ATConfigurator:
         self._apikey = None
         raise NotImplementedError("It is not supported currently. Please wait for a few days and switch to use cloud serve. Thanks.")
 
+    def _ask_for_apikey(self):
+        """ask user to input apikey and store it in OS."""
+        ...
+
     @property
     def apikey(self) -> str | None:
         return self._apikey
-
-    @property
-    def workspace(self) -> str | None:
-        return self._workspace
 
     @property
     def use_local(self) -> bool:
@@ -87,12 +86,9 @@ def _set_configuration_in_os(
 
     if api_key is not None:
         os.environ["AT_API_KEY"] = api_key
-    if workspace is not None:
-        os.environ["AT_WORKSPACE"] = workspace
 
 def configure(
     api_key: str | None = None,
-    workspace: str | None = None,
     use_local: bool = False,
     url: str | None = None 
 ):
@@ -107,7 +103,6 @@ def configure(
 
     configurator = ATConfigurator(
         api_key=api_key,
-        workspace=workspace,
         use_local=use_local,
         url=url
     )
