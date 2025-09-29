@@ -9,7 +9,7 @@ class ATClient:
     def post(
         self,
         url: str,
-        api_key: str,
+        api_key: str | None = None,
         data: Dict[str, Any] | None = None,
         json_data: Dict[str, Any] | None = None,
         timeout: int = 5
@@ -28,8 +28,10 @@ class ATClient:
         Raises:
             requests.HTTPError: call ATClient.post without data and json at the same time.
         """
-
-        headers = {"Authorization": f"Bearer {api_key}"}
+        
+        headers = {}
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
         if not data and not json_data:
             raise requests.HTTPError("Invalid to call ATClient.post without data and json at the same time.")
         
@@ -39,7 +41,7 @@ class ATClient:
     def get(
         self,
         url: str,
-        api_key: str,
+        api_key: str | None = None,
         params: Dict[str, Any] | None = None,
         timeout: int = 5
     ) -> requests.Response:
@@ -52,7 +54,10 @@ class ATClient:
             timeout(int): request exceeds timeout. Default to `5`.
         """
 
-        headers = {"Authorization": f"Bearer {api_key}"}
+        headers = {}
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
+
         return requests.get(url=url, params=params, headers=headers, timeout=timeout)
 
 client = ATClient()
