@@ -96,7 +96,6 @@ def configure(
     
     Args:
         api_key(str | None): AT api key. Default to `None`.
-        worksapce(str | None): workspace. Default to `None`.
         use_local(bool): whether start local serve option. Default to `False`.
         url(str | None): connect url
     """
