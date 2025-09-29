@@ -39,7 +39,6 @@ class BaseTracker(ABC):
         trace_turn_on: bool = True,
         record_turn_on: bool = True,
         trace_inactivity_timeout: int | None = 600,
-
     ) -> Callable:
         """ track decorator
 
@@ -69,7 +68,7 @@ class BaseTracker(ABC):
         tracker_options.func_name = func_name
 
         def decorator(func:Callable):
-            return self._decorator(func=func)
+            return self._decorator(func=func, tracker_options=tracker_options)
         
         return decorator
     
