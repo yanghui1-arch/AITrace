@@ -101,7 +101,7 @@ class ATConfigurator:
             response_json:Dict = response.json()
             validation = response_json.get("apikey_valid", None)
             if validation is False:
-                raise APIKeyException(error_msg=f"Invalid APIKey. You can check/get your apikey on the `{CLOUD_BASE_URL}`", apikey=apikey)
+                raise APIKeyException(error_msg=f"Invalid APIKey. You can check/get your apikey on the `{CLOUD_BASE_URL}`", url=self.url)
             if validation is True:
                 sys.stdout.write("Success to validate apikey! Welcome to AItrace")
             else:
