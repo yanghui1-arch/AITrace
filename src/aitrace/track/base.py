@@ -24,6 +24,8 @@ class BaseTracker(ABC):
     """ Base tracker to track all output
     Every tracker should be extended `BaseTracker` class.
     Following methods need to be implemented in subclass.
+        * _before_calling_function: log trace & record according to tracker_options before calling function.
+        * _after_calling_function : log trace & record & error information according to tracker_options after calling function.
 
     Args:
         provider(Optional[str]): provider name
@@ -95,8 +97,9 @@ class BaseTracker(ABC):
             # before track
             self._before_calling_function(
                 func=func,
+                tracker_options=tracker_options,
                 args=args,
-                kwargs=kwargs
+                kwargs=kwargs,
             )
 
             try:
@@ -114,19 +117,23 @@ class BaseTracker(ABC):
 
         return wrapper
 
+    @abstractmethod
     def _before_calling_function(
         self,
         func:Callable,
+        tracker_options: TrackerOptions | None,
         args:Tuple,
         kwargs:Dict[str, Any]
     ):
-        """ preparation for logging input before track function """
-        print(f"_before_calling_function: {args}")
+        """ prepare and log input before track function """
+        ...
+        
 
+    @abstractmethod
     def _after_calling_function(
         self,
         output:Any,
         error_info:str
     ):
-        """ preparation for logging output after track function """
-        print(f"_after_calling_function: {output}")
+        """ prepare and log output after track function """
+        ...
