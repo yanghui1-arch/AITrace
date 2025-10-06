@@ -1,7 +1,16 @@
-from typing import Callable, Any, Tuple, Dict
+from typing import Callable, Any, Tuple, Dict, List
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import functools
+
+from ..models import Trace, Record
+from ..helper import args_helper
+from ..handler.log_handler import (
+    log_input_as_record,
+    log_input_as_trace,
+    log_output_as_record,
+    log_output_as_trace
+)
 
 @dataclass
 class TrackerOptions:
@@ -15,6 +24,8 @@ class TrackerOptions:
         func_name(str|None): function name. Default to None.
     """
 
+    project_name: str
+    tags: List[str] | None = None
     trace_turn_on: bool
     record_turn_on: bool
     trace_inactivity_timeout: int | None = None
@@ -38,6 +49,7 @@ class BaseTracker(ABC):
         self,
         func_name:Callable | str | None = None,
         project_name: str | None = None,
+        tags: List[str] | None = None,
         trace_turn_on: bool = True,
         record_turn_on: bool = True,
         trace_inactivity_timeout: int | None = 600,
@@ -58,6 +70,8 @@ class BaseTracker(ABC):
             project_name = "Default project"
 
         tracker_options = TrackerOptions(
+            project_name=project_name,
+            tags=tags,
             trace_turn_on=trace_turn_on,
             record_turn_on=record_turn_on,
             trace_inactivity_timeout=trace_inactivity_timeout
@@ -117,7 +131,6 @@ class BaseTracker(ABC):
 
         return wrapper
 
-    @abstractmethod
     def _before_calling_function(
         self,
         func:Callable,
@@ -125,8 +138,44 @@ class BaseTracker(ABC):
         args:Tuple,
         kwargs:Dict[str, Any]
     ):
-        """ prepare and log input before track function """
-        ...
+        """ prepare and log input before track function 
+        Default to log input as trace.
+        """
+        
+        try:
+            start_arguments = self.start_inputs_args_preprocess(
+                func=func,
+                tracker_options=tracker_options,
+                args=args,
+                kwargs=kwargs
+            )
+        
+        except Exception as exception:
+            print(str(exception))
+            
+            start_arguments = args_helper.StartArguments(
+                func_name=func.__name__,
+                tags=tracker_options.tags,
+                project_name=tracker_options.project_name
+            )
+
+        if tracker_options is None:
+            # default to turn on trace
+            log_input_as_trace(start_args=start_arguments)
+        
+        else:
+            if tracker_options.record_turn_on and tracker_options.trace_turn_on:
+                log_input_as_trace(start_args=start_arguments)
+                log_input_as_record(start_args=start_arguments)
+
+            elif tracker_options.record_turn_on:
+                log_input_as_record(start_args=start_arguments)
+
+            elif tracker_options.trace_turn_on:
+                log_input_as_trace(start_args=start_arguments)
+
+            else:
+                raise ValueError("Please set your tracker options at least one of `record_turn_on` and `trace_turn_on` is True.")
         
 
     @abstractmethod
@@ -136,4 +185,15 @@ class BaseTracker(ABC):
         error_info:str
     ):
         """ prepare and log output after track function """
+        ...
+
+
+    @abstractmethod
+    def start_inputs_args_preprocess(
+        self,
+        func: Callable,
+        tracker_options: TrackerOptions | None,
+        args: Tuple,
+        kwargs: Dict[str, Any]
+    ):
         ...
