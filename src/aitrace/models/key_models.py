@@ -16,6 +16,7 @@ class Step:
     id: str
     trace_id: str
     type: StepType = StepType.CUSTOMIZED
+    tags: List[str] = []
     input: Dict[str, Any] | None = None
     output: Any | None = None
     error_info: str | None = None
@@ -41,6 +42,7 @@ class Trace:
     conversation_id: str
     name: str
     model: str | None = None
+    tags: List[str] = []
     input: Dict[str, Any]
     output: Any | None = None
     tracks: List[Track] | None = None
@@ -51,6 +53,7 @@ class Conversation:
     project_name: str
     id: str
     name: str
+    tags: List[str]
     traces: List[Trace]
     start_time: datetime
     last_update_time: datetime
