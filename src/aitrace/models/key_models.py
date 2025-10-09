@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from datetime import datetime
 from typing import Any, Dict, List
@@ -16,7 +16,7 @@ class Step:
     id: str
     trace_id: str
     type: StepType = StepType.CUSTOMIZED
-    tags: List[str] = []
+    tags: List[str] = field(default_factory=list)
     input: Dict[str, Any] | None = None
     output: Any | None = None
     error_info: str | None = None
@@ -42,7 +42,7 @@ class Trace:
     conversation_id: str
     name: str
     model: str | None = None
-    tags: List[str] = []
+    tags: List[str] = field(default_factory=list)
     input: Dict[str, Any] | None = None
     output: Any | None = None
     tracks: List[Track] | None = None
