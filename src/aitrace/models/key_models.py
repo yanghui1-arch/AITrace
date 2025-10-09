@@ -42,6 +42,7 @@ class Trace:
     model: str | None = None
     input: Dict[str, Any]
     output: Any | None = None
+    tracks: List[Track] | None = None
     error_info: str | None = None
 
 @dataclass
