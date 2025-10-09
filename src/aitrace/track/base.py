@@ -39,8 +39,7 @@ class BaseTracker(ABC):
     """ Base tracker to track all output
     Every tracker should be extended `BaseTracker` class.
     Following methods need to be implemented in subclass.
-        * _before_calling_function: log trace & record according to tracker_options before calling function.
-        * _after_calling_function : log trace & record & error information according to tracker_options after calling function.
+        * start_inputs_args_preprocess: preprocess start input before calling function
 
     Args:
         provider(Optional[str]): provider name
@@ -232,17 +231,45 @@ class BaseTracker(ABC):
                 tags=tracker_options.tags,
                 model=tracker_options.model,
             )
-        raise ValueError("Value error in tracker decorator. Please check whether set is_trace=True or is_step=True in your tracker_options.One of them should be True.")
+        raise ValueError("Value error in tracker decorator. before calling function." \
+        "Please check whether set is_trace=True or is_step=True in your tracker_options.One of them should be True.")
 
-    @abstractmethod
     def _after_calling_function(
         self,
         output:Any,
-        error_info: str,
+        error_info: str | None,
         tracker_options: TrackerOptions
     ):
         """ prepare and log output after track function """
-        ...
+
+        if not isinstance(output, Dict):
+            output = {"output": output}
+
+        if tracker_options.is_step:
+            at_client.track_step(
+                project_name=tracker_options.project_name,
+                input=None,
+                output=output,
+                name=tracker_options.step_name,
+                type=tracker_options.step_type,
+                tags=tracker_options.tags,
+                model=tracker_options.model,
+                error_info=error_info,
+            )
+
+        elif tracker_options.is_trace:
+            at_client.track_trace(
+                project_name=tracker_options.project_name,
+                input=None,
+                output=output,
+                name=tracker_options.trace_name,
+                tags=tracker_options.tags,
+                model=tracker_options.model,
+                error_info=error_info
+            )
+
+        raise ValueError("Value error in tracker decorator after calling function. " \
+        "Please check whether set is_trace=True or is_step=True in your tracker_options.One of them should be True.")
 
 
     @abstractmethod
