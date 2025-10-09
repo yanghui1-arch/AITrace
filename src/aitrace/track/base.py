@@ -148,7 +148,7 @@ class BaseTracker(ABC):
         Returns:
             Callable: track decorator
         """
-
+        
         @functools.wraps(func)
         def wrapper(*args, **kwargs) -> Any:
             result = None
@@ -231,7 +231,8 @@ class BaseTracker(ABC):
                 tags=tracker_options.tags,
                 model=tracker_options.model,
             )
-        raise ValueError("Value error in tracker decorator. before calling function." \
+        else:
+            raise ValueError("Value error in tracker decorator. before calling function." \
         "Please check whether set is_trace=True or is_step=True in your tracker_options.One of them should be True.")
 
     def _after_calling_function(
@@ -268,7 +269,8 @@ class BaseTracker(ABC):
                 error_info=error_info
             )
 
-        raise ValueError("Value error in tracker decorator after calling function. " \
+        else:
+            raise ValueError("Value error in tracker decorator after calling function. " \
         "Please check whether set is_trace=True or is_step=True in your tracker_options.One of them should be True.")
 
 
