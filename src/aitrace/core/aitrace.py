@@ -13,7 +13,7 @@ class AITrace:
         self,
         project_name: str,
         input: Any | None = None,
-        output: Any | None = None,
+        output: Dict[str, Any] | None = None,
         name: str | None = None,
         type: StepType = StepType.CUSTOMIZED,
         tags: List[str] | None = None,
@@ -29,7 +29,7 @@ class AITrace:
         Args:
             project_name(str): project name.
             input(Any | None): input of module. Default to `None`. None means it's logging output.
-            output(Any | None): output of module. Default to `None`. None means it's logging input.
+            output(Dict[str, Any] | None): output of module. Default to `None`. None means it's logging input.
             name(str | None): the step name. Caller can set the name to define what the step role is. Default to ``None`. If it's None,
                                             AITrace will set step name based on step type.
             type(StepType): step type. Default to `StepType.CUSTOMIZED`.
