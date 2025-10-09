@@ -12,8 +12,8 @@ class AITrace:
     def track_step(
         self,
         project_name: str,
-        input: Any,
-        output: Any,
+        input: Any | None = None,
+        output: Any | None = None,
         name: str | None = None,
         type: StepType = StepType.CUSTOMIZED,
         tags: List[str] | None = None,
@@ -28,8 +28,8 @@ class AITrace:
 
         Args:
             project_name(str): project name.
-            input(Any): input of module.
-            output(Any): output of module. Probably None
+            input(Any | None): input of module. Default to `None`. None means it's logging output.
+            output(Any | None): output of module. Default to `None`. None means it's logging input.
             name(str | None): the step name. Caller can set the name to define what the step role is. Default to ``None`. If it's None,
                                             AITrace will set step name based on step type.
             type(StepType): step type. Default to `StepType.CUSTOMIZED`.
@@ -76,8 +76,8 @@ class AITrace:
     def track_trace(
         self,
         project_name: str,
-        input: Dict[Literal['user'], Any],
-        output: Dict[Literal['assistant'], Any],
+        input: Dict[Literal['user'], Any] | None = None,
+        output: Dict[Literal['assistant'], Any] | None = None,
         tracks: List[Track] | None = None,
         name: str | None = None,
         tags: List[str] | None = None,
@@ -96,8 +96,8 @@ class AITrace:
         
         Args:
             project_name(str): project name.
-            input(Dict[str, Any]): User input.
-            output(Dict[str, Any]): agent final output.
+            input(Dict[Literal['user'], Any] | None): User input. Default to `None`. If it's None, it's logging output.
+            output(Dict[Literal['assistant'], Any] | None): agent final output. Default to `None`. If it's None, it's logging input.
             tracks(List[Track] | None): a list of execution tracks. Default to `None`. Maybe it's an easy question so that it doesn't include any track.
             name(str | None): trace name. It defines what the trace does or its topic. Default to `None`. If it's None, it will be set using input user content.
             tags(List[str] | None): step tags. Default to `None`. If it's None, it will be set an empty list.

@@ -43,7 +43,7 @@ class Trace:
     name: str
     model: str | None = None
     tags: List[str] = []
-    input: Dict[str, Any]
+    input: Dict[str, Any] | None = None
     output: Any | None = None
     tracks: List[Track] | None = None
     error_info: str | None = None
