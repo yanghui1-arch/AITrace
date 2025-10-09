@@ -3,14 +3,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import functools
 
-from ..models import Trace, Record
-from ..helper import args_helper
-from ..handler.log_handler import (
-    log_input_as_record,
-    log_input_as_trace,
-    log_output_as_record,
-    log_output_as_trace
-)
+from ..models.key_models import StepType
+from ..helper import args_helper, inspect_helper
+from ..core.aitrace import at_client
 
 @dataclass
 class TrackerOptions:
@@ -18,18 +13,27 @@ class TrackerOptions:
     Controls how tracker tracks the llm input and output.
     
     Args:
-        trace_turn_on(bool): whether log trace
-        record_turn_on(bool): whether log record
-        trace_inactivity_timeout(int|None): how long the trace is active. It belongs to the same trace when the previous is the same if it's None.
-        func_name(str|None): function name. Default to None.
+        project_name(str): current work project name.
+        tags(List[str] | None): tags of step or trace. Default to `None`.
+        func_name(str | None): function name that caller set. Default to `None`. If caller doesn't
+                                set name, it will be None.
+        is_step(bool): whether track step. Default to `False`.
+        is_trace(bool): whether track trace. Default to `False`.
+        step_type(StepType | None): step type. Default to `None`. If is_step is `True` step_type has to be StepType.
+        model(str | None): using model name. Default to `None`.
+        step_name(str | None): step name. Default to `None`.
+        trace_name(str | None): trace name. Default to `None`.
     """
 
     project_name: str
     tags: List[str] | None = None
-    trace_turn_on: bool
-    record_turn_on: bool
-    trace_inactivity_timeout: int | None = None
     func_name: str | None = None
+    is_step: bool = False
+    is_trace: bool = False
+    step_type: StepType | None = None
+    model: str | None = None
+    step_name: str | None = None
+    trace_name: str | None = None
 
 class BaseTracker(ABC):
     """ Base tracker to track all output
@@ -44,37 +48,39 @@ class BaseTracker(ABC):
 
     def __init__(self):
         self.provider: str | None = None
-
-    def track(
+ 
+    def track_step(
         self,
-        func_name:Callable | str | None = None,
-        project_name: str | None = None,
+        func_name: str | Callable,
+        project_name: str,
         tags: List[str] | None = None,
-        trace_turn_on: bool = True,
-        record_turn_on: bool = True,
-        trace_inactivity_timeout: int | None = 600,
+        step_type: StepType = StepType.CUSTOMIZED,
+        step_name: str | None = None,
+        model: str | None = None,
     ) -> Callable:
-        """ track decorator
+        """track step decorator
+        Track step in calling modules. If use decorator to track step, the step and the trace id will be always a whole new ones.
+        In other words, you cannot set the step id and its belonging trace id. It's recommended to be used in a simple demo.
 
         Args:
-            func_name(Callable|str|None): function name. Default to None.
-            project_name(Optional[str]): project name to be tracked. Default to None.
-        
+            func_name(str | Callable): caller can set it they want to name with 'str' type. If caller doesn't set, it will be `Callable`.
+            project_name(str): current work project name.
+            tags(List[str] | None): tags of tracking steps. Default to `None`.
+            step_type(StepType): step type. Default to `StepType.CUSTOMIZED`.
+            step_name(str | None): step name. Default to `None`.
+            model(str | None): using model name. Default to `None`. If you are using llama you can set the field to `llama`.
+            
         Returns:
-            Callable: a decorator
+            Callable: decorator
         """
-
-        if project_name is None:
-            # post a request to get caller project list
-            # if caller has `default project` name project, create a project named like default project - 2 
-            project_name = "Default project"
 
         tracker_options = TrackerOptions(
             project_name=project_name,
             tags=tags,
-            trace_turn_on=trace_turn_on,
-            record_turn_on=record_turn_on,
-            trace_inactivity_timeout=trace_inactivity_timeout
+            is_step=True,
+            step_type=step_type,
+            step_name=step_name,
+            model=model,
         )
     
         if callable(func_name):
@@ -87,7 +93,48 @@ class BaseTracker(ABC):
             return self._decorator(func=func, tracker_options=tracker_options)
         
         return decorator
+
+    def track_trace(
+        self,
+        func_name: str | Callable,
+        project_name: str,
+        tags: List[str] | None = None,
+        trace_name: str | None = None,
+        model: str | None = None,
+    ):
+        """track trace decorator
+        Track trace in calling modules.
+
+        Args:
+            func_name(str | Callable): caller can set it they want to name with 'str' type. If caller doesn't set, it will be `Callable`.
+            project_name(str): current work project name.
+            tags(List[str] | None): tags of tracking traces. Default to `None`.
+            trace_name(str | None): trace name. Default to `None`.
+            model(str | None): using model name. Default to `None`. If you are using llama you can set it `llama`.
+
+        Returns:
+            Callable: decorator
+        """
+        
+        tracker_options = TrackerOptions(
+            project_name=project_name,
+            tags=tags,
+            is_trace=True,
+            trace_name=trace_name,
+            model=model,
+        )
     
+        if callable(func_name):
+            func = func_name
+            return self._decorator(func=func, tracker_options=tracker_options)
+        
+        tracker_options.func_name = func_name
+
+        def decorator(func:Callable):
+            return self._decorator(func=func, tracker_options=tracker_options)
+        
+        return decorator
+
     def _decorator(
         self,
         func: Callable,
@@ -123,7 +170,7 @@ class BaseTracker(ABC):
                 func_exception = e
             finally:
                 # after track
-                self._after_calling_function(output=result, error_info=error_info)
+                self._after_calling_function(output=result, error_info=error_info, tracker_options=tracker_options)
                 if func_exception is not None:
                     raise func_exception
                 else:
@@ -134,12 +181,17 @@ class BaseTracker(ABC):
     def _before_calling_function(
         self,
         func:Callable,
-        tracker_options: TrackerOptions | None,
+        tracker_options: TrackerOptions,
         args:Tuple,
         kwargs:Dict[str, Any]
     ):
-        """ prepare and log input before track function 
-        Default to log input as trace.
+        """ prepare and log input before track function.
+
+        Args:
+            func(Callable): func
+            tracker_options(TrackerOptions): tracker options
+            args(Tuple): passing func arguments. If no arguments, the dictionary is empty.
+            kwargs(Dict[str, Any]): passing func keywords arguements. If no keywords arguments, the dictionary is empty.
         """
         
         try:
@@ -159,30 +211,37 @@ class BaseTracker(ABC):
                 project_name=tracker_options.project_name
             )
 
-        if tracker_options is None:
-            # default to turn on trace
-            log_input_as_trace(start_args=start_arguments)
-        
-        else:
-            if tracker_options.record_turn_on and tracker_options.trace_turn_on:
-                log_input_as_trace(start_args=start_arguments)
-                log_input_as_record(start_args=start_arguments)
-
-            elif tracker_options.record_turn_on:
-                log_input_as_record(start_args=start_arguments)
-
-            elif tracker_options.trace_turn_on:
-                log_input_as_trace(start_args=start_arguments)
-
-            else:
-                raise ValueError("Please set your tracker options at least one of `record_turn_on` and `trace_turn_on` is True.")
-        
+        if tracker_options.is_step:
+            at_client.track_step(
+                project_name=tracker_options.project_name,
+                # TODO: step input is different with trace input.
+                input=inspect_helper.parse_to_dict_input(func=func, args=args, kwargs=kwargs),
+                output=None,
+                name=tracker_options.step_name,
+                type=tracker_options.step_type,
+                tags=tracker_options.tags,
+                model=tracker_options.model
+            )
+        elif tracker_options.is_trace:
+            at_client.track_trace(
+                project_name=tracker_options.project_name,
+                # TODO: trace input is different with step input.
+                input=inspect_helper.parse_to_dict_input(func=func, args=args, kwargs=kwargs),
+                output=None,
+                # TODO: Define whether tracks can be get in local or from remote. 
+                tracks=None,
+                name=tracker_options.trace_name,
+                tags=tracker_options.tags,
+                model=tracker_options.model,
+            )
+        raise ValueError("Value error in tracker decorator. Please check whether set is_trace=True or is_step=True in your tracker_options.One of them should be True.")
 
     @abstractmethod
     def _after_calling_function(
         self,
         output:Any,
-        error_info:str
+        error_info: str,
+        tracker_options: TrackerOptions
     ):
         """ prepare and log output after track function """
         ...
