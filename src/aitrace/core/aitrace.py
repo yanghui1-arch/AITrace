@@ -16,6 +16,7 @@ class AITrace:
         output: Any,
         name: str | None = None,
         type: StepType = StepType.CUSTOMIZED,
+        tags: List[str] | None = None,
         model: str | None = None,
         error_info: str | None = None,
         step_id: str | UUID | int | None = None,
@@ -32,6 +33,7 @@ class AITrace:
             name(str | None): the step name. Caller can set the name to define what the step role is. Default to ``None`. If it's None,
                                             AITrace will set step name based on step type.
             type(StepType): step type. Default to `StepType.CUSTOMIZED`.
+            tags(List[str] | None): step tags. Default to `None`. If it's None, it will be set an empty list.
             model(str | None): model name. Probably using a llm model in the step. Default to `None`.
             error_info(str | None): error information while occuring errors. Default to `None`.
             step_id(str | UUID | int | None): step id offered by caller. Default to `None`. If it's None, create a new uuid7 for step.
@@ -49,6 +51,8 @@ class AITrace:
             trace_id = id_helper.generate_id()
         if name is None:
             name = type.value
+        if tags is None:
+            tags = []
 
         # if input is not Dict type -> transfer it as a Dict type.
         if isinstance(input, Dict) is False:
@@ -60,6 +64,7 @@ class AITrace:
             id=step_id,
             trace_id=trace_id,
             type=type,
+            tags=tags,
             input=input,
             output=output,
             error_info=error_info,
@@ -75,6 +80,7 @@ class AITrace:
         output: Dict[Literal['assistant'], Any],
         tracks: List[Track] | None = None,
         name: str | None = None,
+        tags: List[str] | None = None,
         error_info: str | None = None,
         model: str | None = None,
         trace_id: str | UUID | int | None = None,
@@ -94,6 +100,7 @@ class AITrace:
             output(Dict[str, Any]): agent final output.
             tracks(List[Track] | None): a list of execution tracks. Default to `None`. Maybe it's an easy question so that it doesn't include any track.
             name(str | None): trace name. It defines what the trace does or its topic. Default to `None`. If it's None, it will be set using input user content.
+            tags(List[str] | None): step tags. Default to `None`. If it's None, it will be set an empty list.
             error_info(str | None): error information while tracking trace. Default to `None`.
             model(str | None): model name. Which model agent using. Default to `None`.
             trace_id(str | UUID | int | None): trace id. Default to `None`. If it's None, it will be thought as a new trace and create a new id for the trace.
@@ -110,6 +117,8 @@ class AITrace:
             conversation_id = id_helper.generate_id()
         if name is None:
             name = input['user']
+        if tags is None:
+            tags = []
 
         trace = Trace(
             project_name=project_name,
@@ -117,6 +126,7 @@ class AITrace:
             conversation_id=conversation_id,
             name=name,
             model=model,
+            tags=tags,
             input=input,
             output=output,
             tracks=tracks,
