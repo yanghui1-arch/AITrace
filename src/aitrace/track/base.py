@@ -214,7 +214,6 @@ class BaseTracker(ABC):
         if tracker_options.is_step:
             at_client.track_step(
                 project_name=tracker_options.project_name,
-                # TODO: step input is different with trace input.
                 input=inspect_helper.parse_to_dict_input(func=func, args=args, kwargs=kwargs),
                 output=None,
                 name=tracker_options.step_name,
@@ -225,7 +224,6 @@ class BaseTracker(ABC):
         elif tracker_options.is_trace:
             at_client.track_trace(
                 project_name=tracker_options.project_name,
-                # TODO: trace input is different with step input.
                 input=inspect_helper.parse_to_dict_input(func=func, args=args, kwargs=kwargs),
                 output=None,
                 # TODO: Define whether tracks can be get in local or from remote. 
