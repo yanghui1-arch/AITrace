@@ -76,8 +76,8 @@ class AITrace:
     def track_trace(
         self,
         project_name: str,
-        input: Dict[Literal['user'], Any] | None = None,
-        output: Dict[Literal['assistant'], Any] | None = None,
+        input: Dict[str, Any] | None = None,
+        output: Dict[str, Any] | None = None,
         tracks: List[Track] | None = None,
         name: str | None = None,
         tags: List[str] | None = None,
@@ -96,8 +96,8 @@ class AITrace:
         
         Args:
             project_name(str): project name.
-            input(Dict[Literal['user'], Any] | None): User input. Default to `None`. If it's None, it's logging output.
-            output(Dict[Literal['assistant'], Any] | None): agent final output. Default to `None`. If it's None, it's logging input.
+            input(Dict[str, Any] | None): User input. Default to `None`. If it's None, it's logging output.
+            output(Dict[str, Any] | None): agent final output. Default to `None`. If it's None, it's logging input.
             tracks(List[Track] | None): a list of execution tracks. Default to `None`. Maybe it's an easy question so that it doesn't include any track.
             name(str | None): trace name. It defines what the trace does or its topic. Default to `None`. If it's None, it will be set using input user content.
             tags(List[str] | None): step tags. Default to `None`. If it's None, it will be set an empty list.
