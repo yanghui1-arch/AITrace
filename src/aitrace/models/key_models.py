@@ -11,14 +11,15 @@ class StepType(Enum):
 
 @dataclass
 class Step:
-	project_name: str
-	name: str
-	id: str
-	trace_id: str
-	type: StepType = StepType.CUSTOMIZED
-	input: Dict[str, Any] | None = None
-	output: Any | None = None
-	error_info: str | None = None
+    project_name: str
+    name: str
+    id: str
+    trace_id: str
+    type: StepType = StepType.CUSTOMIZED
+    input: Dict[str, Any] | None = None
+    output: Any | None = None
+    error_info: str | None = None
+    model: str | None = None
 
 @dataclass
 class Track:

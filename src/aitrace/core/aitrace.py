@@ -16,6 +16,7 @@ class AITrace:
         output: Any,
         name: str | None = None,
         type: StepType = StepType.CUSTOMIZED,
+        model: str | None = None,
         error_info: str | None = None,
         step_id: str | UUID | int | None = None,
         trace_id: str | UUID | int | None = None,
@@ -31,6 +32,7 @@ class AITrace:
             name(str | None): the step name. Caller can set the name to define what the step role is. Default to ``None`. If it's None,
                                             AITrace will set step name based on step type.
             type(StepType): step type. Default to `StepType.CUSTOMIZED`.
+            model(str | None): model name. Probably using a llm model in the step. Default to `None`.
             error_info(str | None): error information while occuring errors. Default to `None`.
             step_id(str | UUID | int | None): step id offered by caller. Default to `None`. If it's None, create a new uuid7 for step.
             trace_id(str | UUID | int | None): trace id which the step belongs to. Default to `None`. If it's None, the step
@@ -60,7 +62,8 @@ class AITrace:
             type=type,
             input=input,
             output=output,
-            error_info=error_info
+            error_info=error_info,
+            model=model
         )
 
         return step
