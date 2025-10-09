@@ -71,6 +71,8 @@ class AITrace:
             model=model
         )
 
+        print(step.__dict__)
+
         return step
 
     def track_trace(
@@ -132,6 +134,8 @@ class AITrace:
             tracks=tracks,
             error_info=error_info
         )
+
+        print(trace.__dict__)
 
         return trace
 
