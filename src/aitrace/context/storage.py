@@ -1,3 +1,7 @@
+from typing import Tuple
+from contextvars import ContextVar
+
+from ..models.key_models import Trace, Step
 
 class AITraceStorageContext:
     """AI trace storage context stores the step and trace.
@@ -59,4 +63,56 @@ class AITraceStorageContext:
     """
 
     def __init__(self):
-        pass
+        """Initialize AITraceStorageContext"""
+        
+        self._trace: ContextVar[Trace] = ContextVar('current_trace', default=None)
+        self._steps: ContextVar[Tuple[Step, ...]] = ContextVar('steps_calling_stack', default=tuple())
+
+    def add_step(
+        self,
+        new_step: Step,
+    ):
+        """add a new step into steps_calling_stack
+        
+        Args:
+            new_step(Step): a new step.
+        """
+
+        old_steps:Tuple = self._steps.get()
+        old_steps += (new_step, )
+        self._steps.set(old_steps)
+    
+    def pop_step(self) -> Step:
+        """pop step stack to get the top step data and remove it
+        
+        Returns:
+            Step: top step
+        """
+
+        steps = self._steps.get()
+        top_step: Step = steps[-1]
+        self._steps.set(steps[:-1])
+        return top_step
+    
+    def set_trace(self, current_trace: Trace | None):
+        """set a new trace
+        
+        Args:
+            current_trace(Trace | None): current trace. It maybe a None type for no current trace.
+        """
+
+        assert self._trace.get() is None, "Ensure _trace is empty before calling set_trace"
+        self._trace.set(current_trace)
+    
+    def pop_trace(self) -> Trace | None:
+        """pop trace
+        
+        Returns:
+            Trace | None: current trace. None means no trace now.
+        """
+
+        trace = self._trace.get()
+        self._trace.set(None)
+        return trace
+
+aitrace_storage_context = AITraceStorageContext()
