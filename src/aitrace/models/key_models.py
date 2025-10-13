@@ -47,13 +47,14 @@ class Trace:
     output: Any | None = None
     tracks: List[Track] | None = None
     error_info: str | None = None
+    last_update_timestamp: datetime = field(default_factory=datetime.now)
 
 @dataclass
 class Conversation:
     project_name: str
     id: str
     name: str
-    tags: List[str]
+    tags: List[str] = field(default_factory=list)
     traces: List[Trace]
     start_time: datetime
     last_update_time: datetime
