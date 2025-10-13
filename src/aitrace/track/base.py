@@ -1,39 +1,12 @@
 from typing import Callable, Any, Tuple, Dict, List
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 import functools
 
 from ..models.key_models import StepType
+from .options import TrackerOptions, Provider
 from ..helper import args_helper, inspect_helper
 from ..core.aitrace import at_client
 
-@dataclass
-class TrackerOptions:
-    """ tracker options
-    Controls how tracker tracks the llm input and output.
-    
-    Args:
-        project_name(str): current work project name.
-        tags(List[str] | None): tags of step or trace. Default to `None`.
-        func_name(str | None): function name that caller set. Default to `None`. If caller doesn't
-                                set name, it will be None.
-        is_step(bool): whether track step. Default to `False`.
-        is_trace(bool): whether track trace. Default to `False`.
-        step_type(StepType | None): step type. Default to `None`. If is_step is `True` step_type has to be StepType.
-        model(str | None): using model name. Default to `None`.
-        step_name(str | None): step name. Default to `None`.
-        trace_name(str | None): trace name. Default to `None`.
-    """
-
-    project_name: str
-    tags: List[str] | None = None
-    func_name: str | None = None
-    is_step: bool = False
-    is_trace: bool = False
-    step_type: StepType | None = None
-    model: str | None = None
-    step_name: str | None = None
-    trace_name: str | None = None
 
 class BaseTracker(ABC):
     """ Base tracker to track all output
@@ -56,6 +29,7 @@ class BaseTracker(ABC):
         step_type: StepType = StepType.CUSTOMIZED,
         step_name: str | None = None,
         model: str | None = None,
+        only_track_llm_messages: Provider | None = None
     ) -> Callable:
         """track step decorator
         Track step in calling modules. If use decorator to track step, the step and the trace id will be always a whole new ones.
@@ -80,6 +54,7 @@ class BaseTracker(ABC):
             step_type=step_type,
             step_name=step_name,
             model=model,
+            only_track_llm_messages=only_track_llm_messages,
         )
     
         if callable(func_name):
@@ -100,6 +75,7 @@ class BaseTracker(ABC):
         tags: List[str] | None = None,
         trace_name: str | None = None,
         model: str | None = None,
+        only_track_llm_messages: Provider | None = None,
     ):
         """track trace decorator
         Track trace in calling modules.
@@ -121,6 +97,7 @@ class BaseTracker(ABC):
             is_trace=True,
             trace_name=trace_name,
             model=model,
+            only_track_llm_messages=only_track_llm_messages,
         )
     
         if callable(func_name):
