@@ -54,7 +54,7 @@ class Conversation:
     project_name: str
     id: str
     name: str
-    tags: List[str] = field(default_factory=list)
     traces: List[Trace]
     start_time: datetime
     last_update_time: datetime
+    tags: List[str] = field(default_factory=list)
