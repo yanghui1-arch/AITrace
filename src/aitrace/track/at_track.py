@@ -20,7 +20,7 @@ class AITraceTracker(BaseTracker):
         )
         # track passing llm messages
         if tracker_options.track_llm:
-            llm_inputs: Dict[str, Any] = inspect_helper.inspect_llm(func=func, provider=tracker_options.track_llm)
+            llm_inputs: Dict[str, Any] = inspect_helper.inspect_llm_inputs(func=func, provider=tracker_options.track_llm)
             inputs: Dict[str, Dict[str, Any]] = {
                 "llm_inputs": llm_inputs,
                 "func_inputs": inputs,
@@ -37,8 +37,24 @@ class AITraceTracker(BaseTracker):
     @override
     def end_output_exception_preprocess(
         self,
-        output: Any,
+        func:Callable,
+        output: Any | None,
         error_info: str | None,
         tracker_options: TrackerOptions,
     ) -> args_helper.EndArguments:
-        ...
+        
+        final_output = {}
+        if output and isinstance(output, Dict) is False:
+            final_output['output'] = output
+        
+        if tracker_options.track_llm:
+            llm_outputs: Dict[str, Any] = inspect_helper.inspect_llm_outputs(func=func, provider=tracker_options.track_llm)
+            final_output['llm_outputs'] = llm_outputs
+
+        return args_helper.EndArguments(
+            tags=tracker_options.tags,
+            output=final_output,
+            project_name=tracker_options.project_name,
+            model=tracker_options.model,
+            error_info=error_info
+        )

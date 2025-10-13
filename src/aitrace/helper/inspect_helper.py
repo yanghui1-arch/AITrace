@@ -38,10 +38,11 @@ class Provider(Enum):
     QWEN = 'qwen'
     OLLAMA = 'ollama'
 
-def inspect_llm(func: Callable, provider: Provider | List[Provider]) -> Dict[str, Any]:
+# inspect llm inputs
+def inspect_llm_inputs(func: Callable, provider: Provider | List[Provider]) -> Dict[str, Any]:
     if isinstance(provider, Provider):
         if provider == Provider.OPENAI:
-            return inspect_openai(func=func)
+            return inspect_openai_inputs(func=func)
         else:
             ...
 
@@ -49,11 +50,13 @@ def inspect_llm(func: Callable, provider: Provider | List[Provider]) -> Dict[str
         inspect_info: Dict[str, Dict[str, Any]] = {}
         for _provider in provider:
             if _provider == Provider.OPENAI:
-                inspect_info['openai_inputs'] = inspect_openai(func=func)
+                inspect_info['openai_inputs'] = inspect_openai_inputs(func=func)
             else:
                 ...
 
-def inspect_openai(func: Callable) -> Dict[str, Any]:
+        return inspect_info
+
+def inspect_openai_inputs(func: Callable) -> Dict[str, Any]:
     """inspect openai package"""
     
     """
@@ -101,6 +104,28 @@ def inspect_openai(func: Callable) -> Dict[str, Any]:
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     """
+
+
+# inspect llm outputs 
+def inspect_llm_outputs(func: Callable, provider: Provider | List[Provider]) -> Dict[str, Any]:
+    if isinstance(provider, Provider):
+        if provider == Provider.OPENAI:
+            return inspect_openai_output(func=func)
+        else:
+            ...
+
+    if isinstance(provider, List):
+        inspect_info: Dict[str, Dict[str, Any]] = {}
+        for _provider in provider:
+            if _provider == Provider.OPENAI:
+                inspect_info['openai_inputs'] = inspect_openai_output(func=func)
+            else:
+                ...
+        
+        return inspect_info
+
+def inspect_openai_output(func: Callable) -> Dict[str, Any]:
+    ...
 
 if __name__ == '__main__':
     import functools

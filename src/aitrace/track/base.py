@@ -150,7 +150,12 @@ class BaseTracker(ABC):
                 func_exception = e
             finally:
                 # after track
-                self._after_calling_function(output=result, error_info=error_info, tracker_options=tracker_options)
+                self._after_calling_function(
+                    func=func, 
+                    output=result, 
+                    error_info=error_info, 
+                    tracker_options=tracker_options
+                )
                 if func_exception is not None:
                     raise func_exception
                 else:
@@ -194,7 +199,7 @@ class BaseTracker(ABC):
         if tracker_options.is_step:
             at_client.track_step(
                 project_name=tracker_options.project_name,
-                input=inspect_helper.parse_to_dict_input(func=func, args=args, kwargs=kwargs),
+                input=start_arguments.input,
                 output=None,
                 name=tracker_options.step_name,
                 type=tracker_options.step_type,
@@ -205,7 +210,7 @@ class BaseTracker(ABC):
         elif tracker_options.is_trace:
             at_client.track_trace(
                 project_name=tracker_options.project_name,
-                input=inspect_helper.parse_to_dict_input(func=func, args=args, kwargs=kwargs),
+                input=start_arguments.input,
                 output=None,
                 # TODO: Define whether tracks can be get in local or from remote. 
                 tracks=None,
@@ -219,7 +224,8 @@ class BaseTracker(ABC):
 
     def _after_calling_function(
         self,
-        output:Any,
+        func: Callable,
+        output: Any,
         error_info: str | None,
         tracker_options: TrackerOptions
     ):
@@ -232,13 +238,19 @@ class BaseTracker(ABC):
         """
 
         try:
-            output: args_helper.EndArguments = self.end_output_exception_preprocess(
+            end_args: args_helper.EndArguments = self.end_output_exception_preprocess(
+                func=func,
                 output=output,
                 error_info=error_info,
                 tracker_options=tracker_options
             )
-        except Exception:
-            output = args_helper.EndArguments(
+        except Exception as e:
+            print(str(e))
+
+            if output and isinstance(output, Dict) is False:
+                output['output'] = output
+
+            end_args = args_helper.EndArguments(
                 tags=tracker_options.tags,
                 output=output,
                 project_name=tracker_options.project_name,
@@ -247,23 +259,24 @@ class BaseTracker(ABC):
             )
 
         if tracker_options.is_step:
+            #TODO: pop the latest step
             at_client.track_step(
                 project_name=tracker_options.project_name,
                 input=None,
-                output=output,
+                output=end_args.output,
                 name=tracker_options.step_name,
                 type=tracker_options.step_type,
                 tags=tracker_options.tags,
                 model=tracker_options.model,
                 error_info=error_info,
-                usage=output.usage,
+                usage=end_args.usage,
             )
 
         elif tracker_options.is_trace:
             at_client.track_trace(
                 project_name=tracker_options.project_name,
                 input=None,
-                output=output,
+                output=end_args.output,
                 name=tracker_options.trace_name,
                 tags=tracker_options.tags,
                 model=tracker_options.model,
@@ -288,6 +301,7 @@ class BaseTracker(ABC):
     @abstractmethod
     def end_output_exception_preprocess(
         self,
+        func: Callable,
         output: Any,
         error_info: str | None,
         tracker_options: TrackerOptions,
