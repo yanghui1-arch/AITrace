@@ -11,3 +11,11 @@ class AITraceTracker(BaseTracker):
         kwargs: Dict[str, Any]
     ):
         ...
+
+    def end_output_exception_preprocess(
+        self,
+        output: Any,
+        error_info: str | None,
+        tracker_options: TrackerOptions,
+    ):
+        ...

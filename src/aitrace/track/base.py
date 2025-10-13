@@ -283,3 +283,12 @@ class BaseTracker(ABC):
         kwargs: Dict[str, Any]
     ):
         ...
+
+    @abstractmethod
+    def end_output_exception_preprocess(
+        self,
+        output: Any,
+        error_info: str | None,
+        tracker_options: TrackerOptions,
+    ):
+        ...
