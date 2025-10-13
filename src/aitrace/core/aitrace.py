@@ -55,7 +55,7 @@ class AITrace:
             tags = []
 
         # if input is not Dict type -> transfer it as a Dict type.
-        if isinstance(input, Dict) is False:
+        if input is not None and isinstance(input, Dict) is False:
             input = {"input": input}
 
         step = Step(
