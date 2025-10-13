@@ -1,5 +1,5 @@
 import inspect
-from typing import Callable, Tuple, Dict, Any
+from typing import Callable, Tuple, Dict, List, Any
 
 def parse_to_dict_input(
     func: Callable,
@@ -23,6 +23,35 @@ def parse_to_dict_input(
     bound_args.apply_defaults()
     
     return dict(bound_args.arguments)
+
+
+#################################################################
+#                 inspect about llm                             #
+#################################################################
+from enum import Enum
+
+class Provider(Enum):
+    OPENAI = 'openai'
+    GOOGLE = 'google'
+    ANTHROPIC = 'anthropic'
+    DEEPSEEK = 'deepseek'
+    QWEN = 'qwen'
+    OLLAMA = 'ollama'
+
+def inspect_llm(func: Callable, provider: Provider | List[Provider]) -> Dict[str, Any]:
+    if isinstance(provider, Provider):
+        if provider == Provider.OPENAI:
+            return inspect_openai(func=func)
+        else:
+            ...
+
+    if isinstance(provider, List):
+        inspect_info: Dict[str, Dict[str, Any]] = {}
+        for _provider in provider:
+            if _provider == Provider.OPENAI:
+                inspect_info['openai_inputs'] = inspect_openai(func=func)
+            else:
+                ...
 
 def inspect_openai(func: Callable) -> Dict[str, Any]:
     """inspect openai package"""

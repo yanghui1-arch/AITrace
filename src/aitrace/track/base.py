@@ -29,7 +29,7 @@ class BaseTracker(ABC):
         step_type: StepType = StepType.CUSTOMIZED,
         step_name: str | None = None,
         model: str | None = None,
-        track_llm_messages: Provider | List[Provider] | None = None
+        track_llm: Provider | List[Provider] | None = None
     ) -> Callable:
         """track step decorator
         Track step in calling modules. If use decorator to track step, the step and the trace id will be always a whole new ones.
@@ -42,6 +42,8 @@ class BaseTracker(ABC):
             step_type(StepType): step type. Default to `StepType.CUSTOMIZED`.
             step_name(str | None): step name. Default to `None`.
             model(str | None): using model name. Default to `None`. If you are using llama you can set the field to `llama`.
+            track_llm(Provider | List[Provider] | None): track a certain llm. Default to `None`. 
+                                                    If `track_llm` is not `None`, AITrace will track provider's api.
             
         Returns:
             Callable: decorator
@@ -54,7 +56,7 @@ class BaseTracker(ABC):
             step_type=step_type,
             step_name=step_name,
             model=model,
-            track_llm_messages=track_llm_messages,
+            track_llm=track_llm,
         )
     
         if callable(func_name):
@@ -75,7 +77,7 @@ class BaseTracker(ABC):
         tags: List[str] | None = None,
         trace_name: str | None = None,
         model: str | None = None,
-        track_llm_messages: Provider | List[Provider] | None = None,
+        track_llm: Provider | List[Provider] | None = None,
     ):
         """track trace decorator
         Track trace in calling modules.
@@ -86,6 +88,8 @@ class BaseTracker(ABC):
             tags(List[str] | None): tags of tracking traces. Default to `None`.
             trace_name(str | None): trace name. Default to `None`.
             model(str | None): using model name. Default to `None`. If you are using llama you can set it `llama`.
+            track_llm(Provider | List[Provider] | None): track a certain llm. Default to `None`. 
+                                                    If `track_llm` is not `None`, AITrace will track provider's api. 
 
         Returns:
             Callable: decorator
@@ -97,7 +101,7 @@ class BaseTracker(ABC):
             is_trace=True,
             trace_name=trace_name,
             model=model,
-            track_llm_messages=track_llm_messages,
+            track_llm=track_llm,
         )
     
         if callable(func_name):

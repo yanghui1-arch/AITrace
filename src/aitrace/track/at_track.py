@@ -19,8 +19,8 @@ class AITraceTracker(BaseTracker):
             kwargs=kwargs
         )
         # track passing llm messages
-        if tracker_options.track_llm_messages:
-            llm_inputs: Dict[str, Any] = inspect_helper.inspect_openai(func)
+        if tracker_options.track_llm:
+            llm_inputs: Dict[str, Any] = inspect_helper.inspect_llm(func=func, provider=tracker_options.track_llm)
             inputs: Dict[str, Dict[str, Any]] = {
                 "llm_inputs": llm_inputs,
                 "func_inputs": inputs,
