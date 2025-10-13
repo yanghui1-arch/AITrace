@@ -29,7 +29,7 @@ class BaseTracker(ABC):
         step_type: StepType = StepType.CUSTOMIZED,
         step_name: str | None = None,
         model: str | None = None,
-        only_track_llm_messages: Provider | None = None
+        track_llm_messages: Provider | List[Provider] | None = None
     ) -> Callable:
         """track step decorator
         Track step in calling modules. If use decorator to track step, the step and the trace id will be always a whole new ones.
@@ -54,7 +54,7 @@ class BaseTracker(ABC):
             step_type=step_type,
             step_name=step_name,
             model=model,
-            only_track_llm_messages=only_track_llm_messages,
+            track_llm_messages=track_llm_messages,
         )
     
         if callable(func_name):
@@ -75,7 +75,7 @@ class BaseTracker(ABC):
         tags: List[str] | None = None,
         trace_name: str | None = None,
         model: str | None = None,
-        only_track_llm_messages: Provider | None = None,
+        track_llm_messages: Provider | List[Provider] | None = None,
     ):
         """track trace decorator
         Track trace in calling modules.
@@ -97,7 +97,7 @@ class BaseTracker(ABC):
             is_trace=True,
             trace_name=trace_name,
             model=model,
-            only_track_llm_messages=only_track_llm_messages,
+            track_llm_messages=track_llm_messages,
         )
     
         if callable(func_name):

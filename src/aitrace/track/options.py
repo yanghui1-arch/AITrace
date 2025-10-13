@@ -20,7 +20,7 @@ class TrackerOptions:
         model(str | None): using model name. Default to `None`.
         step_name(str | None): step name. Default to `None`.
         trace_name(str | None): trace name. Default to `None`.
-        only_track_llm_messages(Provider | None): which provider to track llm messages only. Default to `None`.
+        track_llm_messages(Provider | List[Provider] | None): which provider to track llm messages. Default to `None`.
     """
 
     project_name: str
@@ -32,7 +32,7 @@ class TrackerOptions:
     model: str | None = None
     step_name: str | None = None
     trace_name: str | None = None
-    only_track_llm_messages: "Provider" | None = None
+    track_llm_messages: "Provider" | List["Provider"] | None = None
 
 class Provider(Enum):
     OPENAI = 'openai'
