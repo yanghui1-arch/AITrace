@@ -20,15 +20,15 @@ class StartArguments(BaseArguments):
     input: Dict[str, Any] | None = None
     project_name: str | None = None
     model: str | None = None
+    usage: int | None = None
 
 @dataclass
 class EndArguments(BaseArguments):
 
-    func_name: str
     tags: List[str] | None = None
     input: Dict[str, Any] | None = None
     output: Dict[str, Any] | None = None
     project_name: str | None = None
     model: str | None = None
     error_info: str | None = None
-
+    usage: int | None = None

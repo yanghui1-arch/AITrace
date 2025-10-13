@@ -21,6 +21,7 @@ class Step:
     output: Any | None = None
     error_info: str | None = None
     model: str | None = None
+    usage: int | None = None
 
 @dataclass
 class Track:
@@ -35,6 +36,10 @@ class Track:
     def project_name(self):
         return self._step.project_name
     
+    @property
+    def usage(self) -> int | None:
+        return self._step.usage
+
 @dataclass
 class Trace:
     project_name: str
@@ -49,6 +54,13 @@ class Trace:
     error_info: str | None = None
     last_update_timestamp: datetime = field(default_factory=datetime.now)
 
+    @property
+    def usage(self) -> int:
+        if self.tracks:
+            return sum([track.usage for track in self.tracks if track.usage])
+        else:
+            return 0
+
 @dataclass
 class Conversation:
     project_name: str
@@ -58,3 +70,7 @@ class Conversation:
     start_time: datetime
     last_update_time: datetime
     tags: List[str] = field(default_factory=list)
+
+    @property
+    def usage(self):
+        return sum([trace.usage for trace in self.traces])

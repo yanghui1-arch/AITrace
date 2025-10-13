@@ -18,6 +18,7 @@ class AITrace:
         type: StepType = StepType.CUSTOMIZED,
         tags: List[str] | None = None,
         model: str | None = None,
+        usage: int | None = None,
         error_info: str | None = None,
         step_id: str | UUID | int | None = None,
         trace_id: str | UUID | int | None = None,
@@ -35,6 +36,7 @@ class AITrace:
             type(StepType): step type. Default to `StepType.CUSTOMIZED`.
             tags(List[str] | None): step tags. Default to `None`. If it's None, it will be set an empty list.
             model(str | None): model name. Probably using a llm model in the step. Default to `None`.
+            usage(int | None): llm token usage. Default to `None`.
             error_info(str | None): error information while occuring errors. Default to `None`.
             step_id(str | UUID | int | None): step id offered by caller. Default to `None`. If it's None, create a new uuid7 for step.
             trace_id(str | UUID | int | None): trace id which the step belongs to. Default to `None`. If it's None, the step
@@ -68,7 +70,8 @@ class AITrace:
             input=input,
             output=output,
             error_info=error_info,
-            model=model
+            model=model,
+            usage=usage,
         )
 
         print(step.__dict__)

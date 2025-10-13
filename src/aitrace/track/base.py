@@ -161,7 +161,7 @@ class BaseTracker(ABC):
         args:Tuple,
         kwargs:Dict[str, Any]
     ):
-        """ prepare and log input before track function.
+        """ prepare and store input into storage context before calling function.
 
         Args:
             func(Callable): func
@@ -171,7 +171,7 @@ class BaseTracker(ABC):
         """
         
         try:
-            start_arguments = self.start_inputs_args_preprocess(
+            start_arguments:args_helper.StartArguments = self.start_inputs_args_preprocess(
                 func=func,
                 tracker_options=tracker_options,
                 args=args,
@@ -186,7 +186,7 @@ class BaseTracker(ABC):
                 tags=tracker_options.tags,
                 project_name=tracker_options.project_name
             )
-
+            
         if tracker_options.is_step:
             at_client.track_step(
                 project_name=tracker_options.project_name,
@@ -195,7 +195,8 @@ class BaseTracker(ABC):
                 name=tracker_options.step_name,
                 type=tracker_options.step_type,
                 tags=tracker_options.tags,
-                model=tracker_options.model
+                model=tracker_options.model,
+                usage=start_arguments.usage,
             )
         elif tracker_options.is_trace:
             at_client.track_trace(
@@ -218,10 +219,28 @@ class BaseTracker(ABC):
         error_info: str | None,
         tracker_options: TrackerOptions
     ):
-        """ prepare and log output after track function """
+        """ prepare and log output after track function
+        
+        Arg:
+            output(Any): output from decorated function.
+            error_info(str | None): error information during executing decorated function.
+            tracker_options(TrackerOption): tracker options.
+        """
 
-        if not isinstance(output, Dict):
-            output = {"output": output}
+        try:
+            output: args_helper.EndArguments = self.end_output_exception_preprocess(
+                output=output,
+                error_info=error_info,
+                tracker_options=tracker_options
+            )
+        except Exception:
+            output = args_helper.EndArguments(
+                tags=tracker_options.tags,
+                output=output,
+                project_name=tracker_options.project_name,
+                model=tracker_options.model,
+                error_info=error_info,
+            )
 
         if tracker_options.is_step:
             at_client.track_step(
@@ -233,6 +252,7 @@ class BaseTracker(ABC):
                 tags=tracker_options.tags,
                 model=tracker_options.model,
                 error_info=error_info,
+                usage=output.usage,
             )
 
         elif tracker_options.is_trace:
@@ -243,7 +263,7 @@ class BaseTracker(ABC):
                 name=tracker_options.trace_name,
                 tags=tracker_options.tags,
                 model=tracker_options.model,
-                error_info=error_info
+                error_info=error_info,
             )
 
         else:
