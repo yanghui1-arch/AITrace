@@ -94,6 +94,19 @@ class AITraceStorageContext:
         self._steps.set(steps[:-1])
         return top_step
     
+    def get_top_step(self) -> Step | None:
+        """get top step data
+        The function works as stack. So top step is just get the top and not remove the top data.
+
+        Returns:
+            Step | None: top step data if self._steps has data else return None.
+        """
+        
+        steps = self._steps.get()
+        if len(steps) == 0:
+            return None
+        return steps[-1]
+    
     def set_trace(self, current_trace: Trace | None):
         """set a new trace
         
@@ -114,5 +127,15 @@ class AITraceStorageContext:
         trace = self._trace.get()
         self._trace.set(None)
         return trace
+    
+    def get_current_trace(self) -> Trace | None:
+        """get current trace data
+        
+        Returns:
+            Trace | None: return current trace if has trace else return None
+        """
+
+        current_trace: Trace | None = self._trace.get()
+        return current_trace
 
 aitrace_storage_context = AITraceStorageContext()
