@@ -1,9 +1,8 @@
-from .record import Record
-from .trace import Trace
-from .metadata import MetaData
+from .key_models import Step, Trace, Conversation, Track
 
 __all__ = [
-    "Record",
+    "Step",
     "Trace",
-    "MetaData"
+    "Conversation",
+    "Track",
 ]
