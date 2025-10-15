@@ -51,13 +51,15 @@ class Trace:
     tags: List[str] = field(default_factory=list)
     input: Dict[str, Any] | None = None
     output: Any | None = None
-    tracks: List[Track] = field(default_factory=list)
+    tracks: List[Track] | None = None
     error_info: str | None = None
     last_update_timestamp: datetime = field(default_factory=datetime.now)
 
     @property
     def usage(self) -> int:
-        return sum([track.usage for track in self.tracks if track.usage])
+        if self.tracks:
+            return sum([track.usage for track in self.tracks if track.usage])
+        return 0
 
 @dataclass
 class Conversation:
