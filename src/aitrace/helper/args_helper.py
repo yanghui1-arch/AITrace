@@ -4,6 +4,7 @@ from typing import Optional, Any, List, Dict
 
 from . import id_helper
 from ..models import Step, Trace, StepType, Track
+from .. import context
 
 @dataclass
 class BaseArguments:
@@ -49,9 +50,11 @@ def create_new_step(
     error_info: str | None = None,
     step_id: str | UUID | int | None = None,
     trace_id: str | UUID | int | None = None,
+    parent_step_id: str | UUID | int | None = None,
     **kwargs
 ) -> Step:
     """create a new step data
+    If not pass a parent step id, context will try to get the top step and make the top step id as new step parent id.
 
     Args:
         project_name(str): project name.
@@ -68,6 +71,7 @@ def create_new_step(
         trace_id(str | UUID | int | None): trace id which the step belongs to. Default to `None`. If it's None, the step
                                             will be thought as belongs to a new trace and AITrace will create a new uuid7 for the
                                             new trace.
+        parent_step_id(str | UUID | int | None): parent step id of this step data. Default to `None`.
 
     Returns:
         Step: step creation
@@ -82,15 +86,21 @@ def create_new_step(
     if tags is None:
         tags = []
 
-    # if input is not Dict type -> transfer it as a Dict type.
+    # if input is not Dict type -> transfer it to a Dict type.
     if input is not None and isinstance(input, Dict) is False:
         input = {"input": input}
+    
+    # process parent step id
+    if not parent_step_id:
+        parent_step: Step | None = context.get_storage_top_step_data()
+        parent_step_id: str | None = parent_step.id if parent_step else None
 
     step = Step(
         project_name=project_name,
         name=name,
         id=step_id,
         trace_id=trace_id,
+        parent_step_id=parent_step_id,
         type=type,
         tags=tags,
         input=input,

@@ -15,6 +15,7 @@ class Step:
     name: str
     id: str
     trace_id: str
+    parent_step_id: str | None = None
     type: StepType = StepType.CUSTOMIZED
     tags: List[str] = field(default_factory=list)
     input: Dict[str, Any] | None = None
