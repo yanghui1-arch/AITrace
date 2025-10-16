@@ -51,10 +51,10 @@ def create_new_step(
     step_id: str | UUID | int | None = None,
     trace_id: str | UUID | int | None = None,
     parent_step_id: str | UUID | int | None = None,
-    **kwargs
 ) -> Step:
     """create a new step data
     If not pass a parent step id, context will try to get the top step and make the top step id as new step parent id.
+    If not give a trace id, context will try to get the current trace if current trace exists this step's trace id is its id. Otherwise generate a new one.
 
     Args:
         project_name(str): project name.
@@ -80,7 +80,9 @@ def create_new_step(
     if step_id is None:
         step_id = id_helper.generate_id()
     if trace_id is None:
-        trace_id = id_helper.generate_id()
+        current_trace = context.get_storage_current_trace_data()
+        trace_id = current_trace.id if current_trace else id_helper.generate_id()
+        
     if name is None:
         name = type.value
     if tags is None:

@@ -108,13 +108,12 @@ class AITraceStorageContext:
         return steps[-1]
     
     def set_trace(self, current_trace: Trace | None):
-        """set a new trace
+        """set the current trace
         
         Args:
             current_trace(Trace | None): current trace. It maybe a None type for no current trace.
         """
-
-        assert self._trace.get() is None, "Ensure _trace is empty before calling set_trace"
+        
         self._trace.set(current_trace)
     
     def pop_trace(self) -> Trace | None:

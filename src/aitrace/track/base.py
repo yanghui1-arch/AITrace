@@ -2,14 +2,16 @@ from typing import Callable, Any, Tuple, Dict, List
 from abc import ABC, abstractmethod
 import functools
 
-from ..models.key_models import StepType
 from .options import TrackerOptions, Provider
+from ..models.key_models import StepType, Step, Trace
 from ..helper import args_helper, inspect_helper
 from ..core.aitrace import at_client
+from .. import context
 
 
 class BaseTracker(ABC):
     """ Base tracker to track all output
+    Any decorated with tracker can be considered as a step.
     Every tracker should be extended `BaseTracker` class.
     Following methods need to be implemented in subclass.
         * start_inputs_args_preprocess: preprocess start input before calling function
@@ -21,7 +23,7 @@ class BaseTracker(ABC):
     def __init__(self):
         self.provider: str | None = None
  
-    def track_step(
+    def track(
         self,
         func_name: str | Callable,
         project_name: str,
@@ -52,7 +54,6 @@ class BaseTracker(ABC):
         tracker_options = TrackerOptions(
             project_name=project_name,
             tags=tags,
-            is_step=True,
             step_type=step_type,
             step_name=step_name,
             model=model,
@@ -69,52 +70,7 @@ class BaseTracker(ABC):
             return self._decorator(func=func, tracker_options=tracker_options)
         
         return decorator
-
-    def track_trace(
-        self,
-        func_name: str | Callable,
-        project_name: str,
-        tags: List[str] | None = None,
-        trace_name: str | None = None,
-        model: str | None = None,
-        track_llm: Provider | List[Provider] | None = None,
-    ):
-        """track trace decorator
-        Track trace in calling modules.
-
-        Args:
-            func_name(str | Callable): caller can set it they want to name with 'str' type. If caller doesn't set, it will be `Callable`.
-            project_name(str): current work project name.
-            tags(List[str] | None): tags of tracking traces. Default to `None`.
-            trace_name(str | None): trace name. Default to `None`.
-            model(str | None): using model name. Default to `None`. If you are using llama you can set it `llama`.
-            track_llm(Provider | List[Provider] | None): track a certain llm. Default to `None`. 
-                                                    If `track_llm` is not `None`, AITrace will track provider's api. 
-
-        Returns:
-            Callable: decorator
-        """
-        
-        tracker_options = TrackerOptions(
-            project_name=project_name,
-            tags=tags,
-            is_trace=True,
-            trace_name=trace_name,
-            model=model,
-            track_llm=track_llm,
-        )
     
-        if callable(func_name):
-            func = func_name
-            return self._decorator(func=func, tracker_options=tracker_options)
-        
-        tracker_options.func_name = func_name
-
-        def decorator(func:Callable):
-            return self._decorator(func=func, tracker_options=tracker_options)
-        
-        return decorator
-
     def _decorator(
         self,
         func: Callable,
@@ -195,32 +151,29 @@ class BaseTracker(ABC):
                 tags=tracker_options.tags,
                 project_name=tracker_options.project_name
             )
-            
-        if tracker_options.is_step:
-            at_client.track_step(
+        
+        if not context.get_storage_current_trace_data():
+            current_trace = args_helper.create_new_trace(
                 project_name=tracker_options.project_name,
                 input=start_arguments.input,
-                output=None,
-                name=tracker_options.step_name,
-                type=tracker_options.step_type,
-                tags=tracker_options.tags,
-                model=tracker_options.model,
-                usage=start_arguments.usage,
-            )
-        elif tracker_options.is_trace:
-            at_client.track_trace(
-                project_name=tracker_options.project_name,
-                input=start_arguments.input,
-                output=None,
-                # TODO: Define whether tracks can be get in local or from remote. 
-                tracks=None,
                 name=tracker_options.trace_name,
                 tags=tracker_options.tags,
                 model=tracker_options.model,
             )
-        else:
-            raise ValueError("Value error in tracker decorator. before calling function." \
-        "Please check whether set is_trace=True or is_step=True in your tracker_options.One of them should be True.")
+            context.set_storage_trace(current_trace=current_trace)
+
+        new_step: Step = args_helper.create_new_step(
+            project_name=tracker_options.project_name,
+            input=start_arguments.input,
+            name=tracker_options.step_name,
+            type=tracker_options.step_type,
+            tags=tracker_options.tags,
+            model=tracker_options.model,
+            usage=start_arguments.usage,
+        )
+        
+        # add step to context
+        context.add_storage_step(new_step=new_step)
 
     def _after_calling_function(
         self,
