@@ -82,14 +82,17 @@ class AITraceStorageContext:
         old_steps += (new_step, )
         self._steps.set(old_steps)
     
-    def pop_step(self) -> Step:
+    def pop_step(self) -> Step | None:
         """pop step stack to get the top step data and remove it
         
         Returns:
-            Step: top step
+            Step | None: top step. If no steps retrun None.
         """
 
         steps = self._steps.get()
+        if len(steps) == 0:
+            return None
+
         top_step: Step = steps[-1]
         self._steps.set(steps[:-1])
         return top_step
