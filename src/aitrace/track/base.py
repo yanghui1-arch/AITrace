@@ -1,9 +1,10 @@
 from typing import Callable, Any, Tuple, Dict, List
 from abc import ABC, abstractmethod
+from datetime import datetime, timezone, timedelta
 import functools
 
 from .options import TrackerOptions, Provider
-from ..models.key_models import StepType, Step, Trace
+from ..models.key_models import StepType, Step, Trace, Track
 from ..helper import args_helper, inspect_helper
 from ..core.aitrace import at_client
 from .. import context
@@ -151,7 +152,7 @@ class BaseTracker(ABC):
                 tags=tracker_options.tags,
                 project_name=tracker_options.project_name
             )
-        
+
         if not context.get_storage_current_trace_data():
             current_trace = args_helper.create_new_trace(
                 project_name=tracker_options.project_name,
@@ -211,34 +212,41 @@ class BaseTracker(ABC):
                 error_info=error_info,
             )
 
-        if tracker_options.is_step:
-            #TODO: pop the latest step
-            at_client.track_step(
+        current_step: Step | None = context.pop_storage_step()
+        if not current_step:
+            # TODO: Log the error information and create a new step to prevent executing exception.
+            current_step: Step = args_helper.create_new_step(
                 project_name=tracker_options.project_name,
-                input=None,
-                output=end_args.output,
+                input=end_args.input,
                 name=tracker_options.step_name,
                 type=tracker_options.step_type,
                 tags=tracker_options.tags,
                 model=tracker_options.model,
-                error_info=error_info,
-                usage=end_args.usage,
             )
+        # update current step
+        current_step.output = end_args.output
+        current_step.error_info = end_args.error_info
+        current_step.usage = end_args.usage
 
-        elif tracker_options.is_trace:
-            at_client.track_trace(
+        # update trace
+        if not context.get_storage_current_trace_data():
+            current_trace = args_helper.create_new_trace(
                 project_name=tracker_options.project_name,
-                input=None,
-                output=end_args.output,
+                input=end_args.input,
                 name=tracker_options.trace_name,
                 tags=tracker_options.tags,
                 model=tracker_options.model,
-                error_info=error_info,
             )
-
-        else:
-            raise ValueError("Value error in tracker decorator after calling function. " \
-        "Please check whether set is_trace=True or is_step=True in your tracker_options.One of them should be True.")
+            context.set_storage_trace(current_trace=current_trace)
+        
+        current_trace: Trace = context.get_storage_current_trace_data()
+        if not current_trace.tracks:
+            current_trace.tracks = []
+        # TODO: add a selectable region to track.
+        current_trace.tracks.append(Track(_step=current_step, call_timestamp=datetime.now(timezone(timedelta(hours=8)))))
+        context.set_storage_trace(current_trace=current_trace)
+        print(current_trace)
+        # TODO: Post a request to server
 
 
     @abstractmethod
