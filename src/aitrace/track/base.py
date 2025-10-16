@@ -244,6 +244,14 @@ class BaseTracker(ABC):
             current_trace.tracks = []
         # TODO: add a selectable region to track.
         current_trace.tracks.append(Track(_step=current_step, call_timestamp=datetime.now(timezone(timedelta(hours=8)))))
+
+        # TODO: improve current trace final output
+        # The easist way to record current trace output. But it's not for the final output just every step output.
+        if error_info is None:
+            current_trace.output = end_args.output
+        else:
+            current_trace.output = None
+
         context.set_storage_trace(current_trace=current_trace)
         print(current_trace)
         # TODO: Post a request to server
