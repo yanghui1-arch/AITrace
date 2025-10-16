@@ -1,24 +1,12 @@
 from uuid import UUID
-from dataclasses import dataclass
-from typing import Optional, Any, List, Dict
+from typing import Any, List, Dict
 
+from pydantic import BaseModel
 from . import id_helper
 from ..models import Step, Trace, StepType, Track
 from .. import context
 
-@dataclass
-class BaseArguments:
-    def to_kwargs(self, ignore_keys: Optional[List[str]] = None) -> Dict[str, Any]:
-        result: Dict[str, Any] = {}
-        ignore_keys = [] if ignore_keys is None else ignore_keys
-        for key, value in self.__dict__.items():
-            if (value is not None) and (key not in ignore_keys):
-                result[key] = value
-
-        return result
-
-@dataclass
-class StartArguments(BaseArguments):
+class StartArguments(BaseModel):
 
     func_name: str
     tags: List[str] | None = None
@@ -27,8 +15,7 @@ class StartArguments(BaseArguments):
     model: str | None = None
     usage: int | None = None
 
-@dataclass
-class EndArguments(BaseArguments):
+class EndArguments(BaseModel):
 
     tags: List[str] | None = None
     input: Dict[str, Any] | None = None
