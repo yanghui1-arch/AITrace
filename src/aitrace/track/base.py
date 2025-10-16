@@ -162,6 +162,9 @@ class BaseTracker(ABC):
                 model=tracker_options.model,
             )
             context.set_storage_trace(current_trace=current_trace)
+        
+        if not tracker_options.step_name:
+            tracker_options.step_name = func.__name__
 
         new_step: Step = args_helper.create_new_step(
             project_name=tracker_options.project_name,
@@ -224,6 +227,7 @@ class BaseTracker(ABC):
                 model=tracker_options.model,
             )
         # update current step
+        # TODO: improve update and try to encapsulate it
         current_step.output = end_args.output
         current_step.error_info = end_args.error_info
         current_step.usage = end_args.usage
