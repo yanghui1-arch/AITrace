@@ -138,8 +138,8 @@ def create_new_trace(
         trace_id = id_helper.generate_id()
     if conversation_id is None:
         conversation_id = id_helper.generate_id()
-    # if name is None:
-    #     name = input['user']
+    if name is None:
+        name = project_name
     if tags is None:
         tags = []
 

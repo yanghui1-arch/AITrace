@@ -253,7 +253,7 @@ class BaseTracker(ABC):
             current_trace.output = None
 
         context.set_storage_trace(current_trace=current_trace)
-        print(current_trace)
+        print(current_trace.model_dump())
         # TODO: Post a request to server
 
 

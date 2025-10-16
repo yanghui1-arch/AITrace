@@ -1,7 +1,9 @@
-from pydantic import BaseModel, Field
+from uuid import UUID
 from enum import Enum
 from datetime import datetime
 from typing import Any, Dict, List
+
+from pydantic import BaseModel, Field
 
 class StepType(Enum):
     CUSTOMIZED = 'customized'
@@ -12,9 +14,9 @@ class StepType(Enum):
 class Step(BaseModel):
     project_name: str
     name: str
-    id: str
-    trace_id: str
-    parent_step_id: str | None = None
+    id: str | UUID
+    trace_id: str | UUID
+    parent_step_id: str | UUID | None = None
     type: StepType = StepType.CUSTOMIZED
     tags: List[str] = Field(default_factory=list)
     input: Dict[str, Any] | None = None
@@ -41,8 +43,8 @@ class Track(BaseModel):
 
 class Trace(BaseModel):
     project_name: str
-    id: str
-    conversation_id: str
+    id: str | UUID | int
+    conversation_id: str | UUID
     name: str
     model: str | None = None
     tags: List[str] = Field(default_factory=list)
@@ -60,7 +62,7 @@ class Trace(BaseModel):
 
 class Conversation(BaseModel):
     project_name: str
-    id: str
+    id: str | UUID
     name: str
     traces: List[Trace]
     start_time: datetime
