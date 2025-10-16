@@ -2,8 +2,7 @@ from uuid import UUID
 from enum import Enum
 from datetime import datetime
 from typing import Any, Dict, List
-
-from pydantic import BaseModel, Field
+from dataclasses import dataclass, field
 
 class StepType(Enum):
     CUSTOMIZED = 'customized'
@@ -11,21 +10,23 @@ class StepType(Enum):
     RETRIEVE = 'retrieve'
     TOOL = 'tool'
 
-class Step(BaseModel):
+@dataclass
+class Step:
     project_name: str
     name: str
     id: str | UUID
     trace_id: str | UUID
     parent_step_id: str | UUID | None = None
     type: StepType = StepType.CUSTOMIZED
-    tags: List[str] = Field(default_factory=list)
+    tags: List[str] = field(default_factory=list)
     input: Dict[str, Any] | None = None
     output: Any | None = None
     error_info: str | None = None
     model: str | None = None
     usage: int | None = None
 
-class Track(BaseModel):
+@dataclass
+class Track:
     _step: Step
     call_timestamp: datetime
 
@@ -41,18 +42,19 @@ class Track(BaseModel):
     def usage(self) -> int | None:
         return self._step.usage
 
-class Trace(BaseModel):
+@dataclass
+class Trace:
     project_name: str
     id: str | UUID | int
     conversation_id: str | UUID
     name: str
     model: str | None = None
-    tags: List[str] = Field(default_factory=list)
+    tags: List[str] = field(default_factory=list)
     input: Dict[str, Any] | None = None
     output: Any | None = None
     tracks: List[Track] | None = None
     error_info: str | None = None
-    last_update_timestamp: datetime = Field(default_factory=datetime.now)
+    last_update_timestamp: datetime = field(default_factory=datetime.now)
 
     @property
     def usage(self) -> int:
@@ -60,14 +62,15 @@ class Trace(BaseModel):
             return sum([track.usage for track in self.tracks if track.usage])
         return 0
 
-class Conversation(BaseModel):
+@dataclass
+class Conversation:
     project_name: str
     id: str | UUID
     name: str
     traces: List[Trace]
     start_time: datetime
     last_update_time: datetime
-    tags: List[str] = Field(default_factory=list)
+    tags: List[str] = field(default_factory=list)
 
     @property
     def usage(self):
