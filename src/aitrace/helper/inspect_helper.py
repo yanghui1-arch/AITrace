@@ -147,7 +147,7 @@ if __name__ == '__main__':
 
     # post(1, 2, 3, True)
 
-    start_trace_openai(TrackLLMFunction(name='demotest', provider=Provider.OPENAI))
+    start_trace_openai(TrackLLMFunction(name='demotest', provider=LLMProvider.OPENAI))
     print("START")
     from time import sleep
     sleep(2)
