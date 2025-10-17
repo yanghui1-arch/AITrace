@@ -1,5 +1,10 @@
+import sys
 import inspect
+from dataclasses import dataclass
+from types import FrameType
 from typing import Callable, Tuple, Dict, List, Any
+from .._exception import CallingSDKNotFoundException
+from ..models.common import LLMProvider
 
 def parse_to_dict_input(
     func: Callable,
@@ -30,121 +35,120 @@ def parse_to_dict_input(
 #################################################################
 from enum import Enum
 
-class Provider(Enum):
-    OPENAI = 'openai'
-    GOOGLE = 'google'
-    ANTHROPIC = 'anthropic'
-    DEEPSEEK = 'deepseek'
-    QWEN = 'qwen'
-    OLLAMA = 'ollama'
+@dataclass
+class TrackLLMFunction:
+    name: str
+    provider: LLMProvider
+    inputs: Dict[str, Any] | None = None
+    output: Dict[str, Any] | None = None
+
+    # TODO: Offer a function to exclude Omit and NOTGIVEN
+
+# store
+# to_track_llm_funcs is a queue.
+to_track_llm_funcs: List[TrackLLMFunction] = []
+sys_traces: List[Callable] = []
 
 # inspect llm inputs
-def inspect_llm_inputs(func: Callable, provider: Provider | List[Provider]) -> Dict[str, Any]:
-    if isinstance(provider, Provider):
-        if provider == Provider.OPENAI:
-            return inspect_openai_inputs(func=func)
-        else:
-            ...
+def start_trace_llm(func_name: str, provider: LLMProvider):
+    track_llm_function = TrackLLMFunction(name=func_name, provider=provider)
 
-    if isinstance(provider, List):
-        inspect_info: Dict[str, Dict[str, Any]] = {}
-        for _provider in provider:
-            if _provider == Provider.OPENAI:
-                inspect_info['openai_inputs'] = inspect_openai_inputs(func=func)
+    if provider == LLMProvider.OPENAI:
+        start_trace_openai(track_llm_function=track_llm_function)
+    else:
+        ...
+
+# TODO: The bug of the same function name in different packages or classes. 
+#       Some of them are needed to track llm but the rest don't need.
+def start_trace_openai(track_llm_function: TrackLLMFunction):
+    """start trace openai"""
+
+    def trace_openai(frame: FrameType, event, arg):
+        global to_track_llm_funcs
+        caller_name: str = frame.f_back.f_code.co_name if frame.f_back else ''
+        executing_func_name: str = frame.f_code.co_name
+        locals_ = frame.f_locals
+
+        if event == 'return':
+            if executing_func_name == 'create' and 'self' in locals_:
+                cls_name = type(locals_['self']).__name__
+                module_name = type(locals_['self']).__module__
+                print(f"cls_name: {cls_name}, module_name: {module_name}")
+                if cls_name == 'Completions' and module_name.startswith('openai'):
+                    track_llm_function.output = arg
+                    to_track_llm_funcs.append(track_llm_function)
+            # other openai sdk
             else:
                 ...
 
-        return inspect_info
-
-def inspect_openai_inputs(func: Callable) -> Dict[str, Any]:
-    """inspect openai package"""
-    
-    """
-    openai.chat.completions.create parameters list
-        self,
-        *,
-        messages: Iterable[ChatCompletionMessageParam],
-        model: Union[str, ChatModel],
-        stream: bool,
-        audio: Optional[ChatCompletionAudioParam] | Omit = omit,
-        frequency_penalty: Optional[float] | Omit = omit,
-        function_call: completion_create_params.FunctionCall | Omit = omit,
-        functions: Iterable[completion_create_params.Function] | Omit = omit,
-        logit_bias: Optional[Dict[str, int]] | Omit = omit,
-        logprobs: Optional[bool] | Omit = omit,
-        max_completion_tokens: Optional[int] | Omit = omit,
-        max_tokens: Optional[int] | Omit = omit,
-        metadata: Optional[Metadata] | Omit = omit,
-        modalities: Optional[List[Literal["text", "audio"]]] | Omit = omit,
-        n: Optional[int] | Omit = omit,
-        parallel_tool_calls: bool | Omit = omit,
-        prediction: Optional[ChatCompletionPredictionContentParam] | Omit = omit,
-        presence_penalty: Optional[float] | Omit = omit,
-        prompt_cache_key: str | Omit = omit,
-        reasoning_effort: Optional[ReasoningEffort] | Omit = omit,
-        response_format: completion_create_params.ResponseFormat | Omit = omit,
-        safety_identifier: str | Omit = omit,
-        seed: Optional[int] | Omit = omit,
-        service_tier: Optional[Literal["auto", "default", "flex", "scale", "priority"]] | Omit = omit,
-        stop: Union[Optional[str], SequenceNotStr[str], None] | Omit = omit,
-        store: Optional[bool] | Omit = omit,
-        stream_options: Optional[ChatCompletionStreamOptionsParam] | Omit = omit,
-        temperature: Optional[float] | Omit = omit,
-        tool_choice: ChatCompletionToolChoiceOptionParam | Omit = omit,
-        tools: Iterable[ChatCompletionToolUnionParam] | Omit = omit,
-        top_logprobs: Optional[int] | Omit = omit,
-        top_p: Optional[float] | Omit = omit,
-        user: str | Omit = omit,
-        verbosity: Optional[Literal["low", "medium", "high"]] | Omit = omit,
-        web_search_options: completion_create_params.WebSearchOptions | Omit = omit,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    """
-
-
-# inspect llm outputs 
-def inspect_llm_outputs(func: Callable, provider: Provider | List[Provider]) -> Dict[str, Any]:
-    if isinstance(provider, Provider):
-        if provider == Provider.OPENAI:
-            return inspect_openai_output(func=func)
-        else:
-            ...
-
-    if isinstance(provider, List):
-        inspect_info: Dict[str, Dict[str, Any]] = {}
-        for _provider in provider:
-            if _provider == Provider.OPENAI:
-                inspect_info['openai_inputs'] = inspect_openai_output(func=func)
-            else:
-                ...
+        if event != 'call':
+            return trace_openai
         
-        return inspect_info
+        # if caller_name == track_llm_function.name:
+        #     print(f"caller_name: {caller_name}")
+        #     print(f"executing_function_name: {executing_func_name}")
+        if executing_func_name == 'create' and 'self' in locals_:
+            cls_name = type(locals_['self']).__name__
+            module_name = type(locals_['self']).__module__
+            if cls_name == 'Completions' and module_name.startswith('openai'):
+                llm_inputs = frame.f_locals.copy()
+                track_llm_function.inputs = llm_inputs
+        # other openai sdk
+        else:
+            ...
+        
+        return trace_openai
+    
+    current_sys_trace = sys.gettrace()
+    if current_sys_trace:
+        sys_traces.append(current_sys_trace)
 
-def inspect_openai_output(func: Callable) -> Dict[str, Any]:
-    ...
+    sys.settrace(trace_openai)
+
+def stop_trace_llm():
+    """Stop trace llm
+    It means the root function with sys_traces length is 0.
+    """
+
+    if len(sys_traces):
+        trace = sys_traces.pop()
+        sys.settrace(trace)
+    else:
+        sys.settrace(None)
+    
+    global to_track_llm_funcs
+
+    track_llm_func_in_this_trace = to_track_llm_funcs[0] if to_track_llm_funcs else None
+    if not track_llm_func_in_this_trace:
+        raise CallingSDKNotFoundException()
+    # remove the first element
+    to_track_llm_funcs = to_track_llm_funcs[1:]
+    return track_llm_func_in_this_trace
 
 if __name__ == '__main__':
-    import functools
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            result = func(*args, **kwargs)
-            print(f"decorator {func.__name__}: {parse_to_dict_input(func, args, kwargs)}")
-            return result
-        return wrapper
+    # import functools
+    # def decorator(func):
+    #     @functools.wraps(func)
+    #     def wrapper(*args, **kwargs):
+    #         result = func(*args, **kwargs)
+    #         print(f"decorator {func.__name__}: {parse_to_dict_input(func, args, kwargs)}")
+    #         return result
+    #     return wrapper
 
-    @decorator
-    def init(test_init, k, ms, llm='', ticket={}, *args, **kwargs):
-        ...
+    # @decorator
+    # def init(test_init, k, ms, llm='', ticket={}, *args, **kwargs):
+    #     ...
 
-    init(1, 2, 3, llm='maga', ticket={"key": "value"})
+    # init(1, 2, 3, llm='maga', ticket={"key": "value"})
 
-    @decorator
-    def post(test, b, quick, is_false=False):
-        ...
+    # @decorator
+    # def post(test, b, quick, is_false=False):
+    #     ...
 
-    post(1, 2, 3, True)
+    # post(1, 2, 3, True)
+
+    start_trace_openai(TrackLLMFunction(name='demotest', provider=Provider.OPENAI))
+    print("START")
+    from time import sleep
+    sleep(2)
+    print("END")

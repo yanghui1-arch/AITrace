@@ -2,6 +2,7 @@ from enum import Enum
 from typing import List, Literal
 from dataclasses import dataclass
 from ..models.key_models import StepType
+from ..models.common import LLMProvider
 
 
 @dataclass
@@ -18,8 +19,8 @@ class TrackerOptions:
         model(str | None): using model name. Default to `None`.
         step_name(str | None): step name. Default to `None`.
         trace_name(str | None): trace name. Default to `None`.
-        track_llm(Provider | List[Provider] | None): track a certain llm. Default to `None`. 
-                                                    If `track_llm` is not `None`, AITrace will track provider's api. 
+        track_llm(LLMProvider | None): track a certain llm. Default to `None`. 
+                                        If `track_llm` is not `None`, AITrace will track provider's api. 
     """
 
     project_name: str
@@ -29,12 +30,4 @@ class TrackerOptions:
     model: str | None = None
     step_name: str | None = None
     trace_name: str | None = None
-    track_llm: "Provider" | List["Provider"] | None = None
-
-class Provider(Enum):
-    OPENAI = 'openai'
-    GOOGLE = 'google'
-    ANTHROPIC = 'anthropic'
-    DEEPSEEK = 'deepseek'
-    QWEN = 'qwen'
-    OLLAMA = 'ollama'
+    track_llm: LLMProvider | None = None

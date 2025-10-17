@@ -3,8 +3,9 @@ from abc import ABC, abstractmethod
 from datetime import datetime, timezone, timedelta
 import functools
 
-from .options import TrackerOptions, Provider
+from .options import TrackerOptions
 from ..models.key_models import StepType, Step, Trace, Track
+from ..models.common import LLMProvider
 from ..helper import args_helper, inspect_helper
 from ..core.aitrace import at_client
 from .. import context
@@ -32,7 +33,7 @@ class BaseTracker(ABC):
         step_type: StepType = StepType.CUSTOMIZED,
         step_name: str | None = None,
         model: str | None = None,
-        track_llm: Provider | List[Provider] | None = None
+        track_llm: LLMProvider | None = None
     ) -> Callable:
         """track step decorator
         Track step in calling modules. If use decorator to track step, the step and the trace id will be always a whole new ones.
@@ -45,8 +46,8 @@ class BaseTracker(ABC):
             step_type(StepType): step type. Default to `StepType.CUSTOMIZED`.
             step_name(str | None): step name. Default to `None`.
             model(str | None): using model name. Default to `None`. If you are using llama you can set the field to `llama`.
-            track_llm(Provider | List[Provider] | None): track a certain llm. Default to `None`. 
-                                                    If `track_llm` is not `None`, AITrace will track provider's api.
+            track_llm(LLMProvider | None): track a certain llm. Default to `None`. 
+                                            If `track_llm` is not `None`, AITrace will track provider's api.
             
         Returns:
             Callable: decorator
@@ -205,7 +206,7 @@ class BaseTracker(ABC):
             print(str(e))
 
             if output and isinstance(output, Dict) is False:
-                output['output'] = output
+                output = {'output': output}
 
             end_args = args_helper.EndArguments(
                 tags=tracker_options.tags,

@@ -1,27 +1,26 @@
 from .at_track import AITraceTracker
-from .options import Provider
 
 __all__ = [
     'track_step',
     'track_trace',
-    'Provider'
 ]
 
 tracker = AITraceTracker()
 
-track_step = tracker.track_step
-track_trace = tracker.track_trace
+track = tracker.track
 
 
 if __name__ == '__main__':
-    @track_step(
+    from ..models.common import LLMProvider
+    from openai import OpenAI
+    @track(
         func_name="llm_classisfication",
         project_name="aitrace_demo",
-        tags=['test', 'demo']
+        tags=['test', 'demo'],
+        track_llm=LLMProvider.OPENAI,    
     )
     def llm_classification(film_comment: str):
         prompt = "Please classify the film comment into happy, sad or others. Just tell me result. Don't output anything."
-        from openai import OpenAI
         cli = OpenAI(base_url='https://api.deepseek.com', api_key='')
         llm_counts(film_comment=film_comment)
         return cli.chat.completions.create(
@@ -29,14 +28,14 @@ if __name__ == '__main__':
             model="deepseek-chat"
         ).choices[0].message.content
     
-    @track_step(
+    @track(
         func_name="llm_classisfication",
         project_name="aitrace_demo",
-        tags=['test', 'demo', 'second_demo']
+        tags=['test', 'demo', 'second_demo'],
+        # track_llm=LLMProvider.OPENAI,
     )
     def llm_counts(film_comment: str):
         prompt = "Count the film comment words. just output word number. Don't output anything others."
-        from openai import OpenAI
         cli = OpenAI(base_url='https://api.deepseek.com', api_key='')
         return cli.chat.completions.create(
             messages=[{"role": "user", "content": f"{prompt}\nfilm_comment: {film_comment}"}],
