@@ -27,8 +27,8 @@ class BaseTracker(ABC):
  
     def track(
         self,
-        func_name: str | Callable,
         project_name: str,
+        func_name: str | Callable | None = None,
         tags: List[str] | None = None,
         step_type: StepType = StepType.CUSTOMIZED,
         step_name: str | None = None,
@@ -40,8 +40,8 @@ class BaseTracker(ABC):
         In other words, you cannot set the step id and its belonging trace id. It's recommended to be used in a simple demo.
 
         Args:
-            func_name(str | Callable): caller can set it they want to name with 'str' type. If caller doesn't set, it will be `Callable`.
             project_name(str): current work project name.
+            func_name(str | Callable | None): caller can set it they want to name with 'str' type. If caller doesn't set, it will be `Callable`.
             tags(List[str] | None): tags of tracking steps. Default to `None`.
             step_type(StepType): step type. Default to `StepType.CUSTOMIZED`.
             step_name(str | None): step name. Default to `None`.
