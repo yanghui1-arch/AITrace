@@ -33,7 +33,8 @@ class BaseTracker(ABC):
         step_type: StepType = StepType.CUSTOMIZED,
         step_name: str | None = None,
         model: str | None = None,
-        track_llm: LLMProvider | None = None
+        track_llm: LLMProvider | None = None,
+        llm_ignore_fields: List[str] | None = None,
     ) -> Callable:
         """track step decorator
         Track step in calling modules. If use decorator to track step, the step and the trace id will be always a whole new ones.
@@ -48,6 +49,7 @@ class BaseTracker(ABC):
             model(str | None): using model name. Default to `None`. If you are using llama you can set the field to `llama`.
             track_llm(LLMProvider | None): track a certain llm. Default to `None`. 
                                             If `track_llm` is not `None`, AITrace will track provider's api.
+            llm_ignore_fields(List[str] | None): a list of llm ignore fields name. Default to `None`.
             
         Returns:
             Callable: decorator
@@ -60,6 +62,7 @@ class BaseTracker(ABC):
             step_name=step_name,
             model=model,
             track_llm=track_llm,
+            llm_ignore_fields=llm_ignore_fields,
         )
     
         if callable(func_name):
