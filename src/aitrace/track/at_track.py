@@ -54,7 +54,7 @@ class AITraceTracker(BaseTracker):
         
         if tracker_options.track_llm:
             # stop trace any funcs first
-            track_llm_func = inspect_helper.stop_trace_llm()
+            track_llm_func = inspect_helper.stop_trace_llm(func_name=func.__name__)
 
             llm_inputs: Dict[str, Any] = track_llm_func.inputs
             llm_outputs: Dict[str, Any] = track_llm_func.output

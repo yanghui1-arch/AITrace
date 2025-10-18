@@ -44,6 +44,7 @@ class TrackLLMFunction:
 
     # TODO: Offer a function to exclude Omit and NOTGIVEN
 
+# TODO: it maybe not safe from threading view.
 # store
 # to_track_llm_funcs is a queue.
 to_track_llm_funcs: List[TrackLLMFunction] = []
@@ -105,9 +106,18 @@ def start_trace_openai(track_llm_function: TrackLLMFunction):
 
     sys.settrace(trace_openai)
 
-def stop_trace_llm():
-    """Stop trace llm
+def stop_trace_llm(func_name: str) -> TrackLLMFunction:
+    """Stop trace llm given a function
     It means the root function with sys_traces length is 0.
+    
+    Args:
+        func_name(str): which function name should be stopped to track llm inputs and outputs.
+
+    Returns:
+        TrackLLMFunction: return a matched tracked llm function class.
+    
+    Raises:
+        CallingSDKNotFoundException: when not found function name in the storage list. Generally happens when aitrace code designs.
     """
 
     if len(sys_traces):
@@ -118,11 +128,12 @@ def stop_trace_llm():
     
     global to_track_llm_funcs
 
-    track_llm_func_in_this_trace = to_track_llm_funcs[0] if to_track_llm_funcs else None
-    if not track_llm_func_in_this_trace:
+    match_track_llm_func: List[TrackLLMFunction] = [track_llm_func for track_llm_func in to_track_llm_funcs if track_llm_func.name == func_name]
+    if not match_track_llm_func:
         raise CallingSDKNotFoundException()
-    # remove the first element
-    to_track_llm_funcs = to_track_llm_funcs[1:]
+    
+    track_llm_func_in_this_trace = match_track_llm_func[0]
+    to_track_llm_funcs.remove(track_llm_func_in_this_trace)
     return track_llm_func_in_this_trace
 
 if __name__ == '__main__':
