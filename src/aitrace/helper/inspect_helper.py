@@ -94,7 +94,7 @@ def start_trace_openai(track_llm_function: TrackLLMFunction):
             cls_name = type(locals_['self']).__name__
             module_name = type(locals_['self']).__module__
             if cls_name == 'Completions' and module_name.startswith('openai'):
-                llm_inputs = frame.f_locals.copy()
+                llm_inputs = {k: v for k, v in frame.f_locals.items() if k != 'self'}
                 track_llm_function.inputs = llm_inputs
         # other openai sdk
         else:
