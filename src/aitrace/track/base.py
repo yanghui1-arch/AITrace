@@ -229,6 +229,11 @@ class BaseTracker(ABC):
             )
         # update current step
         # TODO: improve update and try to encapsulate it
+        if end_args.llm_input is not None:
+            func_inputs = current_step.input
+            llm_inputs = end_args.llm_input
+            current_step.input = {'func_inputs': func_inputs, 'llm_inputs': llm_inputs}
+
         current_step.output = end_args.output
         current_step.error_info = end_args.error_info
         current_step.usage = end_args.usage
@@ -237,7 +242,7 @@ class BaseTracker(ABC):
         if not context.get_storage_current_trace_data():
             current_trace = args_helper.create_new_trace(
                 project_name=tracker_options.project_name,
-                input=end_args.input,
+                input=end_args.llm_input,
                 name=tracker_options.trace_name,
                 tags=tracker_options.tags,
                 model=tracker_options.model,
