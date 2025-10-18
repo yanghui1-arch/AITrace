@@ -44,9 +44,11 @@ class TrackLLMFunction:
 
     # TODO: Offer a function to exclude Omit and NOTGIVEN
 
-# TODO: it maybe not safe from threading view.
-# store
-# to_track_llm_funcs is a queue.
+# TODO: it maybe not safe from threading or coroutine view.
+#       later can design it as a ContextVar        
+
+# Store llm execution result and prior sys tracking traces.
+# to_track_llm_funcs stores result based on who ends llm execution more quick. It's not a queue.
 to_track_llm_funcs: List[TrackLLMFunction] = []
 sys_traces: List[Callable] = []
 
