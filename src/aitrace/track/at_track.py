@@ -1,6 +1,7 @@
 from typing import override, Callable, Tuple, Dict, Any
 from .base import BaseTracker, TrackerOptions
 from ..helper import args_helper, inspect_helper
+from ..helper.llm import openai_helper
 
 class AITraceTracker(BaseTracker):
     """AITraceTracker is to track the agent inputs and outputs"""
@@ -56,7 +57,7 @@ class AITraceTracker(BaseTracker):
             # stop trace any funcs first
             track_llm_func = inspect_helper.stop_trace_llm(func_name=func.__name__)
 
-            llm_inputs: Dict[str, Any] = track_llm_func.inputs
+            llm_inputs = openai_helper.remove_chat_completion_input_fields(openai_chat_completion_params=track_llm_func.inputs, ignore_fields=tracker_options.llm_ignore_fields)
             llm_outputs: Dict[str, Any] = track_llm_func.output
             final_output['llm_outputs'] = llm_outputs
 
