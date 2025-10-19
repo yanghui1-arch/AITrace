@@ -21,3 +21,7 @@ Homepage = "https://github.com/yanghui1-arch/AITrace.git"
 
 [project.scripts]
 aitrace = "aitrace.cli:cli"
+
+[tool.setuptools.packages.find]
+where = ['.']
+include = ['aitrace*']
