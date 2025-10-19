@@ -3,6 +3,9 @@ import inspect
 from dataclasses import dataclass
 from types import FrameType
 from typing import Callable, Tuple, Dict, List, Any
+
+from openai.types.chat.chat_completion import ChatCompletion
+
 from .._exception import CallingSDKNotFoundException
 from ..models.common import LLMProvider
 
@@ -40,7 +43,7 @@ class TrackLLMFunction:
     name: str
     provider: LLMProvider
     inputs: Dict[str, Any] | None = None
-    output: Dict[str, Any] | None = None
+    output: ChatCompletion | None = None
 
     # TODO: Offer a function to exclude Omit and NOTGIVEN
 
