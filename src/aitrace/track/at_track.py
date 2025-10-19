@@ -58,8 +58,12 @@ class AITraceTracker(BaseTracker):
             track_llm_func = inspect_helper.stop_trace_llm(func_name=func.__name__)
 
             llm_inputs = openai_helper.remove_chat_completion_input_fields(openai_chat_completion_params=track_llm_func.inputs, ignore_fields=tracker_options.llm_ignore_fields)
-            llm_outputs: Dict[str, Any] = track_llm_func.output
-            final_output['llm_outputs'] = llm_outputs
+            llm_outputs:openai_helper.FilteredFieldsOpenAIChatCompletionsOutput = openai_helper.remove_chat_completion_output_fields(
+                openai_chat_completion_output=track_llm_func.output, 
+                ignore_fields=tracker_options.llm_ignore_fields
+            )
+
+            final_output['llm_outputs'] = llm_outputs.model_dump(exclude_none=True)
 
         return args_helper.EndArguments(
             tags=tracker_options.tags,

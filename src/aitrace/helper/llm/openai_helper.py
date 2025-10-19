@@ -1,9 +1,13 @@
-from dataclasses import dataclass
-from typing import List, Dict, Any
+from typing import Literal, List, Dict, Any
+from datetime import datetime
 
-
-from openai._types import NOT_GIVEN, NotGiven, not_given, omit, Omit
-
+from pydantic import BaseModel
+from openai.types.chat.chat_completion import ChatCompletion, Choice
+from openai.types.completion_usage import CompletionUsage
+from openai.types.chat.chat_completion_message import Annotation
+from openai.types.chat.chat_completion_audio import ChatCompletionAudio
+from openai.types.chat.chat_completion_message_tool_call import ChatCompletionMessageToolCallUnion
+from openai._types import NOT_GIVEN, not_given, omit
 
 def remove_chat_completion_input_fields(
     openai_chat_completion_params: Dict[str, Any],
@@ -43,3 +47,64 @@ def remove_chat_completion_input_fields(
         ):
             openai_chat_completion_params.pop(k)
     return openai_chat_completion_params
+
+class FilteredFieldsOpenAIChatCompletionsOutput(BaseModel):
+    model: str
+    created: datetime
+    content: str | None = None
+    role: Literal["assistant"] | None = None
+    annotations: List[Annotation] | None = None
+    audio: ChatCompletionAudio | None = None
+    tool_calls: List[ChatCompletionMessageToolCallUnion] | None = None
+    choices: List[Choice] | None = None
+    service_tier: Literal["auto", "default", "flex", "scale", "priority"] | None = None
+    system_fingerprint: str | None = None
+    usage: CompletionUsage | None = None
+
+def remove_chat_completion_output_fields(
+        openai_chat_completion_output: ChatCompletion,
+        ignore_fields: List[str] | None,
+        reserve_service_tier: bool = False,
+        reserve_system_fingerprint: bool = False,
+        reserve_usage: bool = True,
+) -> FilteredFieldsOpenAIChatCompletionsOutput:
+    """Remove openai chat completion output fields
+    
+    Args:
+        openai_chat_completion_output(ChatCompletion): openai.chat.completions.create() output
+        ignore_fields(List[str] | None): ignore fields name.
+        reserve_service_tier(bool): whether reserve service tier. Default to `False`.
+        reserve_system_fingerprint(bool): whether reserve system finger print. Default to `False`.
+        reserve_usage(bool): whether reserve usage.
+    """
+
+    outputs = FilteredFieldsOpenAIChatCompletionsOutput(
+        model=openai_chat_completion_output.model,
+        created=datetime.fromtimestamp(timestamp=openai_chat_completion_output.created)
+    )
+    if len(openai_chat_completion_output.choices) == 1:
+        message = openai_chat_completion_output.choices[0].message
+        outputs.content = message.content
+        outputs.role = message.role
+        outputs.annotations = message.annotations
+        outputs.audio = message.audio
+        outputs.tool_calls = message.tool_calls
+    else:
+        outputs.choices = openai_chat_completion_output.choices
+    
+    if reserve_service_tier:
+        outputs.service_tier = openai_chat_completion_output.service_tier
+    if reserve_system_fingerprint:
+        outputs.system_fingerprint = openai_chat_completion_output.system_fingerprint
+    if reserve_usage:
+        outputs.usage = openai_chat_completion_output.usage
+    
+    fields = FilteredFieldsOpenAIChatCompletionsOutput.model_fields
+    if ignore_fields:
+        for ignore_field in ignore_fields:
+            if ignore_field not in fields:
+                import warnings
+                warnings.warn(f"An invalid ignore field name for RemovedFieldsOpenAIChatCompletionsOuptut. Invalid field: `{ignore_field}`.")
+                continue
+            setattr(outputs, ignore_field, None)
+    return outputs
