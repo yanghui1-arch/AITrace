@@ -76,6 +76,9 @@ def remove_chat_completion_output_fields(
         reserve_service_tier(bool): whether reserve service tier. Default to `False`.
         reserve_system_fingerprint(bool): whether reserve system finger print. Default to `False`.
         reserve_usage(bool): whether reserve usage.
+
+    Returns:
+        FilteredFieldsOpenAIChatCompletionsOutput: filter outputs
     """
 
     outputs = FilteredFieldsOpenAIChatCompletionsOutput(
