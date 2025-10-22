@@ -1,8 +1,9 @@
 import httpx
 import functools
 from dataclasses import asdict
+from typing import Any, List, Dict
 from .config import ClientConfig, build_client_config
-from ..models import Step, Trace
+from .schemas.request.log_request import LogStepRequest
 
 class SyncClient:
     """SyncClient is to communicate with server.
@@ -34,11 +35,40 @@ class SyncClient:
 
     def log_step(
         self,
-        step: Step
+        project_name: str,
+        step_name: str,
+        step_id: str,
+        trace_id: str,
+        parent_step_id: str | None,
+        step_type: str,
+        tags: List[str],
+        input: Dict[str, Any] | None,
+        output: Any | None,
+        error_info: str | None,
+        model: str | None,
+        usage: int | None,
     ):
         """Create a step and log it in server."""
-        step_dict = asdict(step)
-        response = self._client.post("/steps", json=step_dict)
+        
+        log_step_req = LogStepRequest(
+            project_name=project_name,
+            step_name=step_name,
+            step_id=step_id,
+            trace_id=trace_id,
+            parent_step_id=parent_step_id,
+            step_type=step_type,
+            tags=tags,
+            input=input,
+            output=output,
+            error_info=error_info,
+            model=model,
+            usage=usage
+        )
+
+        response = self._client.post(
+            "/log/step", 
+            json=log_step_req.model_dump_json()
+        )
         response.raise_for_status()
         return response.json()
 

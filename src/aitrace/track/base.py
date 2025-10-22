@@ -4,11 +4,11 @@ from datetime import datetime, timezone, timedelta
 import functools
 
 from .options import TrackerOptions
+from .. import context
 from ..models.key_models import StepType, Step, Trace, Track
 from ..models.common import LLMProvider
-from ..helper import args_helper, inspect_helper
-from ..core.aitrace import at_client
-from .. import context
+from ..helper import args_helper
+from ..client import sync_client
 
 
 class BaseTracker(ABC):
@@ -269,7 +269,22 @@ class BaseTracker(ABC):
         context.set_storage_trace(current_trace=current_trace)
         print(f"current_trace: {current_trace}")
         # TODO: Post a request to server
+        client: sync_client.SyncClient = sync_client.get_cached_sync_client()
 
+        client.log_step(
+            project_name=current_step.project_name,
+            step_name=current_step.name,
+            step_id=str(current_step.id),
+            trace_id=str(current_step.trace_id),
+            parent_step_id=str(current_step.parent_step_id),
+            step_type=current_step.type,
+            tags=current_step.tags,
+            input=current_step.input,
+            output=current_step.output,
+            error_info=current_step.error_info,
+            model=current_step.model,
+            usage=current_step.usage,
+        )
 
     @abstractmethod
     def start_inputs_args_preprocess(

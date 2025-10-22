@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any, Dict
 
 # TODO: update it before deploy
-DEFAULT_HOST_URL = "localhost:8080"
+DEFAULT_HOST_URL = "http://localhost:8080/api/v0"
 DEFAULT_PROJECT_NAME = "Default project"
 DEFAULT_API_KEY = "<DEFAULT_LOCAL_API_KEY>"
 
