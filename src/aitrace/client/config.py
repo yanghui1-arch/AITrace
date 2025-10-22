@@ -8,10 +8,10 @@ DEFAULT_API_KEY = "<DEFAULT_LOCAL_API_KEY>"
 
 @dataclass
 class ClientConfig:
+    headers: Dict[str, Any]
     host_url: str = DEFAULT_HOST_URL
     project_name: str = DEFAULT_PROJECT_NAME
     apikey: str = DEFAULT_API_KEY
-    headers: Dict[str, Any]
 
 def build_client_config(
     project_name: str | None,
