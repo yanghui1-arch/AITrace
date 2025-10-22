@@ -1,5 +1,6 @@
 import httpx
 import functools
+from dataclasses import asdict
 from .config import ClientConfig, build_client_config
 from ..models import Step, Trace
 
@@ -14,6 +15,7 @@ class SyncClient:
         project_name: str | None = None,
         host_url: str | None = None,
         apikey: str | None = None,
+        timeout_ms: int = 1500,
     ):
         client_config = build_client_config(
             project_name=project_name,
@@ -26,13 +28,21 @@ class SyncClient:
 
         self._client = httpx.Client(
             base_url=client_config.host_url,
-            headers=client_config.headers
+            headers=client_config.headers,
+            timeout=timeout_ms / 1000
         )
 
-    def track_trace(self, ):
-        pass
+    def log_step(
+        self,
+        step: Step
+    ):
+        """Create a step and log it in server."""
+        step_dict = asdict(step)
+        response = self._client.post("/steps", json=step_dict)
+        response.raise_for_status()
+        return response.json()
 
-    def track_step(self, ):
+    def log_trace(self, ):
         pass
 
     @property
