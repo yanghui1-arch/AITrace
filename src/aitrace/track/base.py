@@ -239,7 +239,9 @@ class BaseTracker(ABC):
 
         current_step.output = end_args.output
         current_step.error_info = end_args.error_info
-        current_step.usage = end_args.usage
+        
+        # TODO: add usage and redefine Step class usage type
+        # current_step.usage = end_args.usage
 
         # update trace
         if not context.get_storage_current_trace_data():
@@ -267,7 +269,9 @@ class BaseTracker(ABC):
             current_trace.error_info = error_info
 
         context.set_storage_trace(current_trace=current_trace)
-        print(f"current_trace: {current_trace}")
+        # print(f"current_trace: {current_trace}")
+        print(f"current step: {current_step}")
+
         # TODO: Post a request to server
         client: sync_client.SyncClient = sync_client.get_cached_sync_client()
 
