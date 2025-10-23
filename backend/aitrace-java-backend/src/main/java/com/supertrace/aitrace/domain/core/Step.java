@@ -3,7 +3,10 @@ package com.supertrace.aitrace.domain.core;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -14,6 +17,9 @@ import java.util.UUID;
 @Entity
 @Table(name = "step")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Step {
     @Id
     // @GeneratedValue(strategy = GenerationType.UUID)
