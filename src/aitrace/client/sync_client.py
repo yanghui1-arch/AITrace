@@ -1,5 +1,6 @@
 import httpx
 import functools
+import json
 from dataclasses import asdict
 from typing import Any, List, Dict
 from .config import ClientConfig, build_client_config
@@ -50,6 +51,10 @@ class SyncClient:
     ):
         """Create a step and log it in server."""
         
+        # Fix: Convert string "None" to actual None for parent_step_id
+        if parent_step_id == "None":
+            parent_step_id = None
+            
         log_step_req = LogStepRequest(
             project_name=project_name,
             step_name=step_name,
@@ -64,12 +69,11 @@ class SyncClient:
             model=model,
             usage=usage
         )
-
+        request_json = json.loads(log_step_req.model_dump_json())
         response = self._client.post(
-            "/log/step", 
-            json=log_step_req.model_dump_json()
+            "/log/step",
+            json=request_json
         )
-        response.raise_for_status()
         return response.json()
 
     def log_trace(self, ):
