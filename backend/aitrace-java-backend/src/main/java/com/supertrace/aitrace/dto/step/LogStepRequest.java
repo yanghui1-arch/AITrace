@@ -31,6 +31,7 @@ public class LogStepRequest {
             message = "step type must be one of `customized`, `llm_response`, `retrieve` and tool.")
     private String stepType;
 
+    @NotNull
     private List<String> tags;
 
     private Map<String, Object> input;
