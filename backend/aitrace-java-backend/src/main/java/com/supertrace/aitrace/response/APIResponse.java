@@ -2,6 +2,15 @@ package com.supertrace.aitrace.response;
 
 import lombok.Data;
 
+/**
+ * APIResponse is only responsible for returning backend result to web or client.
+ * It only can be used in the controller.
+ *
+ * @author dass90
+ * @since 2025-10-23
+ *
+ * @param <T> type of data
+ */
 @Data
 public class APIResponse<T> {
     private int code;
