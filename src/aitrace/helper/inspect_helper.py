@@ -36,8 +36,6 @@ def parse_to_dict_input(
 #################################################################
 #                 inspect about llm                             #
 #################################################################
-from enum import Enum
-
 @dataclass
 class TrackLLMFunction:
     name: str
