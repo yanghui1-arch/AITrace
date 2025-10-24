@@ -42,5 +42,5 @@ public class LogStepRequest {
 
     private String model;
 
-    private Integer usage;
+    private Map<String, Object> usage;
 }

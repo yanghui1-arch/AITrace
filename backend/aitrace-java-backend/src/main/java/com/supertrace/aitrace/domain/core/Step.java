@@ -56,7 +56,9 @@ public class Step {
 
     private String model;
 
-    private Integer usage;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private Map<String, Object> usage;
 
     @NotBlank
     @Column(name = "project_name")
