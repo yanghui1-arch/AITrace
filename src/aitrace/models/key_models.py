@@ -62,7 +62,3 @@ class Conversation(BaseModel):
     start_time: datetime
     last_update_time: datetime
     tags: List[str] = Field(default_factory=list)
-
-    @property
-    def usage(self):
-        return sum([trace.usage for trace in self.traces])
