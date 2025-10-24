@@ -224,7 +224,7 @@ class BaseTracker(ABC):
             # TODO: Log the error information and create a new step to prevent executing exception.
             current_step: Step = args_helper.create_new_step(
                 project_name=tracker_options.project_name,
-                input=end_args.input,
+                input=end_args.llm_input,
                 name=tracker_options.step_name,
                 type=tracker_options.step_type,
                 tags=tracker_options.tags,
