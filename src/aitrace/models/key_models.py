@@ -2,7 +2,7 @@ from uuid import UUID
 from enum import Enum
 from datetime import datetime
 from typing import Any, Dict, List
-from dataclasses import dataclass, field
+from pydantic import BaseModel, Field
 from openai.types.completion_usage import CompletionUsage
 
 class StepType(Enum):
@@ -11,23 +11,21 @@ class StepType(Enum):
     RETRIEVE = 'retrieve'
     TOOL = 'tool'
 
-@dataclass
-class Step:
+class Step(BaseModel):
     project_name: str
     name: str
     id: str | UUID
     trace_id: str | UUID
     parent_step_id: str | UUID | None = None
     type: StepType = StepType.CUSTOMIZED
-    tags: List[str] = field(default_factory=list)
+    tags: List[str] = Field(default_factory=list)
     input: Dict[str, Any] | None = None
     output: Any | None = None
     error_info: str | None = None
     model: str | None = None
     usage: CompletionUsage | None = None
 
-@dataclass
-class Track:
+class Track(BaseModel):
     _step: Step
     call_timestamp: datetime
 
@@ -43,29 +41,27 @@ class Track:
     def usage(self) -> CompletionUsage | None:
         return self._step.usage
 
-@dataclass
-class Trace:
+class Trace(BaseModel):
     project_name: str
     id: str | UUID | int
     conversation_id: str | UUID
     name: str
     model: str | None = None
-    tags: List[str] = field(default_factory=list)
+    tags: List[str] = Field(default_factory=list)
     input: Dict[str, Any] | None = None
     output: Any | None = None
     tracks: List[Track] | None = None
     error_info: str | None = None
-    last_update_timestamp: datetime = field(default_factory=datetime.now)
+    last_update_timestamp: datetime = Field(default_factory=datetime.now)
 
-@dataclass
-class Conversation:
+class Conversation(BaseModel):
     project_name: str
     id: str | UUID
     name: str
     traces: List[Trace]
     start_time: datetime
     last_update_time: datetime
-    tags: List[str] = field(default_factory=list)
+    tags: List[str] = Field(default_factory=list)
 
     @property
     def usage(self):
