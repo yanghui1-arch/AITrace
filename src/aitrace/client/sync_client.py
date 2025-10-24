@@ -52,7 +52,7 @@ class SyncClient:
     ):
         """Create a step and log it in server."""
         
-        # Fix: Convert string "None" to actual None for parent_step_id
+        # Convert string "None" to actual None for parent_step_id
         if parent_step_id == "None":
             parent_step_id = None
             
@@ -70,10 +70,10 @@ class SyncClient:
             model=model,
             usage=usage
         )
-        request_json = json.loads(log_step_req.model_dump_json())
+        
         response = self._client.post(
             "/log/step",
-            json=request_json
+            json=log_step_req.model_dump(mode='json')
         )
         return response.json()
 

@@ -1,6 +1,7 @@
 from typing import List, Dict, Any
-from pydantic import BaseModel
+from pydantic import BaseModel, field_serializer
 from openai.types.completion_usage import CompletionUsage
+from ....helper import serialize_helper
 
 class LogStepRequest(BaseModel):
     project_name: str
@@ -15,3 +16,7 @@ class LogStepRequest(BaseModel):
     error_info: str | None
     model: str | None
     usage: CompletionUsage | None
+
+    @field_serializer('input', 'output')
+    def serialize_any_field(self, value: Any):
+        return serialize_helper.safe_serialize(value)
