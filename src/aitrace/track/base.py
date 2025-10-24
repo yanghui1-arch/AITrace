@@ -236,6 +236,7 @@ class BaseTracker(ABC):
             func_inputs = current_step.input
             llm_inputs = end_args.llm_input
             current_step.input = {'func_inputs': func_inputs, 'llm_inputs': llm_inputs}
+            current_step.model = llm_inputs.get('model', None)
 
         current_step.output = end_args.output
         current_step.error_info = end_args.error_info
