@@ -241,7 +241,7 @@ class BaseTracker(ABC):
         current_step.error_info = end_args.error_info
         
         # TODO: add usage and redefine Step class usage type
-        # current_step.usage = end_args.usage
+        current_step.usage = end_args.usage
 
         # update trace
         if not context.get_storage_current_trace_data():

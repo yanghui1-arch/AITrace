@@ -3,6 +3,7 @@ import functools
 import json
 from dataclasses import asdict
 from typing import Any, List, Dict
+from openai.types.completion_usage import CompletionUsage
 from .config import ClientConfig, build_client_config
 from .schemas.request.log_request import LogStepRequest
 
@@ -47,7 +48,7 @@ class SyncClient:
         output: Any | None,
         error_info: str | None,
         model: str | None,
-        usage: int | None,
+        usage: CompletionUsage | None,
     ):
         """Create a step and log it in server."""
         

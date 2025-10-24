@@ -1,5 +1,6 @@
 from typing import List, Dict, Any
 from pydantic import BaseModel
+from openai.types.completion_usage import CompletionUsage
 
 class LogStepRequest(BaseModel):
     project_name: str
@@ -13,4 +14,4 @@ class LogStepRequest(BaseModel):
     output: Any | None
     error_info: str | None
     model: str | None
-    usage: int | None
+    usage: CompletionUsage | None

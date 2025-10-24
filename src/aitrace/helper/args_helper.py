@@ -2,6 +2,7 @@ from uuid import UUID
 from typing import Any, List, Dict
 
 from pydantic import BaseModel
+from openai.types.completion_usage import CompletionUsage
 from . import id_helper
 from ..models import Step, Trace, StepType, Track
 from .. import context
@@ -23,7 +24,7 @@ class EndArguments(BaseModel):
     project_name: str | None = None
     model: str | None = None
     error_info: str | None = None
-    usage: int | None = None
+    usage: CompletionUsage | None = None
 
 def create_new_step(
     project_name: str,

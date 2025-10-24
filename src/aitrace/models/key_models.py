@@ -3,6 +3,7 @@ from enum import Enum
 from datetime import datetime
 from typing import Any, Dict, List
 from dataclasses import dataclass, field
+from openai.types.completion_usage import CompletionUsage
 
 class StepType(Enum):
     CUSTOMIZED = 'customized'
@@ -23,7 +24,7 @@ class Step:
     output: Any | None = None
     error_info: str | None = None
     model: str | None = None
-    usage: int | None = None
+    usage: CompletionUsage | None = None
 
 @dataclass
 class Track:
@@ -39,7 +40,7 @@ class Track:
         return self._step.project_name
     
     @property
-    def usage(self) -> int | None:
+    def usage(self) -> CompletionUsage | None:
         return self._step.usage
 
 @dataclass
@@ -55,12 +56,6 @@ class Trace:
     tracks: List[Track] | None = None
     error_info: str | None = None
     last_update_timestamp: datetime = field(default_factory=datetime.now)
-
-    @property
-    def usage(self) -> int:
-        if self.tracks:
-            return sum([track.usage for track in self.tracks if track.usage])
-        return 0
 
 @dataclass
 class Conversation:

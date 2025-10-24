@@ -48,6 +48,7 @@ class AITraceTracker(BaseTracker):
         
         final_output = {}
         llm_inputs = None
+        llm_usage = None
         
         # TODO: fix final_output is an empty dictionary if output is a Dict
         if output and isinstance(output, Dict) is False:
@@ -62,6 +63,7 @@ class AITraceTracker(BaseTracker):
                 openai_chat_completion_output=track_llm_func.output, 
                 ignore_fields=tracker_options.llm_ignore_fields
             )
+            llm_usage = llm_outputs.usage
 
             final_output['llm_outputs'] = llm_outputs.model_dump(exclude_none=True)
 
@@ -71,5 +73,6 @@ class AITraceTracker(BaseTracker):
             output=final_output,
             project_name=tracker_options.project_name,
             model=tracker_options.model,
-            error_info=error_info
+            error_info=error_info,
+            usage=llm_usage,
         )
