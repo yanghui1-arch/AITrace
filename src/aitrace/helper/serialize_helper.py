@@ -32,7 +32,7 @@ def safe_serialize(obj: Any) -> Any:
         return [safe_serialize(item) for item in obj]
     
     # customized class with `__dict__` function
-    if hasattr(obj, '__dict__'):
+    if hasattr(obj, '__dict__') and obj.__dict__:
         return safe_serialize(obj.__dict__)
     
     # other information
