@@ -2,8 +2,31 @@ from typing import Any
 from pydantic import BaseModel
 
 def safe_serialize(obj: Any) -> Any:
-    """safe serialize all customized classes
-    
+    """safe serialize all customized classes.
+    If obj is a subclass of pydantic.BaseModel it will return BaseModel instance method `.model_dump()`
+    which means obj's all fields should be serializable. In other words, if obj includes a not serializable
+    field such as customized class, not a subclass of pydantic.BaseModel, the obj should have a method 
+    decorated with @pydantic.field_serializer() to make it serializable while calling `.model_dump()`.
+    This function is mostly used in the situation.
+
+    For example:
+    ```python
+    class Myclass:
+        def __init__(self, x):
+            self.x = x
+
+    # my_class is not serializable.
+    # Should have a @pydantic.field_serializer() function
+    class YourClass(BaseModel):
+        y: int = 2
+        my_class: Myclass = Myclass(1)
+
+        @field_serializer('my_class')
+        def safe_serializer(self, value:Any):
+            # use here
+            return serialize_helper.safe_serialize(value)
+    ```
+
     Args:
         obj(Any): any type data or class
 
