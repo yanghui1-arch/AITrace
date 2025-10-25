@@ -26,7 +26,6 @@ public class StepController {
     @PostMapping("/log/step")
     public ResponseEntity<APIResponse<UUID>> createAndLogStep(@RequestBody LogStepRequest logStepRequest) {
         try {
-            System.out.println(logStepRequest);
             UUID stepId = this.logStepService.logStep(logStepRequest);
             return ResponseEntity.ok(APIResponse.success(stepId));
         } catch (Exception e) {
