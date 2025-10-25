@@ -26,8 +26,8 @@ public class TraceController {
     public ResponseEntity<APIResponse<UUID>> createAndLogStep(@RequestBody LogTraceRequest logTraceRequest) {
         try {
             System.out.println(logTraceRequest);
-            UUID stepId = this.logTraceService.logTrace(logTraceRequest);
-            return ResponseEntity.ok(APIResponse.success(stepId));
+            UUID traceId = this.logTraceService.logTrace(logTraceRequest);
+            return ResponseEntity.ok(APIResponse.success(traceId));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(APIResponse.error(e.getMessage()));
         }
