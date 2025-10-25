@@ -291,6 +291,20 @@ class BaseTracker(ABC):
             usage=current_step.usage,
         )
 
+        client.log_trace(
+            project_name=current_trace.project_name,
+            trace_name=current_trace.name,
+            trace_id=str(current_trace.id),
+            conversation_id=str(current_trace.conversation_id),
+            tags=current_trace.tags,
+            input=current_trace.input,
+            output=current_trace.output,
+            tracks=current_trace.tracks,
+            error_info=current_trace.error_info,
+            model=current_trace.model,
+            last_update_timestamp=current_trace.last_update_timestamp
+        )
+
     @abstractmethod
     def start_inputs_args_preprocess(
         self,

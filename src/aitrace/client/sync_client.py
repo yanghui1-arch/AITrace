@@ -1,11 +1,13 @@
 import httpx
 import functools
-import json
-from dataclasses import asdict
+from datetime import datetime
 from typing import Any, List, Dict
+
 from openai.types.completion_usage import CompletionUsage
+
 from .config import ClientConfig, build_client_config
-from .schemas.request.log_request import LogStepRequest
+from .schemas.request.log_request import LogStepRequest, LogTraceRequest
+from ..models import Track
 
 class SyncClient:
     """SyncClient is to communicate with server.
@@ -77,8 +79,41 @@ class SyncClient:
         )
         return response.json()
 
-    def log_trace(self, ):
-        pass
+    def log_trace(
+        self,
+        project_name: str,
+        trace_name: str,
+        trace_id: str,
+        conversation_id: str,
+        tags: List[str],
+        input: Dict[str, Any] | None,
+        output: Dict[str, Any] | None,
+        tracks: List[Track] | None,
+        error_info: str | None,
+        model: str | None,
+        last_update_timestamp: datetime
+    ):
+        """Create a trace and log it in server."""
+
+        log_trace_req = LogTraceRequest(
+            project_name=project_name,
+            trace_name=trace_name,
+            trace_id=trace_id,
+            conversation_id=conversation_id,
+            tags=tags,
+            input=input,
+            output=output,
+            tracks=tracks,
+            error_info=error_info,
+            model=model,
+            last_update_timestamp=last_update_timestamp,
+        )
+                
+        response = self._client.post(
+            "/log/trace",
+            json=log_trace_req.model_dump(mode='json')
+        )
+        return response.json()
 
     @property
     def project_name(self):
