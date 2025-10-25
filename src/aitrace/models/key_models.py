@@ -2,8 +2,9 @@ from uuid import UUID
 from enum import Enum
 from datetime import datetime
 from typing import Any, Dict, List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_serializer
 from openai.types.completion_usage import CompletionUsage
+from ..helper import serialize_helper
 
 class StepType(Enum):
     CUSTOMIZED = 'customized'
@@ -25,21 +26,21 @@ class Step(BaseModel):
     model: str | None = None
     usage: CompletionUsage | None = None
 
+    @field_serializer('input', 'output')
+    def serialize_any_field(self, value: Any):
+        return serialize_helper.safe_serialize(value)
+
 class Track(BaseModel):
-    _step: Step
+    step: Step
     call_timestamp: datetime
 
     @property
-    def step(self):
-        return self._step
-    
-    @property
     def project_name(self):
-        return self._step.project_name
+        return self.step.project_name
     
     @property
     def usage(self) -> CompletionUsage | None:
-        return self._step.usage
+        return self.step.usage
 
 class Trace(BaseModel):
     project_name: str
@@ -53,6 +54,10 @@ class Trace(BaseModel):
     tracks: List[Track] | None = None
     error_info: str | None = None
     last_update_timestamp: datetime = Field(default_factory=datetime.now)
+
+    @field_serializer('input', 'output', 'tracks')
+    def serialize_any_field(self, value: Any):
+        return serialize_helper.safe_serialize(value)
 
 class Conversation(BaseModel):
     project_name: str

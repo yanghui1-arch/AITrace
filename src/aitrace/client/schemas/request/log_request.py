@@ -36,6 +36,6 @@ class LogTraceRequest(BaseModel):
     model: str | None
     last_update_timestamp: datetime
 
-    @field_serializer('input', 'output')
+    @field_serializer('input', 'output', 'tracks')
     def serialize_any_field(self, value: Any):
         return serialize_helper.safe_serialize(value)

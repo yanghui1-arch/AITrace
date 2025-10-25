@@ -259,7 +259,7 @@ class BaseTracker(ABC):
         if not current_trace.tracks:
             current_trace.tracks = []
         # TODO: add a selectable region to track.
-        current_trace.tracks.append(Track(_step=current_step, call_timestamp=datetime.now(timezone(timedelta(hours=8)))))
+        current_trace.tracks.append(Track(step=current_step, call_timestamp=datetime.now(timezone(timedelta(hours=8)))))
 
         # TODO: improve current trace final output
         # The easist way to record current trace output. But it's not for the final output just every step output.
@@ -271,7 +271,7 @@ class BaseTracker(ABC):
 
         context.set_storage_trace(current_trace=current_trace)
         # print(f"current_trace: {current_trace}")
-        print(f"current step: {current_step}")
+        # print(f"current step: {current_step}")
 
         # TODO: Post a request to server
         client: sync_client.SyncClient = sync_client.get_cached_sync_client()
