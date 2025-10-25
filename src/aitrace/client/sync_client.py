@@ -7,6 +7,7 @@ from openai.types.completion_usage import CompletionUsage
 
 from .config import ClientConfig, build_client_config
 from .schemas.request.log_request import LogStepRequest, LogTraceRequest
+from .schemas.response.log_response import LogStepResponse, LogTraceResponse
 from ..models import Track
 
 class SyncClient:
@@ -20,7 +21,7 @@ class SyncClient:
         project_name: str | None = None,
         host_url: str | None = None,
         apikey: str | None = None,
-        timeout_ms: int = 1500,
+        timeout_ms: int = 1000,
     ):
         client_config = build_client_config(
             project_name=project_name,
@@ -51,7 +52,7 @@ class SyncClient:
         error_info: str | None,
         model: str | None,
         usage: CompletionUsage | None,
-    ):
+    ) -> LogStepResponse:
         """Create a step and log it in server."""
         
         # Convert string "None" to actual None for parent_step_id
@@ -73,11 +74,38 @@ class SyncClient:
             usage=usage
         )
         
-        response = self._client.post(
-            "/log/step",
-            json=log_step_req.model_dump(mode='json')
-        )
-        return response.json()
+        try:
+            response = self._client.post(
+                "/log/step",
+                json=log_step_req.model_dump(mode='json')
+            )
+            response.raise_for_status()
+            return LogStepResponse(
+                status_code=response.status_code,
+                status_desc=response.reason_phrase,
+                json_content=response.json()
+            )
+        
+        except httpx.HTTPStatusError as e:
+            try:
+                json_content = e.response.json()
+            except:
+                json_content = {"raw": e.response.text}
+
+            return LogStepResponse(
+                status_code=e.response.status_code,
+                status_desc=e.response.reason_phrase,
+                json_content=json_content,
+                server_error_info=f"HTTP {e.response.status_code}"
+            )
+
+        except httpx.RequestError as e:
+            return LogStepResponse(
+                status_code=0,
+                status_desc="Network Error",
+                json_content={"error": str(e)},
+                server_error_info="Network failure"
+            )
 
     def log_trace(
         self,
@@ -108,12 +136,39 @@ class SyncClient:
             model=model,
             last_update_timestamp=last_update_timestamp,
         )
-                
-        response = self._client.post(
-            "/log/trace",
-            json=log_trace_req.model_dump(mode='json')
-        )
-        return response.json()
+        
+        try:
+            response = self._client.post(
+                "/log/trace",
+                json=log_trace_req.model_dump(mode='json')
+            )
+            response.raise_for_status()
+            return LogStepResponse(
+                status_code=response.status_code,
+                status_desc=response.reason_phrase,
+                json_content=response.json()
+            )
+        
+        except httpx.HTTPStatusError as e:
+            try:
+                json_content = e.response.json()
+            except:
+                json_content = {"raw": e.response.text}
+
+            return LogStepResponse(
+                status_code=e.response.status_code,
+                status_desc=e.response.reason_phrase,
+                json_content=json_content,
+                server_error_info=f"HTTP {e.response.status_code}"
+            )
+
+        except httpx.RequestError as e:
+            return LogStepResponse(
+                status_code=0,
+                status_desc="Network Error",
+                json_content={"error": str(e)},
+                server_error_info="Network failure"
+            )
 
     @property
     def project_name(self):
