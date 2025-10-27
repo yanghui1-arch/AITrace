@@ -68,3 +68,4 @@ cd src
 uv install
 uv .venv/Script/activate
 ```
+You can watch more detailed debug information by using `--log-level=DEBUG` or `set AT_LOG_LEVEL=DEBUG` for Windows or `export AT_LOG_LEVEL=DEBUG` for Linux and Mac.
