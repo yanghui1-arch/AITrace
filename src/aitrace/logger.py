@@ -1,5 +1,6 @@
 import os
 import argparse
+import logging
 from logging import Logger
 from logging.config import dictConfig
 from types import MethodType
@@ -93,7 +94,7 @@ def _configure_root_logger():
 
 def init_logger():
     """Initialize logger"""
-    import logging
+    
     logger = logging.getLogger("aitrace")
     setattr(logger, 'debug_once', MethodType(ATLogger.debug_once, logger))
     setattr(logger, 'info_once', MethodType(ATLogger.info_once, ATLogger.info_once))
