@@ -25,6 +25,8 @@ class Step(BaseModel):
     error_info: str | None = None
     model: str | None = None
     usage: CompletionUsage | None = None
+    start_time: datetime = Field(default_factory=datetime.now)
+    end_time: datetime | None = None
 
     @field_serializer('input', 'output')
     def serialize_any_field(self, value: Any):

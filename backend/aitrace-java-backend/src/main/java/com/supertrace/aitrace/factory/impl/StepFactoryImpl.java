@@ -39,6 +39,8 @@ public class StepFactoryImpl implements StepFactory {
                 .model(request.getModel())
                 .usage(request.getUsage())
                 .projectName(request.getProjectName())
+                .startTime(request.getStartTime())
+                .endTime(request.getEndTime())
                 .build();
     }
 }

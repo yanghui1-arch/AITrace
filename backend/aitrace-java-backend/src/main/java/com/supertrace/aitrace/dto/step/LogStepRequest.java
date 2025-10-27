@@ -2,10 +2,12 @@ package com.supertrace.aitrace.dto.step;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -43,4 +45,9 @@ public class LogStepRequest {
     private String model;
 
     private Map<String, Object> usage;
+
+    @NotNull
+    private LocalDateTime startTime;
+
+    private LocalDateTime endTime;
 }

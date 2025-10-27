@@ -240,6 +240,7 @@ class BaseTracker(ABC):
 
         current_step.output = end_args.output
         current_step.error_info = end_args.error_info
+        current_step.end_time = datetime.now()
         
         # TODO: add usage and redefine Step class usage type
         current_step.usage = end_args.usage
@@ -289,6 +290,8 @@ class BaseTracker(ABC):
             error_info=current_step.error_info,
             model=current_step.model,
             usage=current_step.usage,
+            start_time=current_step.start_time,
+            end_time=current_step.end_time,
         )
 
         client.log_trace(

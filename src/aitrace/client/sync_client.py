@@ -52,6 +52,8 @@ class SyncClient:
         error_info: str | None,
         model: str | None,
         usage: CompletionUsage | None,
+        start_time: datetime,
+        end_time: datetime | None,
     ) -> LogStepResponse:
         """Create a step and log it in server."""
         
@@ -71,7 +73,9 @@ class SyncClient:
             output=output,
             error_info=error_info,
             model=model,
-            usage=usage
+            usage=usage,
+            start_time=start_time,
+            end_time=end_time,
         )
         
         try:
