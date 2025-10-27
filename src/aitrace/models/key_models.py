@@ -55,6 +55,7 @@ class Trace(BaseModel):
     output: Any | None = None
     tracks: List[Track] | None = None
     error_info: str | None = None
+    start_time: datetime = Field(default_factory=datetime.now)
     last_update_timestamp: datetime = Field(default_factory=datetime.now)
 
     @field_serializer('input', 'output', 'tracks')

@@ -260,6 +260,7 @@ class BaseTracker(ABC):
         if not current_trace.tracks:
             current_trace.tracks = []
         # TODO: add a selectable region to track.
+        # TODO: fix timedelta -> remove it.
         current_trace.tracks.append(Track(step=current_step, call_timestamp=datetime.now(timezone(timedelta(hours=8)))))
 
         # TODO: improve current trace final output
@@ -305,7 +306,8 @@ class BaseTracker(ABC):
             tracks=current_trace.tracks,
             error_info=current_trace.error_info,
             model=current_trace.model,
-            last_update_timestamp=current_trace.last_update_timestamp
+            start_time=current_trace.start_time,
+            last_update_timestamp=current_trace.last_update_timestamp,
         )
 
     @abstractmethod

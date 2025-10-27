@@ -123,6 +123,7 @@ class SyncClient:
         tracks: List[Track] | None,
         error_info: str | None,
         model: str | None,
+        start_time: datetime,
         last_update_timestamp: datetime
     ):
         """Create a trace and log it in server."""
@@ -138,6 +139,7 @@ class SyncClient:
             tracks=tracks,
             error_info=error_info,
             model=model,
+            start_time=start_time,
             last_update_timestamp=last_update_timestamp,
         )
         

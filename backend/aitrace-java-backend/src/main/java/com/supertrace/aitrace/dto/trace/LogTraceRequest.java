@@ -38,6 +38,8 @@ public class LogTraceRequest {
 
     private String model;
 
+    private LocalDateTime startTime;
+
     private LocalDateTime lastUpdateTimestamp;
 
 }

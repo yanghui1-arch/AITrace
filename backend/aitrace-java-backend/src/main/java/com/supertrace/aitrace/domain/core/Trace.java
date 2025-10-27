@@ -69,6 +69,9 @@ public class Trace {
 
     private String model;
 
+    @Column(name = "start_time")
+    private LocalDateTime startTime;
+
     @Column(name = "last_update_timestamp")
     private LocalDateTime lastUpdateTimestamp;
 }

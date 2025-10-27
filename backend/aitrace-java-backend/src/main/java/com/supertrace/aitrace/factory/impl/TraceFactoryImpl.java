@@ -22,6 +22,7 @@ public class TraceFactoryImpl implements TraceFactory {
                 .tracks(logTraceRequest.getTracks())
                 .errorInfo(logTraceRequest.getErrorInfo())
                 .model(logTraceRequest.getModel())
+                .startTime(logTraceRequest.getStartTime())
                 .lastUpdateTimestamp(logTraceRequest.getLastUpdateTimestamp())
                 .build();
     }
