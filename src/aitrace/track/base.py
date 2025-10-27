@@ -257,6 +257,8 @@ class BaseTracker(ABC):
             context.set_storage_trace(current_trace=current_trace)
         
         current_trace: Trace = context.get_storage_current_trace_data()
+        # refresh trace update timestamp
+        current_trace.last_update_timestamp = datetime.now()
         if not current_trace.tracks:
             current_trace.tracks = []
         # TODO: add a selectable region to track.
