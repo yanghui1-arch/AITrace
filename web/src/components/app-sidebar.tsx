@@ -10,8 +10,8 @@ import {
   IconCirclePlusFilled,
 } from "@tabler/icons-react"
 
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
+import { NavSecondary } from "@/components/nav/nav-secondary"
+import { NavUser } from "@/components/nav/nav-user"
 import {
   Sidebar,
   SidebarContent,
@@ -21,7 +21,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { NavMain } from "./nav-main"
+import { NavMain } from "./nav/nav-main"
 
 const data = {
   user: {
