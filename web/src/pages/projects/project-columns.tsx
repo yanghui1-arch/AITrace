@@ -128,7 +128,6 @@ export const projectColumns: ColumnDef<Project>[] = [
     id: "action",
     cell: ({ row }) => {
       const project = row.original;
-      console.log(project);
 
       return (
         <DropdownMenu>
