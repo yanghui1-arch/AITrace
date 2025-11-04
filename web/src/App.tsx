@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "./layouts/app-layout";
 import OverviewPage from "./pages/overview";
 import ProjectsPage from "./pages/projects";
-import ProjectDetailPage from "./pages/projects/detail";
+import ProjectDetailPage from "./pages/projects/track";
 
 function App() {
   return (

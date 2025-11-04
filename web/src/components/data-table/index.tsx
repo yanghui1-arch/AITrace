@@ -21,7 +21,7 @@ import {
 import { useState } from "react";
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, type NavigateFunction } from "react-router-dom";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -35,7 +35,7 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const navigate = useNavigate();
+  const navigate: NavigateFunction = useNavigate();
   const table = useReactTable({
     data,
     columns,
@@ -63,7 +63,13 @@ export function DataTable<TData, TValue>({
     }
     // @ts-expect-error: TData maynot have name.
     const name = (row.original as TData)?.name ?? row.id;
-    navigate(String(name)); 
+    // @ts-expect-error: TData maynot have description.
+    const description = (row.original as TData)?.description ?? "";
+    navigate(String(name), {
+      state: {
+        description: description
+      }
+    }); 
   }
 
   return (
