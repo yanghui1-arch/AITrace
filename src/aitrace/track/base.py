@@ -209,7 +209,7 @@ class BaseTracker(ABC):
             print(str(e))
 
             if output and isinstance(output, Dict) is False:
-                output = {'output': output}
+                output = {'func_output': output}
 
             end_args = args_helper.EndArguments(
                 tags=tracker_options.tags,

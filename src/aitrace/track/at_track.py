@@ -52,7 +52,7 @@ class AITraceTracker(BaseTracker):
         
         # TODO: fix final_output is an empty dictionary if output is a Dict
         if output and isinstance(output, Dict) is False:
-            final_output['output'] = output
+            final_output['func_output'] = output
         
         if tracker_options.track_llm:
             # stop trace any funcs first
