@@ -24,22 +24,24 @@ export interface FilteredFieldsOpenAIChatCompletionsOutput {
   usage?: CompletionUsage;
 }
 
+/* style as the same as python to sql storage */
 export interface InputData {
-  funcInput: object;
-  llmInput?: ResponseCreateParams;
+  func_inputs: object;
+  llm_inputs?: ResponseCreateParams;
 }
 
+/* style as the same as python to sql storage */
 export interface OutputData {
-  funcOutput?: object | string;
-  llmOutput?: FilteredFieldsOpenAIChatCompletionsOutput;
+  func_output?: object | string;
+  llm_outputs?: FilteredFieldsOpenAIChatCompletionsOutput;
 }
 
 export type Step = {
   id: string;
   name: string;
   type: "customized" | "llm_response" | "retrieve" | "tool";
-  input: Array<InputData>;
-  output: Array<OutputData>;
+  input: InputData;
+  output: OutputData;
   tags: Array<string>;
   errorInfo?: string;
   model: string;
