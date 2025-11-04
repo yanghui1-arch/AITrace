@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import axios from 'axios'
 import { stepColumns, type Step } from "./step-columns";
+import { Separator } from "@/components/ui/separator";
 
 export default function ProjectDetailPage() {
   const { name } = useParams<{ name: string }>();
@@ -42,7 +43,7 @@ export default function ProjectDetailPage() {
 
 
   return (
-    <div className="px-4 lg:px-6">
+    <div className="flex flex-col gap-2 px-4 lg:px-6">
       <h2 className="text-xl font-semibold">{name}</h2>
       <p className="text-muted-foreground mt-2 truncate">
         {projectDescription}
@@ -52,7 +53,7 @@ export default function ProjectDetailPage() {
           Back to Projects
         </Link>
       </div>
-      <div className="flex gap-4 py-5">
+      <div className="flex gap-4 py-2">
         <Button
           variant="link"
           className={isNavButtonDisabled("step") ? "bg-white text-black" : ""}
@@ -92,7 +93,8 @@ export default function ProjectDetailPage() {
           Conversation
         </Button>
       </div>
-      <div className="container mx-auto py-5">
+      <Separator />
+      <div className="container mx-auto py-2">
         <DataTable data={stepData} columns={stepColumns}/>
       </div>
     </div>
