@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "./layouts/app-layout";
 import OverviewPage from "./pages/overview";
 import ProjectsPage from "./pages/projects";
+import ProjectDetailPage from "./pages/projects/detail";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
             <Route index element={<Navigate to="/overview" replace />} />
             <Route path="/overview" element={<OverviewPage />} />
             <Route path="/projects" element={<ProjectsPage />} />
+            <Route path="/projects/:name" element={<ProjectDetailPage />} />
           </Route>
         </Routes>
       </ThemeProvider>

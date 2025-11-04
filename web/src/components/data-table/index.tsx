@@ -8,6 +8,7 @@ import {
   getPaginationRowModel,
   type ColumnFiltersState,
   getFilteredRowModel,
+  type RowData,
 } from "@tanstack/react-table";
 import {
   TableHead,
@@ -20,6 +21,7 @@ import {
 import { useState } from "react";
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
+import { useNavigate } from "react-router-dom";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -33,6 +35,7 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const navigate = useNavigate();
   const table = useReactTable({
     data,
     columns,
@@ -52,6 +55,16 @@ export function DataTable<TData, TValue>({
       columnFilters,
     },
   });
+
+  const navigateProject = (e: React.MouseEvent, isSelectCell: boolean, row: RowData) => {
+    if (isSelectCell) {
+      e.stopPropagation();
+      return ;
+    }
+    // @ts-expect-error: TData maynot have name.
+    const name = (row.original as TData)?.name ?? row.id;
+    navigate(String(name)); 
+  }
 
   return (
     <div className="space-y-4">
@@ -82,12 +95,16 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => console.log(row.id)}
                 >
                   {row.getVisibleCells().map((cell) => {
+                    /* select column skip click */
+                    const isSelectCell = cell.column.id === "select";
                     return (
-                      <TableCell key={cell.id} className="text-center">
+                      <TableCell
+                        key={cell.id}
+                        className={"text-center cursor-pointer"}
+                        onClick={(e) => (navigateProject(e, isSelectCell, row))}
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
