@@ -8,6 +8,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { ArrowDown, ArrowUp, List } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 /* style as the same as openai */
 export interface FilteredFieldsOpenAIChatCompletionsOutput {
@@ -124,6 +125,90 @@ export const stepColumns: ColumnDef<Step>[] = [
     },
   },
   {
+    accessorKey: "fn_input",
+    header: () => (
+      <div className="w-full flex justify-center">
+        <span className="font-semibold">Function Input</span>
+      </div>
+    ),
+    cell: ({ row }) => {
+      const functionInput = row.original.input.func_inputs;
+
+      return (
+        <div className="flex gap-2 justify-center">
+          <ScrollArea className="h-20 w-58 rounded-md p-4 ">
+            <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
+              <code>{JSON.stringify(functionInput, null, 2)}</code>
+            </pre>
+          </ScrollArea>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "fn_output",
+    header: () => (
+      <div className="w-full flex justify-center">
+        <span className="font-semibold">Function Output</span>
+      </div>
+    ),
+    cell: ({ row }) => {
+      const functionOutput = row.original.output.func_output;
+
+      return (
+        <div className="flex gap-2 justify-center">
+          <ScrollArea className="h-20 w-58 rounded-md p-4 ">
+            <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
+              <code>{JSON.stringify(functionOutput, null, 2)}</code>
+            </pre>
+          </ScrollArea>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "llm_input",
+    header: () => (
+      <div className="w-full flex justify-center">
+        <span className="font-semibold">LLM Input</span>
+      </div>
+    ),
+    cell: ({ row }) => {
+      const LLMInput = row.original.input.llm_inputs;
+
+      return (
+        <div className="flex gap-2 justify-center">
+          <ScrollArea className="h-20 w-58 rounded-md p-4 ">
+            <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
+              <code>{JSON.stringify(LLMInput, null, 2)}</code>
+            </pre>
+          </ScrollArea>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "llm_output",
+    header: () => (
+      <div className="w-full flex justify-center">
+        <span className="font-semibold">LLM Output</span>
+      </div>
+    ),
+    cell: ({ row }) => {
+      const LLMOutput = row.original.output.llm_outputs;
+
+      return (
+        <div className="flex gap-2 justify-center">
+          <ScrollArea className="h-20 w-58 rounded-md p-4 ">
+            <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
+              <code>{JSON.stringify(LLMOutput, null, 2)}</code>
+            </pre>
+          </ScrollArea>
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "startTime",
     header: () => (
       <div className="w-full flex justify-center">
@@ -132,9 +217,7 @@ export const stepColumns: ColumnDef<Step>[] = [
     ),
     cell: ({ row }) => {
       const startTime = row.original.startTime;
-      return (
-        <div className="text-center font-medium">{startTime}</div>
-      );
+      return <div className="text-center font-medium">{startTime}</div>;
     },
   },
   {
@@ -146,9 +229,7 @@ export const stepColumns: ColumnDef<Step>[] = [
     ),
     cell: ({ row }) => {
       const endTime = row.original.endTime;
-      return (
-        <div className="text-center font-medium">{endTime}</div>
-      );
+      return <div className="text-center font-medium">{endTime}</div>;
     },
   },
 ];
