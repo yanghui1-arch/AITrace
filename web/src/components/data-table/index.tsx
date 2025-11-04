@@ -23,14 +23,24 @@ import { DataTablePagination } from "@/components/data-table/data-table-paginati
 import { DataTableToolbar } from "./data-table-toolbar";
 import { useNavigate, type NavigateFunction } from "react-router-dom";
 
+/**
+ * DataTable general properties
+ * The property controls components of data table
+ * 
+ * @template TData - data type in every row
+ * @template TValue - customized columndef
+ * @template hasCreateProjectComponent - whether renderer a component of `Create Project` in the data table tool bar. if not provided, default to `false`
+ */
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  hasCreateProjectComponent?: boolean;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  hasCreateProjectComponent = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -74,7 +84,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table} hasCreateProjectComponent={hasCreateProjectComponent}/>
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>

@@ -227,7 +227,7 @@ export default function ProjectsPage() {
       <h2 className="text-xl font-semibold">Projects</h2>
       <p className="text-muted-foreground mt-2">Create a new one project to track and improve your agent performance!</p>
       <div className="container mx-auto py-5">
-        <DataTable data={project} columns={projectColumns}/>
+        <DataTable data={project} columns={projectColumns} hasCreateProjectComponent={true}/>
       </div>
     </div>
   );

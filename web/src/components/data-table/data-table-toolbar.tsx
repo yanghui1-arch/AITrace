@@ -18,10 +18,12 @@ import { Label } from "../ui/label";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
+  hasCreateProjectComponent: boolean;
 }
 
 export function DataTableToolbar<TData>({
   table,
+  hasCreateProjectComponent = false,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
@@ -49,7 +51,7 @@ export function DataTableToolbar<TData>({
       </div>
       <div className="flex items-center gap-2">
         <DataTableViewOptions table={table} />
-        <Dialog>
+        {hasCreateProjectComponent && <Dialog>
           <DialogTrigger asChild>
             <Button size="sm">Create Project</Button>
           </DialogTrigger>
@@ -87,7 +89,7 @@ export function DataTableToolbar<TData>({
               </DialogClose>
             </DialogFooter>
           </DialogContent>
-        </Dialog>
+        </Dialog>}
       </div>
     </div>
   );
