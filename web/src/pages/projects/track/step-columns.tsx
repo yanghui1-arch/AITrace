@@ -97,6 +97,14 @@ export const stepColumns: ColumnDef<Step>[] = [
         </Button>
       );
     },
+    cell: ({row}) => {
+
+      return (
+        <div className="w-40 truncate justify-center">
+          {row.original.id}
+        </div>
+      )
+    },
   },
   {
     accessorKey: "name",
