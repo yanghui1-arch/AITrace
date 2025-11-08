@@ -2,9 +2,10 @@ import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
-import axios from 'axios'
+import axios from "axios";
 import { stepColumns, type Step } from "./step-columns";
 import { Separator } from "@/components/ui/separator";
+import { RowPanelContent } from "@/components/data-table/data-table-row-panel";
 
 export default function ProjectDetailPage() {
   const { name } = useParams<{ name: string }>();
@@ -18,14 +19,14 @@ export default function ProjectDetailPage() {
     return navButtonType === buttonType;
   };
 
-  const [stepData, setStepData] = useState<Step[]>([])
+  const [stepData, setStepData] = useState<Step[]>([]);
 
   useEffect(() => {
     const api = axios.create({
       baseURL: "/api/v0",
       timeout: 5000,
     });
-  
+
     api.interceptors.response.use(
       (res) => res.data,
       (err) => {
@@ -33,14 +34,15 @@ export default function ProjectDetailPage() {
         return Promise.reject(err);
       }
     );
-    
-    const loadStepDataOfProject = async () => {
-      const steps = await api.get(`/step/${encodeURIComponent('aitrace_demo')}`);
-      setStepData(steps.data);
-    }
-    loadStepDataOfProject()
-  }, []);
 
+    const loadStepDataOfProject = async () => {
+      const steps = await api.get(
+        `/step/${encodeURIComponent("aitrace_demo")}`
+      );
+      setStepData(steps.data);
+    };
+    loadStepDataOfProject();
+  }, []);
 
   return (
     <div className="flex flex-col gap-2 px-4 lg:px-6">
@@ -59,7 +61,7 @@ export default function ProjectDetailPage() {
           className={isNavButtonDisabled("step") ? "bg-white text-black" : ""}
           onClick={() => {
             if (isNavButtonDisabled("step")) {
-              return ;
+              return;
             }
             setNavButtonType("step");
           }}
@@ -71,7 +73,7 @@ export default function ProjectDetailPage() {
           className={isNavButtonDisabled("trace") ? "bg-white text-black" : ""}
           onClick={() => {
             if (isNavButtonDisabled("trace")) {
-              return ;
+              return;
             }
             setNavButtonType("trace");
           }}
@@ -85,7 +87,7 @@ export default function ProjectDetailPage() {
           }
           onClick={() => {
             if (isNavButtonDisabled("conversation")) {
-              return ;
+              return;
             }
             setNavButtonType("conversation");
           }}
@@ -95,7 +97,24 @@ export default function ProjectDetailPage() {
       </div>
       <Separator />
       <div className="container mx-auto py-2">
-        <DataTable data={stepData} columns={stepColumns}/>
+        <DataTable data={stepData} columns={stepColumns} isNavigate={false}>
+          <RowPanelContent<Step>>
+            {(rowData) => (
+              <div>
+                <h3>Step Details</h3>
+                <p>step name: {rowData.name}</p>
+                <p>input:</p>
+                <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
+                  <code>{JSON.stringify(rowData.input, null, 2)}</code>
+                </pre>
+                <p>output:</p>
+                <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
+                  <code>{JSON.stringify(rowData.output, null, 2)}</code>
+                </pre>
+              </div>
+            )}
+          </RowPanelContent>
+        </DataTable>
       </div>
     </div>
   );

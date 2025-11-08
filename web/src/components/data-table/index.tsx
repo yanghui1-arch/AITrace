@@ -18,10 +18,12 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
-import { useState } from "react";
+import React, { useState, type ReactElement } from "react";
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 import { useNavigate, type NavigateFunction } from "react-router-dom";
+import { RowPanelContent } from "./data-table-row-panel";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 
 /**
  * DataTable general properties
@@ -35,16 +37,21 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   hasCreateProjectComponent?: boolean;
+  isNavigate: boolean;
+  children?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   hasCreateProjectComponent = false,
+  isNavigate = true,
+  children,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [clickRow, setClickRow] = useState<TData | null>(null);
   const navigate: NavigateFunction = useNavigate();
   const table = useReactTable({
     data,
@@ -80,6 +87,31 @@ export function DataTable<TData, TValue>({
         description: description
       }
     }); 
+  }
+
+  const rowPanel = Array.isArray(children)
+    ? (children as ReactElement[]).find((c) => c.type === RowPanelContent)
+    : (children as ReactElement | null)?.type === RowPanelContent
+    ? (children as ReactElement)
+    : null;
+
+  const renderPanel = rowPanel?.props?.children;
+  const popRowPanel = (e: React.MouseEvent, isSelectCell: boolean, row: RowData) => {
+    if(isSelectCell) {
+      e.stopPropagation();
+      return ;
+    }
+    if(rowPanel) {
+      setClickRow(row!.original as TData)
+    }
+  }
+
+  const handleClickRow = (e: React.MouseEvent, isSelectCell: boolean, row: RowData) => {
+    if(isNavigate) {
+      navigateProject(e, isSelectCell, row);
+    } else {
+      popRowPanel(e, isSelectCell, row);
+    }
   }
 
   return (
@@ -119,7 +151,7 @@ export function DataTable<TData, TValue>({
                       <TableCell
                         key={cell.id}
                         className={"text-center cursor-pointer"}
-                        onClick={(e) => (navigateProject(e, isSelectCell, row))}
+                        onClick={(e) => (handleClickRow(e, isSelectCell, row))}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
@@ -144,6 +176,14 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
       <DataTablePagination table={table} />
+      <Dialog open={!!clickRow} onOpenChange={() => setClickRow(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{clickRow?.name as string}</DialogTitle>
+          </DialogHeader>
+          {clickRow && renderPanel?.(clickRow)}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
