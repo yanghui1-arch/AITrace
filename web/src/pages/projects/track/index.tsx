@@ -97,7 +97,7 @@ export default function ProjectDetailPage() {
       </div>
       <Separator />
       <div className="container mx-auto py-2">
-        <DataTable data={stepData} columns={stepColumns} isNavigate={false}>
+        <DataTable data={stepData} columns={stepColumns}>
           <RowPanelContent<Step>>
             {(rowData) => (
               <div>

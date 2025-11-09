@@ -9,6 +9,7 @@ import {
   type ColumnFiltersState,
   getFilteredRowModel,
   type RowData,
+  type Row,
 } from "@tanstack/react-table";
 import {
   TableHead,
@@ -32,20 +33,22 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
  * @template TData - data type in every row
  * @template TValue - customized columndef
  * @template hasCreateProjectComponent - whether renderer a component of `Create Project` in the data table tool bar. if not provided, default to `false`
+ * @template isNavigate - whether start navigate while click the row. default to `false`
+ * @template children - components children. Supporting `RowPanelContent`
  */
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   hasCreateProjectComponent?: boolean;
-  isNavigate: boolean;
+  isNavigate?: boolean;
   children?: React.ReactNode;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends { name: string }, TValue>({
   columns,
   data,
   hasCreateProjectComponent = false,
-  isNavigate = true,
+  isNavigate = false,
   children,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -73,13 +76,12 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  const navigateProject = (e: React.MouseEvent, isSelectCell: boolean, row: RowData) => {
+  const navigateProject = (e: React.MouseEvent, isSelectCell: boolean, row: Row<TData>) => {
     if (isSelectCell) {
       e.stopPropagation();
       return ;
     }
-    // @ts-expect-error: TData maynot have name.
-    const name = (row.original as TData)?.name ?? row.id;
+    const name = (row.original as TData)?.name;
     // @ts-expect-error: TData maynot have description.
     const description = (row.original as TData)?.description ?? "";
     navigate(String(name), {
@@ -89,24 +91,28 @@ export function DataTable<TData, TValue>({
     }); 
   }
 
-  const rowPanel = Array.isArray(children)
-    ? (children as ReactElement[]).find((c) => c.type === RowPanelContent)
-    : (children as ReactElement | null)?.type === RowPanelContent
+  // Define row panel content type to avoid rowPanel raise type error.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const RowPanelContentType = RowPanelContent as unknown as React.JSXElementConstructor<any>
+
+  const rowPanel: ReactElement | null | undefined = Array.isArray(children)
+    ? (children as ReactElement[]).find((c) => c.type === RowPanelContentType)
+    : (children as ReactElement | null)?.type === RowPanelContentType
     ? (children as ReactElement)
     : null;
 
-  const renderPanel = rowPanel?.props?.children;
-  const popRowPanel = (e: React.MouseEvent, isSelectCell: boolean, row: RowData) => {
+  const renderPanel = (rowPanel?.props as { children ?: (rowData: RowData) => React.ReactNode})?.children;
+  const popRowPanel = (e: React.MouseEvent, isSelectCell: boolean, row: Row<TData>) => {
     if(isSelectCell) {
       e.stopPropagation();
       return ;
     }
     if(rowPanel) {
-      setClickRow(row!.original as TData)
+      setClickRow(row.original as TData)
     }
   }
 
-  const handleClickRow = (e: React.MouseEvent, isSelectCell: boolean, row: RowData) => {
+  const handleClickRow = (e: React.MouseEvent, isSelectCell: boolean, row: Row<TData>) => {
     if(isNavigate) {
       navigateProject(e, isSelectCell, row);
     } else {

@@ -8,6 +8,7 @@ interface RowPanelContentProps<TData> {
  * Replacement component and render logic is in DataTable component.
  * only pass render function while calling it.
  */
-export function RowPanelContent<TData>({ children }: RowPanelContentProps<TData>) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function RowPanelContent<TData>(_unused: RowPanelContentProps<TData>) {
   return null;
 }
