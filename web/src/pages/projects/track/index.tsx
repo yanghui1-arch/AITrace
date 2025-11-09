@@ -6,8 +6,11 @@ import axios from "axios";
 import { stepColumns, type Step } from "./step-columns";
 import { Separator } from "@/components/ui/separator";
 import { RowPanelContent } from "@/components/data-table/data-table-row-panel";
+import { Label } from "@/components/ui/label";
+import TokensPanel from "@/components/tokens-panel";
 
 export default function ProjectDetailPage() {
+
   const { name } = useParams<{ name: string }>();
   const location = useLocation();
   const projectDescription = location.state.description;
@@ -100,17 +103,28 @@ export default function ProjectDetailPage() {
         <DataTable data={stepData} columns={stepColumns}>
           <RowPanelContent<Step>>
             {(rowData) => (
-              <div>
-                <h3>Step Details</h3>
-                <p>step name: {rowData.name}</p>
-                <p>input:</p>
-                <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
-                  <code>{JSON.stringify(rowData.input, null, 2)}</code>
-                </pre>
-                <p>output:</p>
-                <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
-                  <code>{JSON.stringify(rowData.output, null, 2)}</code>
-                </pre>
+              <div className="flex gap-4 flex-col">
+                <TokensPanel model={rowData.model} usage={rowData.usage} cost={1}/>
+                <Separator />
+                <div className="flex gap-2">
+                  <div className="flex-1 flex flex-col gap-2">
+                    <Label htmlFor="input" className="font-semibold">
+                      Input
+                    </Label>
+                    <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
+                      <code>{JSON.stringify(rowData.input, null, 2)}</code>
+                    </pre>
+                  </div>
+                  <div className="flex-1 flex flex-col gap-2">
+                    <Label htmlFor="output" className="font-semibold">
+                      Output
+                    </Label>
+                    <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
+                      <code>{JSON.stringify(rowData.output, null, 2)}</code>
+                    </pre>
+                  </div>
+                </div>
+                
               </div>
             )}
           </RowPanelContent>
