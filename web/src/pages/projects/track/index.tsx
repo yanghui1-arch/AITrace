@@ -8,9 +8,11 @@ import { Separator } from "@/components/ui/separator";
 import { RowPanelContent } from "@/components/data-table/data-table-row-panel";
 import { Label } from "@/components/ui/label";
 import TokensPanel from "@/components/tokens-panel";
+import { Card, CardContent} from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { LLMJsonHighlight } from "@/components/json-highlight";
 
 export default function ProjectDetailPage() {
-
   const { name } = useParams<{ name: string }>();
   const location = useLocation();
   const projectDescription = location.state.description;
@@ -104,27 +106,102 @@ export default function ProjectDetailPage() {
           <RowPanelContent<Step>>
             {(rowData) => (
               <div className="flex gap-4 flex-col">
-                <TokensPanel model={rowData.model} usage={rowData.usage} cost={1}/>
+                <TokensPanel
+                  model={rowData.model}
+                  usage={rowData.usage}
+                  cost={1}
+                />
                 <Separator />
-                <div className="flex gap-2">
-                  <div className="flex-1 flex flex-col gap-2">
-                    <Label htmlFor="input" className="font-semibold">
-                      Input
-                    </Label>
-                    <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
-                      <code>{JSON.stringify(rowData.input, null, 2)}</code>
-                    </pre>
-                  </div>
-                  <div className="flex-1 flex flex-col gap-2">
-                    <Label htmlFor="output" className="font-semibold">
-                      Output
-                    </Label>
-                    <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
-                      <code>{JSON.stringify(rowData.output, null, 2)}</code>
-                    </pre>
-                  </div>
+                <Label className="font-semibold">Step Function Details</Label>
+                  {rowData.input.func_inputs && (
+                    <div className="flex gap-4">
+                      <div className="flex flex-col flex-1 gap-4">
+                        <Label>Step Original Input</Label>
+                        <Card>
+                          <CardContent>
+                            <ScrollArea className="max-h-58 overflow-auto rounded-md">
+                              <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
+                                <code>
+                                  {JSON.stringify(
+                                    rowData.input.func_inputs,
+                                    null,
+                                    2
+                                  )}
+                                </code>
+                              </pre>
+                            </ScrollArea>
+                          </CardContent>
+                        </Card>
+                      </div>
+                      <div className="h-full border-l border-muted" />
+                      <div className="flex flex-col flex-1 gap-4">
+                        <Label>Step Final Output</Label>
+                        <Card>
+                          <CardContent>
+                            <ScrollArea className="max-h-58 overflow-auto rounded-md">
+                              <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
+                                <code>
+                                  {JSON.stringify(
+                                    rowData.output.func_output
+                                      ? rowData.output.func_output
+                                      : rowData.errorInfo ??
+                                          "Something errors.",
+                                    null,
+                                    2
+                                  )}
+                                </code>
+                              </pre>
+                            </ScrollArea>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </div>
+                  )}
+                  <Separator />
+                <Label className="font-semibold">LLM Details</Label>
+                <div className="flex flex-col gap-4">
+                  {rowData.input.llm_inputs && (
+                    <div className="flex gap-4">
+                      <div className="flex flex-col flex-1 gap-4">
+                        <Label>Input</Label>
+                        <Card>
+                          <CardContent>
+                            <ScrollArea className="max-h-58 overflow-auto rounded-md">
+                              <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
+                                <code>
+                                <LLMJsonHighlight jsonObject={rowData.input.llm_inputs as Record<string, unknown>} />
+                                </code>
+                              </pre>
+                            </ScrollArea>
+                          </CardContent>
+                        </Card>
+                      </div>
+                      <div className="h-full border-l border-muted" />
+                      <div className="flex flex-col flex-1 gap-4">
+                        <Label>Output</Label>
+                        <Card>
+                          <CardContent>
+                            <ScrollArea className="max-h-58 overflow-auto rounded-md">
+                              <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
+                                <code>
+                                  {JSON.stringify(
+                                    rowData.output.llm_outputs
+                                      ? rowData.output.llm_outputs
+                                      : rowData.errorInfo ??
+                                          "Something errors.",
+                                    null,
+                                    2
+                                  )}
+                                </code>
+                              </pre>
+                            </ScrollArea>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </div>
+                  )}
+                  
                 </div>
-                
               </div>
             )}
           </RowPanelContent>
