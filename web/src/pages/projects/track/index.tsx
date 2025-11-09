@@ -8,9 +8,10 @@ import { Separator } from "@/components/ui/separator";
 import { RowPanelContent } from "@/components/data-table/data-table-row-panel";
 import { Label } from "@/components/ui/label";
 import TokensPanel from "@/components/tokens-panel";
-import { Card, CardContent} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LLMJsonHighlight } from "@/components/json-highlight";
+import { Clock } from "lucide-react";
 
 export default function ProjectDetailPage() {
   const { name } = useParams<{ name: string }>();
@@ -106,6 +107,20 @@ export default function ProjectDetailPage() {
           <RowPanelContent<Step>>
             {(rowData) => (
               <div className="flex gap-4 flex-col">
+                <div className="ml-auto font-mono text-xs flex gap-1">
+                    <Clock size={"16px"} />
+                    {new Date(rowData.endTime).getTime() -
+                      new Date(rowData.startTime).getTime() <
+                    1000
+                      ? new Date(rowData.endTime).getTime() -
+                        new Date(rowData.startTime).getTime() +
+                        "ms"
+                      : (
+                          (new Date(rowData.endTime).getTime() -
+                            new Date(rowData.startTime).getTime()) /
+                          1000
+                        ).toFixed(2) + "s"}
+                </div>
                 <TokensPanel
                   model={rowData.model}
                   usage={rowData.usage}
@@ -113,51 +128,50 @@ export default function ProjectDetailPage() {
                 />
                 <Separator />
                 <Label className="font-semibold">Step Function Details</Label>
-                  {rowData.input.func_inputs && (
-                    <div className="flex gap-4">
-                      <div className="flex flex-col flex-1 gap-4">
-                        <Label>Step Original Input</Label>
-                        <Card>
-                          <CardContent>
-                            <ScrollArea className="max-h-58 overflow-auto rounded-md">
-                              <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
-                                <code>
-                                  {JSON.stringify(
-                                    rowData.input.func_inputs,
-                                    null,
-                                    2
-                                  )}
-                                </code>
-                              </pre>
-                            </ScrollArea>
-                          </CardContent>
-                        </Card>
-                      </div>
-                      <div className="h-full border-l border-muted" />
-                      <div className="flex flex-col flex-1 gap-4">
-                        <Label>Step Final Output</Label>
-                        <Card>
-                          <CardContent>
-                            <ScrollArea className="max-h-58 overflow-auto rounded-md">
-                              <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
-                                <code>
-                                  {JSON.stringify(
-                                    rowData.output.func_output
-                                      ? rowData.output.func_output
-                                      : rowData.errorInfo ??
-                                          "Something errors.",
-                                    null,
-                                    2
-                                  )}
-                                </code>
-                              </pre>
-                            </ScrollArea>
-                          </CardContent>
-                        </Card>
-                      </div>
+                {rowData.input.func_inputs && (
+                  <div className="flex gap-4">
+                    <div className="flex flex-col flex-1 gap-4">
+                      <Label>Step Original Input</Label>
+                      <Card>
+                        <CardContent>
+                          <ScrollArea className="max-h-58 overflow-auto rounded-md">
+                            <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
+                              <code>
+                                {JSON.stringify(
+                                  rowData.input.func_inputs,
+                                  null,
+                                  2
+                                )}
+                              </code>
+                            </pre>
+                          </ScrollArea>
+                        </CardContent>
+                      </Card>
                     </div>
-                  )}
-                  <Separator />
+                    <div className="h-full border-l border-muted" />
+                    <div className="flex flex-col flex-1 gap-4">
+                      <Label>Step Final Output</Label>
+                      <Card>
+                        <CardContent>
+                          <ScrollArea className="max-h-58 overflow-auto rounded-md">
+                            <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
+                              <code>
+                                {JSON.stringify(
+                                  rowData.output.func_output
+                                    ? rowData.output.func_output
+                                    : rowData.errorInfo ?? "Something errors.",
+                                  null,
+                                  2
+                                )}
+                              </code>
+                            </pre>
+                          </ScrollArea>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                )}
+                <Separator />
                 <Label className="font-semibold">LLM Details</Label>
                 <div className="flex flex-col gap-4">
                   {rowData.input.llm_inputs && (
@@ -169,7 +183,14 @@ export default function ProjectDetailPage() {
                             <ScrollArea className="max-h-58 overflow-auto rounded-md">
                               <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
                                 <code>
-                                <LLMJsonHighlight jsonObject={rowData.input.llm_inputs as Record<string, unknown>} />
+                                  <LLMJsonHighlight
+                                    jsonObject={
+                                      rowData.input.llm_inputs as Record<
+                                        string,
+                                        unknown
+                                      >
+                                    }
+                                  />
                                 </code>
                               </pre>
                             </ScrollArea>
@@ -200,7 +221,6 @@ export default function ProjectDetailPage() {
                       </div>
                     </div>
                   )}
-                  
                 </div>
               </div>
             )}
