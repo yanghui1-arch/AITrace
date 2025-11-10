@@ -6,7 +6,7 @@ interface LLMJsonHighlightProps {
 
 export function LLMJsonHighlight({ jsonObject }: LLMJsonHighlightProps) {
   return (
-    <div className="font-mono text-sm">
+    <span className="font-mono text-sm">
       {"{"}
       {Object.entries(jsonObject).map(([key, value], idx, arr) => (
         <div key={key} className="ml-4">
@@ -17,7 +17,7 @@ export function LLMJsonHighlight({ jsonObject }: LLMJsonHighlightProps) {
         </div>
       ))}
       {"}"}
-    </div>
+    </span>
   );
 }
 
