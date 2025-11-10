@@ -1,20 +1,20 @@
 package com.supertrace.aitrace.service.impl;
 
-import com.supertrace.aitrace.domain.core.Step;
 import com.supertrace.aitrace.domain.core.Trace;
 import com.supertrace.aitrace.dto.trace.LogTraceRequest;
 import com.supertrace.aitrace.factory.TraceFactory;
 import com.supertrace.aitrace.repository.TraceRepository;
-import com.supertrace.aitrace.service.LogTraceService;
+import com.supertrace.aitrace.service.TraceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class LogTraceServiceImpl implements LogTraceService {
+public class TraceServiceImpl implements TraceService {
 
     private final TraceRepository traceRepository;
     private final TraceFactory traceFactory;
@@ -32,5 +32,11 @@ public class LogTraceServiceImpl implements LogTraceService {
 
         // 4. return step id
         return trace.getId();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public List<Trace> getTrace(String projectName) {
+        return this.traceRepository.findByProjectName(projectName);
     }
 }
