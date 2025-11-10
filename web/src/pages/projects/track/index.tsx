@@ -5,6 +5,8 @@ import axios from "axios";
 import { stepColumns, type Step } from "./step-columns";
 import { Separator } from "@/components/ui/separator";
 import { StepTable } from "@/components/step-table";
+import { traceColumns, type Trace } from "./trace-columns";
+import { TraceTable } from "@/components/trace-table";
 
 export default function ProjectDetailPage() {
   const { name } = useParams<{ name: string }>();
@@ -19,6 +21,7 @@ export default function ProjectDetailPage() {
   };
 
   const [stepData, setStepData] = useState<Step[]>([]);
+  const [traceData, setTraceData] = useState<Trace[]>([]);
 
   useEffect(() => {
     const api = axios.create({
@@ -40,7 +43,14 @@ export default function ProjectDetailPage() {
       );
       setStepData(steps.data);
     };
+    const loadTraceDataOfProject = async () => {
+      const traces = await api.get(
+        `/trace/${encodeURIComponent("aitrace_demo")}`
+      );
+      setTraceData(traces.data)
+    }
     loadStepDataOfProject();
+    loadTraceDataOfProject();
   }, []);
 
   return (
@@ -98,7 +108,7 @@ export default function ProjectDetailPage() {
       {navButtonType === "step" ? (
         <StepTable data={stepData} columns={stepColumns} />
       ) : navButtonType === "trace" ? (
-        <div>123</div>
+        <div><TraceTable data={traceData} columns={traceColumns}/></div>
       ) : (
         "Unknow"
       )}
