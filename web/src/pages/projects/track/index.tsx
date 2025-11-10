@@ -9,9 +9,8 @@ import { RowPanelContent } from "@/components/data-table/data-table-row-panel";
 import { Label } from "@/components/ui/label";
 import TokensPanel from "@/components/tokens-panel";
 import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { LLMJsonHighlight } from "@/components/json-highlight";
 import { Clock } from "lucide-react";
+import { StepDetail } from "@/components/step-details";
 
 export default function ProjectDetailPage() {
   const { name } = useParams<{ name: string }>();
@@ -108,18 +107,18 @@ export default function ProjectDetailPage() {
             {(rowData) => (
               <div className="flex gap-4 flex-col">
                 <div className="ml-auto font-mono text-xs flex gap-1">
-                    <Clock size={"16px"} />
-                    {new Date(rowData.endTime).getTime() -
-                      new Date(rowData.startTime).getTime() <
-                    1000
-                      ? new Date(rowData.endTime).getTime() -
-                        new Date(rowData.startTime).getTime() +
-                        "ms"
-                      : (
-                          (new Date(rowData.endTime).getTime() -
-                            new Date(rowData.startTime).getTime()) /
-                          1000
-                        ).toFixed(2) + "s"}
+                  <Clock size={"16px"} />
+                  {new Date(rowData.endTime).getTime() -
+                    new Date(rowData.startTime).getTime() <
+                  1000
+                    ? new Date(rowData.endTime).getTime() -
+                      new Date(rowData.startTime).getTime() +
+                      "ms"
+                    : (
+                        (new Date(rowData.endTime).getTime() -
+                          new Date(rowData.startTime).getTime()) /
+                        1000
+                      ).toFixed(2) + "s"}
                 </div>
                 <TokensPanel
                   model={rowData.model}
@@ -131,43 +130,47 @@ export default function ProjectDetailPage() {
                 {rowData.input.func_inputs && (
                   <div className="flex gap-4">
                     <div className="flex flex-col flex-1 gap-4">
-                      <Label>Step Original Input</Label>
-                      <Card>
-                        <CardContent>
-                          <ScrollArea className="max-h-58 overflow-auto rounded-md">
-                            <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
-                              <code>
-                                {JSON.stringify(
-                                  rowData.input.func_inputs,
-                                  null,
-                                  2
-                                )}
-                              </code>
-                            </pre>
-                          </ScrollArea>
-                        </CardContent>
-                      </Card>
+                      <StepDetail
+                        labelTitle="Step Original Input"
+                        jsonObject={rowData.input.func_inputs}
+                      />
                     </div>
-                    <div className="h-full border-l border-muted" />
+                    <div className="h-full border-l-5 border-muted" />
                     <div className="flex flex-col flex-1 gap-4">
-                      <Label>Step Final Output</Label>
-                      <Card>
-                        <CardContent>
-                          <ScrollArea className="max-h-58 overflow-auto rounded-md">
-                            <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
-                              <code>
-                                {JSON.stringify(
-                                  rowData.output.func_output
-                                    ? rowData.output.func_output
-                                    : rowData.errorInfo ?? "Something errors.",
-                                  null,
-                                  2
-                                )}
-                              </code>
-                            </pre>
-                          </ScrollArea>
-                        </CardContent>
-                      </Card>
+                      {rowData.output.func_output &&
+                      typeof rowData.output.func_output === "string" ? (
+                        <>
+                          <Label>Step Final Output</Label>
+                          <Card>
+                            <CardContent>
+                              <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
+                                <code>
+                                  {JSON.stringify(
+                                    rowData.output.func_output
+                                      ? rowData.output.func_output
+                                      : rowData.errorInfo ??
+                                          "Something errors.",
+                                    null,
+                                    2
+                                  )}
+                                </code>
+                              </pre>
+                            </CardContent>
+                          </Card>
+                        </>
+                      ) : (
+                        <StepDetail
+                          labelTitle="Step Final Output"
+                          jsonObject={
+                            rowData.output.func_output as Record<
+                              string,
+                              undefined
+                            >
+                          }
+                          errorInfo={rowData.errorInfo}
+                          llmJsonLight={false}
+                        />
+                      )}
                     </div>
                   </div>
                 )}
@@ -177,47 +180,11 @@ export default function ProjectDetailPage() {
                   {rowData.input.llm_inputs && (
                     <div className="flex gap-4">
                       <div className="flex flex-col flex-1 gap-4">
-                        <Label>Input</Label>
-                        <Card>
-                          <CardContent>
-                            <ScrollArea className="max-h-58 overflow-auto rounded-md">
-                              <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
-                                <code>
-                                  <LLMJsonHighlight
-                                    jsonObject={
-                                      rowData.input.llm_inputs as Record<
-                                        string,
-                                        unknown
-                                      >
-                                    }
-                                  />
-                                </code>
-                              </pre>
-                            </ScrollArea>
-                          </CardContent>
-                        </Card>
+                        <StepDetail labelTitle="Input" jsonObject={rowData.input.llm_inputs as Record<string, unknown>} />
                       </div>
                       <div className="h-full border-l border-muted" />
-                      <div className="flex flex-col flex-1 gap-4">
-                        <Label>Output</Label>
-                        <Card>
-                          <CardContent>
-                            <ScrollArea className="max-h-58 overflow-auto rounded-md">
-                              <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
-                                <code>
-                                  {JSON.stringify(
-                                    rowData.output.llm_outputs
-                                      ? rowData.output.llm_outputs
-                                      : rowData.errorInfo ??
-                                          "Something errors.",
-                                    null,
-                                    2
-                                  )}
-                                </code>
-                              </pre>
-                            </ScrollArea>
-                          </CardContent>
-                        </Card>
+                      <div className="flex flex-col flex-1 gap-4 w-full">
+                        <StepDetail labelTitle="Output" jsonObject={rowData.output.llm_outputs as unknown as Record<string, unknown>} errorInfo={rowData.errorInfo} llmJsonLight={true}/>
                       </div>
                     </div>
                   )}

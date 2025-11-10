@@ -27,13 +27,13 @@ export interface FilteredFieldsOpenAIChatCompletionsOutput {
 
 /* style as the same as python to sql storage */
 export interface InputData {
-  func_inputs: object;
+  func_inputs: Record<string, unknown>;
   llm_inputs?: ResponseCreateParams;
 }
 
 /* style as the same as python to sql storage */
 export interface OutputData {
-  func_output?: object | string;
+  func_output?: Record<string, unknown> | string;
   llm_outputs?: FilteredFieldsOpenAIChatCompletionsOutput;
 }
 
