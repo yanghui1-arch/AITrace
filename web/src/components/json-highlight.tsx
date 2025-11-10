@@ -21,9 +21,7 @@ export function LLMJsonHighlight({ jsonObject }: LLMJsonHighlightProps) {
   );
 }
 
-/**
- * 根据值类型（对象/数组/基本类型）进行渲染
- */
+/* render json based on type(string, object or number) */
 function renderValue(value: unknown, keyName?: string): ReactElement {
   if (value === null) {
     return <span className="foreground">null</span>;
