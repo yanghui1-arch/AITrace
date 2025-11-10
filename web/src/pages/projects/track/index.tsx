@@ -1,16 +1,9 @@
-import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import axios from "axios";
 import { stepColumns, type Step } from "./step-columns";
 import { Separator } from "@/components/ui/separator";
-import { RowPanelContent } from "@/components/data-table/data-table-row-panel";
-import { Label } from "@/components/ui/label";
-import TokensPanel from "@/components/tokens-panel";
-import { Card, CardContent } from "@/components/ui/card";
-import { Clock } from "lucide-react";
-import { StepDetail } from "@/components/step-details";
 import { StepTable } from "@/components/step-table";
 
 export default function ProjectDetailPage() {
