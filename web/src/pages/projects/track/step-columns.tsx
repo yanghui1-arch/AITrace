@@ -45,7 +45,7 @@ export type Step = {
   output: OutputData;
   tags: Array<string>;
   errorInfo?: string;
-  model: string;
+  model?: string;
   usage?: CompletionUsage;
   startTime: string;
   endTime: string;
