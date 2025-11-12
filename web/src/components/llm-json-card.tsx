@@ -10,7 +10,7 @@ interface StepDetailProp {
   llmJsonLight?: boolean;
 }
 
-export function StepDetail({
+export function LLMJsonCard({
   labelTitle,
   jsonObject,
   errorInfo,

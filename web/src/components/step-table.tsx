@@ -5,7 +5,7 @@ import { Clock } from "lucide-react";
 import TokensPanel from "./tokens-panel";
 import { Separator } from "@radix-ui/react-separator";
 import { Label } from "./ui/label";
-import { StepDetail } from "./step-details";
+import { LLMJsonCard } from "./llm-json-card";
 import { Card, CardContent } from "./ui/card";
 import type { ColumnDef } from "@tanstack/react-table";
 
@@ -45,7 +45,7 @@ export function StepTable<TValue>({ columns, data }: StepTableProps<TValue>) {
               {rowData.input.func_inputs && (
                 <div className="flex gap-4">
                   <div className="flex flex-col flex-1 gap-4">
-                    <StepDetail
+                    <LLMJsonCard
                       labelTitle="Step Original Input"
                       jsonObject={rowData.input.func_inputs}
                     />
@@ -73,7 +73,7 @@ export function StepTable<TValue>({ columns, data }: StepTableProps<TValue>) {
                         </Card>
                       </>
                     ) : (
-                      <StepDetail
+                      <LLMJsonCard
                         labelTitle="Step Final Output"
                         jsonObject={
                           rowData.output.func_output as Record<
@@ -94,7 +94,7 @@ export function StepTable<TValue>({ columns, data }: StepTableProps<TValue>) {
                 {rowData.input.llm_inputs && (
                   <div className="flex gap-4">
                     <div className="flex flex-col flex-1 gap-4">
-                      <StepDetail
+                      <LLMJsonCard
                         labelTitle="Input"
                         jsonObject={
                           rowData.input.llm_inputs as Record<string, unknown>
@@ -103,7 +103,7 @@ export function StepTable<TValue>({ columns, data }: StepTableProps<TValue>) {
                     </div>
                     <div className="h-full border-l border-muted" />
                     <div className="flex flex-col flex-1 gap-4 w-full">
-                      <StepDetail
+                      <LLMJsonCard
                         labelTitle="Output"
                         jsonObject={
                           rowData.output.llm_outputs as unknown as Record<
