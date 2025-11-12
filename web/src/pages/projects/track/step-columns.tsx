@@ -145,7 +145,7 @@ export const stepColumns: ColumnDef<Step>[] = [
       return (
         <div className="flex gap-2 justify-center">
           <ScrollArea className="h-20 w-58 rounded-md p-4 ">
-            <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
+            <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
               <code>{JSON.stringify(functionInput, null, 2)}</code>
             </pre>
           </ScrollArea>
@@ -166,7 +166,7 @@ export const stepColumns: ColumnDef<Step>[] = [
       return (
         <div className="flex gap-2 justify-center">
           <ScrollArea className="h-20 w-58 rounded-md p-4 ">
-            <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
+            <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
               <code>{JSON.stringify(functionOutput, null, 2)}</code>
             </pre>
           </ScrollArea>
@@ -187,7 +187,7 @@ export const stepColumns: ColumnDef<Step>[] = [
       return (
         <div className="flex gap-2 justify-center">
           <ScrollArea className="h-20 w-58 rounded-md p-4 ">
-            <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
+            <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
               <code>{JSON.stringify(LLMInput, null, 2)}</code>
             </pre>
           </ScrollArea>
@@ -208,7 +208,7 @@ export const stepColumns: ColumnDef<Step>[] = [
       return (
         <div className="flex gap-2 justify-center">
           <ScrollArea className="h-20 w-58 rounded-md p-4 ">
-            <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
+            <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
               <code>{JSON.stringify(LLMOutput, null, 2)}</code>
             </pre>
           </ScrollArea>

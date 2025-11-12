@@ -118,7 +118,7 @@ export const traceColumns: ColumnDef<Trace>[] = [
       return (
         <div className="flex gap-2 justify-center">
           <ScrollArea className="h-20 w-58 rounded-md p-4 ">
-            <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
+            <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
               <code>{JSON.stringify(traceInput, null, 2)}</code>
             </pre>
           </ScrollArea>
@@ -139,7 +139,7 @@ export const traceColumns: ColumnDef<Trace>[] = [
       return (
         <div className="flex gap-2 justify-center">
           <ScrollArea className="h-20 w-58 rounded-md p-4 ">
-            <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
+            <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
               <code>{JSON.stringify(traceOutput, null, 2)}</code>
             </pre>
           </ScrollArea>
@@ -162,7 +162,7 @@ export const traceColumns: ColumnDef<Trace>[] = [
               {tracks.map((track, index) => {
                 return (
                   <div key={index} className="flex flex-col items-center">
-                    <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
+                    <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
                       <code>{track.step.name}</code>
                     </pre>
                     {index < tracks.length - 1 && (
@@ -171,7 +171,7 @@ export const traceColumns: ColumnDef<Trace>[] = [
                   </div>
                 );
               })}
-            <pre className="text-sm font-mono whitespace-pre-wrap break-words text-left">
+            <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
               <code></code>
             </pre>
           </ScrollArea>
