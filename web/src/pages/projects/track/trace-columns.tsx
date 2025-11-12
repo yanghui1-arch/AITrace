@@ -5,6 +5,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowDown, ArrowUp, List } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+interface TraceOutput {
+  llm_outputs: Record<string, unknown>;
+  func_output: Record<string, unknown>;
+}
+
 export type Track = {
   step: Step;
   localDatetime: string;
@@ -15,7 +20,7 @@ export type Trace = {
   name: string;
   tags: string[];
   input?: Record<string, unknown>;
-  output?: Record<string, unknown>;
+  output?: TraceOutput;
   tracks: Track[];
   errorInfo?: string;
   startTime: string;
