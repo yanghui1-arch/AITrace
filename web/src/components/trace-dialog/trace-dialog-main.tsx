@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Button } from "./ui/button";
-import { Label } from "./ui/label";
+import { Button } from "../ui/button";
+import { Label } from "../ui/label";
 import type { Trace } from "@/pages/projects/track/trace-columns";
 import { TraceDialogIOPanel } from "./trace-dialog-io";
 import { TraceDialogProcessPanel } from "./trace-dailog-process";

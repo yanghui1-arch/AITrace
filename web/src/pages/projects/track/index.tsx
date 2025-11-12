@@ -47,8 +47,8 @@ export default function ProjectDetailPage() {
       const traces = await api.get(
         `/trace/${encodeURIComponent("aitrace_demo")}`
       );
-      setTraceData(traces.data)
-    }
+      setTraceData(traces.data);
+    };
     loadStepDataOfProject();
     loadTraceDataOfProject();
   }, []);
@@ -108,7 +108,9 @@ export default function ProjectDetailPage() {
       {navButtonType === "step" ? (
         <StepTable data={stepData} columns={stepColumns} />
       ) : navButtonType === "trace" ? (
-        <div><TraceTable data={traceData} columns={traceColumns}/></div>
+        <div>
+          <TraceTable data={traceData} columns={traceColumns} />
+        </div>
       ) : (
         "Unknow"
       )}

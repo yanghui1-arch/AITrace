@@ -3,11 +3,11 @@ import { Background, ReactFlow, type Node, type Edge } from "@xyflow/react";
 import { TraceProcessNode } from "./trace-process-node";
 import dagre from "dagre";
 import { useState } from "react";
-import { Button } from "./ui/button";
-import { Label } from "./ui/label";
-import { LLMJsonCard } from "./llm-json-card";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
-import { FunctionIOCard } from "./fn-io-card";
+import { Button } from "../ui/button";
+import { Label } from "../ui/label";
+import { LLMJsonCard } from "../llm-json-card";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
+import { FunctionIOCard } from "../fn-io-card";
 
 interface TraceDialogProcessPanelProps {
   data: Trace;

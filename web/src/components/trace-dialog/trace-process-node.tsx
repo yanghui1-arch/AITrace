@@ -3,7 +3,7 @@ import {
   BaseNode,
   BaseNodeHeader,
   BaseNodeHeaderTitle,
-} from "@/components/base-node";
+} from "@/components/xyflow-ui/base-node";
 import { Rocket } from "lucide-react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 

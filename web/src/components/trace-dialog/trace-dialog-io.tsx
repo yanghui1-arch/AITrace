@@ -1,5 +1,5 @@
 import type { Trace } from "@/pages/projects/track/trace-columns";
-import { LLMJsonCard } from "./llm-json-card";
+import { LLMJsonCard } from "../llm-json-card";
 
 interface TraceDialogIOPanelProps {
   data: Trace;
