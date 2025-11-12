@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Clock } from "lucide-react";
 import TokensPanel from "./tokens-panel";
 import type { CompletionUsage } from "openai/resources/completions.mjs";
+import { TraceDialogMain } from "./trace-dialog-main";
 
 interface TraceTableProps<TValue> {
   columns: ColumnDef<Trace, TValue>[];
@@ -94,6 +95,7 @@ export function TraceTable<TValue>({ columns, data }: TraceTableProps<TValue>) {
                     cost={1}
                   />
                 ))}
+                <TraceDialogMain data={rowData}/>
               </div>
             );
           }}
