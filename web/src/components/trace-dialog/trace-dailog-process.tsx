@@ -194,7 +194,7 @@ export function TraceDialogProcessPanel({
         <Background />
       </ReactFlow>
       <Sheet open={!!selectedNode} onOpenChange={() => setSelectedNode(null)}>
-        {selectedNode && (
+        {selectedNode && selectedNode.id !== "0" && selectedNode.id !== `${tracks.length + 1}` && (
           <SheetContent className="p-4 max-w-[40vw] md:max-w-[480px] max-h-[calc(100vh-2rem)] overflow-auto">
             <SheetHeader>
               <SheetTitle>
