@@ -4,7 +4,9 @@ from dataclasses import dataclass
 from types import FrameType
 from typing import Callable, Tuple, Dict, List, Any
 
+from openai._streaming import Stream
 from openai.types.chat.chat_completion import ChatCompletion
+from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 
 from .._exception import CallingSDKNotFoundException
 from ..models.common import LLMProvider
@@ -41,7 +43,7 @@ class TrackLLMFunction:
     name: str
     provider: LLMProvider
     inputs: Dict[str, Any] | None = None
-    output: ChatCompletion | None = None
+    output: ChatCompletion | Stream[ChatCompletionChunk] | None = None
 
     # TODO: Offer a function to exclude Omit and NOTGIVEN
 
@@ -65,7 +67,9 @@ def start_trace_llm(func_name: str, provider: LLMProvider):
 # TODO: The bug of the same function name in different packages or classes. 
 #       Some of them are needed to track llm but the rest don't need.
 def start_trace_openai(track_llm_function: TrackLLMFunction):
-    """start trace openai"""
+    """start trace openai
+    Supports openai.chat.completion.creat() function. If stream is `True` it will track the `Stream` else track `ChatCompletion`.
+    """
 
     def trace_openai(frame: FrameType, event, arg):
         global to_track_llm_funcs
