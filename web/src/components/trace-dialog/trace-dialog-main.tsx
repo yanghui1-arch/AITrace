@@ -37,7 +37,7 @@ export function TraceDialogMain({ data }: TraceDialogMainProps) {
       </div>
       <div>
         {displayType === "io" && <TraceDialogIOPanel data={data}/>}
-        {displayType === "process" && <TraceDialogProcessPanel data={data} input={data.input} output={data.output?.func_output}/>}
+        {displayType === "process" && <TraceDialogProcessPanel data={data} input={data.input} output={data.output?.func_output} errorInfo={data.errorInfo}/>}
       </div>
     </div>
   );

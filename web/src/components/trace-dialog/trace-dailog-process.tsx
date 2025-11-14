@@ -14,6 +14,7 @@ interface TraceDialogProcessPanelProps {
   input?: Record<string, unknown> | undefined;
   data: Trace;
   output?: Record<string, unknown> | string | undefined;
+  errorInfo?: string;
 }
 
 const nodeTypes = {
@@ -25,6 +26,7 @@ export function TraceDialogProcessPanel({
   input,
   data,
   output,
+  errorInfo,
 }: TraceDialogProcessPanelProps) {
   const tracks = data.tracks;
 
@@ -125,7 +127,7 @@ export function TraceDialogProcessPanel({
       id: (tracks.length + 1).toString(),
       data: {
         output: output,
-        total: tracks.length,
+        errorInfo: errorInfo,
       },
       position: {
         x: x,
