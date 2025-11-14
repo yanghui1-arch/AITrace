@@ -2,11 +2,13 @@ import { LLMJsonCard } from "./llm-json-card";
 import { Card, CardContent } from "./ui/card";
 import { Label } from "./ui/label";
 import { ScrollArea } from "./ui/scroll-area";
+import { cn } from "@/lib/utils";
 
 interface FunctionIOCardProps {
   labelTitle: string;
   data?: string | Record<string, unknown>;
   errorInfo?: string;
+  className?: string;
 }
 /**
  * Tracked function input or output card
@@ -22,9 +24,10 @@ export function FunctionIOCard({
   labelTitle,
   data,
   errorInfo,
+  className,
 }: FunctionIOCardProps) {
   return (
-    <div className="flex flex-col flex-1 gap-4">
+    <div className={cn("flex flex-col flex-1 gap-4", className)}>
       {data && typeof data === "string" ? (
         <>
           <Label>{labelTitle}</Label>
@@ -46,7 +49,7 @@ export function FunctionIOCard({
         </>
       ) : (
         <LLMJsonCard
-          labelTitle="Step Final Output"
+          labelTitle={labelTitle}
           jsonObject={data as Record<string, undefined>}
           errorInfo={errorInfo}
           llmJsonLight={false}
