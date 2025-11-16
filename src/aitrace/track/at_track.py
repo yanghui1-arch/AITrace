@@ -1,7 +1,9 @@
 from typing import override, Callable, Tuple, Dict, Any
+from more_itertools import peekable
 from openai import Stream
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from .base import BaseTracker, TrackerOptions
+from ._types import STREAM_CONSUMED
 from ..helper import args_helper, inspect_helper
 from ..helper.llm import openai_helper
 
@@ -75,7 +77,12 @@ class AITraceTracker(BaseTracker):
 
                 final_output['llm_outputs'] = llm_outputs.model_dump(exclude_none=True)
             else:
-                final_output['llm_outputs'] = track_llm_func.output
+                # If openai.Stream has been consumed in the thread, the llm outputs should be `STREAM_CONSUMED`.
+                # Else be a openai.Stream.
+                # Because if `openai.Stream` has not been consumed which means it maybe as a return value to make other functions to use.
+                # If `openai.Stream` has been consumed which means its output has been written in the context storage.
+                wrap_stream = peekable(track_llm_func.output)
+                final_output['llm_outputs'] = track_llm_func.output if wrap_stream.peek(None) else STREAM_CONSUMED
 
         return args_helper.EndArguments(
             tags=tracker_options.tags,
