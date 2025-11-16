@@ -1,4 +1,6 @@
 from typing import override, Callable, Tuple, Dict, Any
+from openai import Stream
+from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from .base import BaseTracker, TrackerOptions
 from ..helper import args_helper, inspect_helper
 from ..helper.llm import openai_helper
@@ -50,7 +52,6 @@ class AITraceTracker(BaseTracker):
         llm_inputs = None
         llm_usage = None
         
-        # TODO: fix final_output is an empty dictionary if output is a Dict
         if output: 
             final_output['func_output'] = output
         else:
@@ -59,15 +60,22 @@ class AITraceTracker(BaseTracker):
         if tracker_options.track_llm:
             # stop trace any funcs first
             track_llm_func = inspect_helper.stop_trace_llm(func_name=func.__name__)
+            if not isinstance(track_llm_func.output, Stream):
+                llm_inputs = openai_helper.remove_chat_completion_input_fields(
+                    openai_chat_completion_params=track_llm_func.inputs, 
+                    ignore_fields=tracker_options.llm_ignore_fields
+                )
 
-            llm_inputs = openai_helper.remove_chat_completion_input_fields(openai_chat_completion_params=track_llm_func.inputs, ignore_fields=tracker_options.llm_ignore_fields)
-            llm_outputs:openai_helper.FilteredFieldsOpenAIChatCompletionsOutput = openai_helper.remove_chat_completion_output_fields(
-                openai_chat_completion_output=track_llm_func.output, 
-                ignore_fields=tracker_options.llm_ignore_fields
-            )
-            llm_usage = llm_outputs.usage
+                llm_outputs:openai_helper.FilteredFieldsOpenAIChatCompletionsOutput = openai_helper.remove_chat_completion_output_fields(
+                    openai_chat_completion_output=track_llm_func.output, 
+                    ignore_fields=tracker_options.llm_ignore_fields
+                )
 
-            final_output['llm_outputs'] = llm_outputs.model_dump(exclude_none=True)
+                llm_usage = llm_outputs.usage
+
+                final_output['llm_outputs'] = llm_outputs.model_dump(exclude_none=True)
+            else:
+                final_output['llm_outputs'] = track_llm_func.output
 
         return args_helper.EndArguments(
             tags=tracker_options.tags,
