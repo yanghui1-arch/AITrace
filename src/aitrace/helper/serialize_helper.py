@@ -1,5 +1,6 @@
 from typing import Any
 from pydantic import BaseModel
+from openai import Stream
 
 def safe_serialize(obj: Any) -> Any:
     """safe serialize all customized classes.
@@ -45,6 +46,9 @@ def safe_serialize(obj: Any) -> Any:
     # pydantic
     if isinstance(obj, BaseModel):
         return obj.model_dump()
+    
+    if isinstance(obj, Stream):
+        return str(obj)
     
     # dict
     if isinstance(obj, dict):
