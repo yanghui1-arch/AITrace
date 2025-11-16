@@ -60,12 +60,12 @@ class AITraceTracker(BaseTracker):
         if tracker_options.track_llm:
             # stop trace any funcs first
             track_llm_func = inspect_helper.stop_trace_llm(func_name=func.__name__)
-            if not isinstance(track_llm_func.output, Stream):
-                llm_inputs = openai_helper.remove_chat_completion_input_fields(
-                    openai_chat_completion_params=track_llm_func.inputs, 
-                    ignore_fields=tracker_options.llm_ignore_fields
-                )
+            llm_inputs = openai_helper.remove_chat_completion_input_fields(
+                openai_chat_completion_params=track_llm_func.inputs, 
+                ignore_fields=tracker_options.llm_ignore_fields
+            )
 
+            if not isinstance(track_llm_func.output, Stream):
                 llm_outputs:openai_helper.FilteredFieldsOpenAIChatCompletionsOutput = openai_helper.remove_chat_completion_output_fields(
                     openai_chat_completion_output=track_llm_func.output, 
                     ignore_fields=tracker_options.llm_ignore_fields
