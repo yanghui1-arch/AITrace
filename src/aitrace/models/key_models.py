@@ -21,7 +21,7 @@ class Step(BaseModel):
     type: StepType = StepType.CUSTOMIZED
     tags: List[str] = Field(default_factory=list)
     input: Dict[str, Any] | None = None
-    output: Any | None = None
+    output: Dict[str, Any] | None = None
     error_info: str | None = None
     model: str | None = None
     usage: CompletionUsage | None = None

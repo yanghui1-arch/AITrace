@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime, timezone, timedelta
 import functools
 
+from ._types import STREAM_CONSUMED
 from .options import TrackerOptions
 from .. import context
 from ..models.key_models import StepType, Step, Trace, Track
@@ -238,11 +239,18 @@ class BaseTracker(ABC):
             current_step.input = {'func_inputs': func_inputs, 'llm_inputs': llm_inputs}
             current_step.model = llm_inputs.get('model', None)
 
-        current_step.output = end_args.output
+        # Until executing here
+        if current_step.output is None:
+            current_step.output = {}
+        current_step.output['func_output'] = end_args.output.get('func_output', '<Error happens while accessing function inputs>')
+        llm_outputs = end_args.output.get('llm_outputs', None)
+        # considering stream situation
+        if llm_outputs and llm_outputs != STREAM_CONSUMED:
+            current_step.output['llm_outputs'] = llm_outputs
+        print(f"current_step.output: {current_step.output}")
+
         current_step.error_info = end_args.error_info
         current_step.end_time = datetime.now()
-        
-        # TODO: add usage and redefine Step class usage type
         current_step.usage = end_args.usage
 
         # update trace
@@ -311,7 +319,7 @@ class BaseTracker(ABC):
             start_time=current_trace.start_time,
             last_update_timestamp=current_trace.last_update_timestamp,
         )
-
+ 
     @abstractmethod
     def start_inputs_args_preprocess(
         self,
