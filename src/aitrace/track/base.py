@@ -6,6 +6,7 @@ import functools
 from ._types import STREAM_CONSUMED
 from .options import TrackerOptions
 from .. import context
+from ..context.func_context import current_function_name_context 
 from ..models.key_models import StepType, Step, Trace, Track
 from ..models.common import LLMProvider
 from ..helper import args_helper
@@ -106,6 +107,7 @@ class BaseTracker(ABC):
             )
 
             try:
+                token = current_function_name_context.set(func.__name__)
                 result = func(*args, **kwargs)
             except Exception as e:
                 error_info = str(e)
@@ -118,6 +120,7 @@ class BaseTracker(ABC):
                     error_info=error_info, 
                     tracker_options=tracker_options
                 )
+                current_function_name_context.reset(token)
                 if func_exception is not None:
                     raise func_exception
                 else:
@@ -180,9 +183,14 @@ class BaseTracker(ABC):
             model=tracker_options.model,
             usage=start_arguments.usage,
         )
-        
+
         # add step to context
         context.add_storage_step(new_step=new_step)
+
+        # start patch
+        from ..patches.openai import completions
+        if tracker_options.track_llm == LLMProvider.OPENAI:
+            completions.patch_openai_chat_completions(step=new_step, tracker_options=tracker_options, func_name=func.__name__)
 
     def _after_calling_function(
         self,
