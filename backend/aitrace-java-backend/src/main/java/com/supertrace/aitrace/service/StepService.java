@@ -1,6 +1,6 @@
 package com.supertrace.aitrace.service;
 
-import com.supertrace.aitrace.domain.core.Step;
+import com.supertrace.aitrace.domain.core.step.Step;
 import com.supertrace.aitrace.dto.step.LogStepRequest;
 
 import java.util.List;
@@ -14,7 +14,8 @@ import java.util.UUID;
  */
 public interface StepService {
     /**
-     * store step into the database
+     * Store step into the database
+     * If step id is not in the db create one and store it else update it.
      *
      * @param logStepRequest log step request
      * @return step id

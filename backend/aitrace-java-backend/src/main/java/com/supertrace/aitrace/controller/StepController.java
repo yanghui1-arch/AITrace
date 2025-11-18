@@ -1,6 +1,6 @@
 package com.supertrace.aitrace.controller;
 
-import com.supertrace.aitrace.domain.core.Step;
+import com.supertrace.aitrace.domain.core.step.Step;
 import com.supertrace.aitrace.dto.step.LogStepRequest;
 import com.supertrace.aitrace.response.APIResponse;
 import com.supertrace.aitrace.service.StepService;

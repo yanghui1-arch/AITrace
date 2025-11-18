@@ -1,5 +1,6 @@
 package com.supertrace.aitrace.domain.core;
 
+import com.supertrace.aitrace.domain.core.step.Step;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;

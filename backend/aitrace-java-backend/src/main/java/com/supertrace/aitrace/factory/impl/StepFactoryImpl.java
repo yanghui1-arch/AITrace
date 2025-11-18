@@ -1,6 +1,6 @@
 package com.supertrace.aitrace.factory.impl;
 
-import com.supertrace.aitrace.domain.core.Step;
+import com.supertrace.aitrace.domain.core.step.Step;
 import com.supertrace.aitrace.dto.step.LogStepRequest;
 import com.supertrace.aitrace.factory.StepFactory;
 import org.springframework.stereotype.Component;
