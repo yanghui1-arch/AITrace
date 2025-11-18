@@ -9,12 +9,13 @@ The benefit of design is split the function IO and LLM IO.
 
 import inspect
 from datetime import datetime
-from typing import List
+from typing import Any, List, Dict
 from openai import resources, Stream
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from ...track.options import TrackerOptions
 from ...models import Step, Trace, LLMProvider
-from ... import context
+from ...helper import inspect_helper
+from ...helper.llm import openai_helper
 from ...context.func_context import current_function_name_context
 from ...client import get_cached_sync_client, SyncClient
 
@@ -40,8 +41,15 @@ def patch_openai_chat_completions(step: Step, tracker_options: TrackerOptions, f
             return raw_openai_create(self, *args, **kwargs)
 
         resp = raw_openai_create(self, *args, **kwargs)
+        raw_openai_inputs = inspect_helper.parse_to_dict_input(raw_openai_create, args=(self, *args), kwargs=kwargs)
+        raw_openai_inputs.pop('self', 'no self')
+        openai_inputs: Dict[str, Any] = openai_helper.remove_chat_completion_input_fields(
+            openai_chat_completion_params=raw_openai_inputs,
+            ignore_fields=tracker_options.llm_ignore_fields,
+        )
+
         if isinstance(resp, Stream):
-            return ProxyChatCompletionChunkStream(real_stream=resp, tracker_options=tracker_options, step=step)
+            return ProxyChatCompletionChunkStream(real_stream=resp, tracker_options=tracker_options, step=step, inputs=openai_inputs)
 
         # Maybe here can be patched also.
         if tracker_options.track_llm == LLMProvider.OPENAI:
@@ -55,7 +63,7 @@ def patch_openai_chat_completions(step: Step, tracker_options: TrackerOptions, f
                 parent_step_id=step.parent_step_id,
                 step_type=step.type,
                 tags=step.tags,
-                input=step.input,
+                input={"llm_inputs": openai_inputs},
                 output={"llm_outputs": resp},
                 error_info=step.error_info,
                 model=step.model,
@@ -73,6 +81,7 @@ class ProxyChatCompletionChunkStream(Stream):
         real_stream: Stream[ChatCompletionChunk],
         tracker_options: TrackerOptions,
         step: Step,
+        inputs: Dict[str, Any],
     ):
         """Initialize ProxyOpenAIStream
         Wrapper openai.chat.completion.create(stream=True)
@@ -82,6 +91,7 @@ class ProxyChatCompletionChunkStream(Stream):
         self._output:List[ChatCompletionChunk] = []
         self.tracker_options = tracker_options
         self.step = step
+        self.inputs = inputs
 
     def __iter__(self):
         for chunk in self._real_stream:
@@ -99,7 +109,7 @@ class ProxyChatCompletionChunkStream(Stream):
                     parent_step_id=self.step.parent_step_id,
                     step_type=self.step.type,
                     tags=self.step.tags,
-                    input=self.step.input,
+                    input={"llm_inputs": self.inputs},
                     output={"llm_outputs": llm_output},
                     error_info=self.step.error_info,
                     model=self.step.model,
