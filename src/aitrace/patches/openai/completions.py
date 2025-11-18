@@ -57,6 +57,25 @@ def patch_openai_chat_completions(step: Step, tracker_options: TrackerOptions, f
             return ProxyChatCompletionChunkStream(real_stream=resp, tracker_options=tracker_options, step=step)
 
         # Maybe here can be patched also.
+        if tracker_options.track_llm == LLMProvider.OPENAI:
+            # log
+            client: SyncClient = get_cached_sync_client()
+            client.log_step(
+                project_name=tracker_options.project_name,
+                step_name=step.name,
+                step_id=step.id,
+                trace_id=step.trace_id,
+                parent_step_id=step.parent_step_id,
+                step_type=step.type,
+                tags=step.tags,
+                input=step.input,
+                output={"llm_outputs": resp},
+                error_info=step.error_info,
+                model=step.model,
+                usage=resp.usage,
+                start_time=step.start_time,
+                end_time=datetime.now()
+            )
         return resp
     
     resources.chat.completions.Completions.create = patched_create
