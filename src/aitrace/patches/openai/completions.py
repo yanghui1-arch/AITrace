@@ -1,23 +1,10 @@
-"""Use monkey patch to track openai Stream[ChatCompletionChunk] more elegant.
-The function will replace return value of openai stream as ProxyOpenAIStream so that
-AITrace can track stream generator content as a complete content and then post 
-request to server.
-Callers use `Stream` in two conditions.
-1. In the function generate `Stream` and then consume it
-2. In the function generate `Stream` but not consume it and return it for others 
-to consume.
-Considering two conditions, AITrace decide to store the Stream as a string at the
-begining. Then it will be two probabilities.
-1. Caller decorate function without consuming `Stream`
-2. Calelr decorate function with consuming `Stream`
-Probabilities 1 results in storage context has been empty after consuming `Stream`.
-Probabilities 2 results in the step, which is the owner of `Stream`, is still in
-the storage context.
-Prob1 ProxyOpenAIStream should pass it directly to the server and server should replace
-the step's output with the `ProxyOpenAIStream._output`. Therefore ProxyOpenAIStream
-need a start_time attribute and func_name which makes server replacing.
-Prob2 ProxyOpenAIStream should manually replacing step output with 
-`ProxyOpenAIStream._output`.
+"""Use monkey patch to track openai completions more elegant.
+The design transfers sdk complexity to the server complexity.
+It's difficult to identify when the `openai.Stream` would be consumed.
+In the function whenever `openai.Stream` is consumed and `ChatCompletions` is created AITrace will post it as a step to enrich
+existing step, whose id is the same as the patched step. If there is no such step in the server, it will create a new one step
+to store.
+The benefit of design is split the function IO and LLM IO.
 """
 
 import inspect
