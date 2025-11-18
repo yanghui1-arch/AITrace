@@ -19,7 +19,6 @@ class StartArguments(BaseModel):
 class EndArguments(BaseModel):
 
     tags: List[str] | None = None
-    llm_input: Dict[str, Any] | None = None
     output: Dict[str, Any] | None = None
     project_name: str | None = None
     model: str | None = None

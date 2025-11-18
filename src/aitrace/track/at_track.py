@@ -48,7 +48,6 @@ class AITraceTracker(BaseTracker):
     ) -> args_helper.EndArguments:
         
         final_output = {}
-        llm_inputs = None
         llm_usage = None
         
         if output: 
@@ -58,7 +57,6 @@ class AITraceTracker(BaseTracker):
 
         return args_helper.EndArguments(
             tags=tracker_options.tags,
-            llm_input=llm_inputs,
             output=final_output,
             project_name=tracker_options.project_name,
             model=tracker_options.model,

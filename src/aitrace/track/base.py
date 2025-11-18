@@ -233,7 +233,6 @@ class BaseTracker(ABC):
             # TODO: Log the error information and create a new step to prevent executing exception.
             current_step: Step = args_helper.create_new_step(
                 project_name=tracker_options.project_name,
-                input=end_args.llm_input,
                 name=tracker_options.step_name,
                 type=tracker_options.step_type,
                 tags=tracker_options.tags,
@@ -241,11 +240,8 @@ class BaseTracker(ABC):
             )
         # update current step
         # TODO: improve update and try to encapsulate it
-        if end_args.llm_input is not None:
-            func_inputs = current_step.input
-            llm_inputs = end_args.llm_input
-            current_step.input = {'func_inputs': func_inputs, 'llm_inputs': llm_inputs}
-            current_step.model = llm_inputs.get('model', None)
+        func_inputs = current_step.input
+        current_step.input = {'func_inputs': func_inputs}
 
         # Until executing here
         if current_step.output is None:
