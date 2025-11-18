@@ -5,12 +5,15 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.Map;
-
 @Data
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class StepOutput {
+    /* Step function output */
     private Object funcOutput;
-    private Map<String, Object> llmOutputs;
+    /* LLM output used in step
+    *  TODO: llm output type is temporary. Decided by python sdk.
+    *        Now sdk will pass a string such as `<Object Stream xxx>` or Stream content only.
+    */
+    private Object llmOutputs;
 }
