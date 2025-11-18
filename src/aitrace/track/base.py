@@ -247,21 +247,15 @@ class BaseTracker(ABC):
         if current_step.output is None:
             current_step.output = {}
         current_step.output['func_output'] = end_args.output.get('func_output', '<Error happens while accessing function inputs>')
-        llm_outputs = end_args.output.get('llm_outputs', None)
-        # considering stream situation
-        if llm_outputs and llm_outputs != STREAM_CONSUMED:
-            current_step.output['llm_outputs'] = llm_outputs
         print(f"current_step.output: {current_step.output}")
 
         current_step.error_info = end_args.error_info
         current_step.end_time = datetime.now()
-        current_step.usage = end_args.usage
 
         # update trace
         if not context.get_storage_current_trace_data():
             current_trace = args_helper.create_new_trace(
                 project_name=tracker_options.project_name,
-                input=end_args.llm_input,
                 name=tracker_options.trace_name,
                 tags=tracker_options.tags,
                 model=tracker_options.model,
