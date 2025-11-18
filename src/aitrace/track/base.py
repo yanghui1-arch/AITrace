@@ -269,7 +269,7 @@ class BaseTracker(ABC):
             current_trace.tracks = []
         # TODO: add a selectable region to track.
         # TODO: fix timedelta -> remove it.
-        current_trace.tracks.append(Track(step=current_step, call_timestamp=datetime.now(timezone(timedelta(hours=8)))))
+        current_trace.tracks.append(Track(step=current_step, call_timestamp=datetime.now()))
 
         # TODO: improve current trace final output
         # The easist way to record current trace output. But it's not for the final output just every step output.
