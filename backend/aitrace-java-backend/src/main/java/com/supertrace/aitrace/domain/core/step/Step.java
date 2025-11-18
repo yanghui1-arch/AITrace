@@ -88,6 +88,7 @@ public class Step {
      */
     public Step enrich(
         @NotNull List<String> newTags,
+        Map<String, Object> newStepInput,
         @NotNull StepOutput newStepOutput,
         String newModel,
         Map<String, Object> newUsage
@@ -102,6 +103,18 @@ public class Step {
             .distinct()
             .toList();
 
+        // enrich inputs
+        Map<String, Object> oldInput = this.getInput();
+        Map<String, Object> updatedInput = new HashMap<>();
+        updatedInput.put(
+            "func_inputs",
+            Optional.ofNullable(newStepInput.get("func_inputs")).orElse(oldInput.get("func_inputs"))
+        );
+        updatedInput.put(
+            "llm_inputs",
+            Optional.ofNullable(newStepInput.get("llm_inputs")).orElse(oldInput.get("llm_inputs"))
+        );
+
         // enrich outputs
         StepOutput oldOutput = this.getOutput();
         StepOutput updatedOutput = StepOutput.builder()
@@ -114,6 +127,7 @@ public class Step {
         Map<String, Object> updatedUsage = Optional.ofNullable(newUsage).orElse(this.getUsage());
 
         this.setTags(updatedTags);
+        this.setInput(updatedInput);
         this.setOutput(updatedOutput);
         this.setModel(updatedModel);
         this.setUsage(updatedUsage);

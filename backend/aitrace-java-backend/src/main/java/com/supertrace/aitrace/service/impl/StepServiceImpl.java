@@ -39,6 +39,7 @@ public class StepServiceImpl implements StepService {
             Step step = dbStep.get();
             newStep = step.enrich(
                 logStepRequest.getTags(),
+                logStepRequest.getInput(),
                 logStepRequest.getOutput(),
                 logStepRequest.getModel(),
                 logStepRequest.getUsage()
