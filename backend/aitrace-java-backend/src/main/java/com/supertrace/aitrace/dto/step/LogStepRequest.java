@@ -2,7 +2,7 @@ package com.supertrace.aitrace.dto.step;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import jakarta.persistence.Column;
+import com.supertrace.aitrace.domain.core.step.StepOutput;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
@@ -38,7 +38,7 @@ public class LogStepRequest {
 
     private Map<String, Object> input;
 
-    private Map<String, Object> output;
+    private StepOutput output;
 
     private String errorInfo;
 

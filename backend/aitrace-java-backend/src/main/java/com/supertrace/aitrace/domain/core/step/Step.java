@@ -50,7 +50,7 @@ public class Step {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    private Map<String, Object> output;
+    private StepOutput output;
 
     @Column(name = "error_info")
     private String errorInfo;

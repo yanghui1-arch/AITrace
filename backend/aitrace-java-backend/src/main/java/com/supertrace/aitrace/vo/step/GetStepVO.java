@@ -1,5 +1,6 @@
 package com.supertrace.aitrace.vo.step;
 
+import com.supertrace.aitrace.domain.core.step.StepOutput;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -26,7 +27,7 @@ public class GetStepVO {
 
     private Map<String, Object> input;
 
-    private Map<String, Object> output;
+    private StepOutput output;
 
     private String errorInfo;
 
