@@ -1,3 +1,4 @@
+import inspect
 from typing import Callable, Any, Tuple, Dict, List
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone, timedelta
@@ -83,7 +84,7 @@ class BaseTracker(ABC):
         func: Callable,
         tracker_options: TrackerOptions
     ) -> Callable:
-        """ construct a decorator 
+        """ Construct a decorator 
         
         Args:
             func(Callable): a callable function
@@ -91,6 +92,30 @@ class BaseTracker(ABC):
         
         Returns:
             Callable: track decorator
+        """
+
+        if inspect.iscoroutinefunction(func):
+            return self._async_decorator(
+                func=func,
+                tracker_options=tracker_options,
+            )
+
+        return self._sync_decorator(
+            func=func,
+            tracker_options=tracker_options,
+        )
+    
+    def _sync_decorator(
+        self,
+        func: Callable,
+        tracker_options: TrackerOptions
+    ) -> Callable:
+        """Return a sync decorator
+        If tracked function is a sync function use it.
+
+        Args:
+            func(Callable): a callable tracked function
+            tracker_options(TrackerOptions): tracker options
         """
         
         @functools.wraps(func)
@@ -109,6 +134,54 @@ class BaseTracker(ABC):
             try:
                 token = current_function_name_context.set(func.__name__)
                 result = func(*args, **kwargs)
+            except Exception as e:
+                error_info = str(e)
+                func_exception = e
+            finally:
+                # after track
+                self._after_calling_function(
+                    func=func, 
+                    output=result, 
+                    error_info=error_info, 
+                    tracker_options=tracker_options
+                )
+                current_function_name_context.reset(token)
+                if func_exception is not None:
+                    raise func_exception
+                else:
+                    return result
+
+        return wrapper
+
+    def _async_decorator(
+        self,
+        func: Callable,
+        tracker_options: TrackerOptions
+    ) -> Callable:
+        """Return an async decorator
+        If tracked function is an async function use it.
+
+        Args:
+            func(Callable): a callable tracked function
+            tracker_options(TrackerOptions): tracker options
+        """
+
+        @functools.wraps(func)
+        async def wrapper(*args, **kwargs) -> Any:
+            result = None
+            func_exception: Exception | None = None
+            error_info: str | None = None
+            # before track
+            self._before_calling_function(
+                func=func,
+                tracker_options=tracker_options,
+                args=args,
+                kwargs=kwargs,
+            )
+
+            try:
+                token = current_function_name_context.set(func.__name__)
+                result = await func(*args, **kwargs)
             except Exception as e:
                 error_info = str(e)
                 func_exception = e
@@ -188,9 +261,10 @@ class BaseTracker(ABC):
         context.add_storage_step(new_step=new_step)
 
         # start patch
-        from ..patches.openai import completions
+        from ..patches.openai import completions, async_completions
         if tracker_options.track_llm == LLMProvider.OPENAI:
             completions.patch_openai_chat_completions(step=new_step, tracker_options=tracker_options, func_name=func.__name__)
+            async_completions.patch_async_openai_chat_completions(step=new_step, tracker_options=tracker_options)
 
     def _after_calling_function(
         self,
