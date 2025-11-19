@@ -9,7 +9,9 @@ The benefit of design is split the function IO and LLM IO.
 
 import inspect
 from datetime import datetime
+from types import TracebackType
 from typing import Any, List, Dict
+from typing_extensions import Self, override
 from openai import resources, Stream
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from ...track.options import TrackerOptions
@@ -49,7 +51,7 @@ def patch_openai_chat_completions(step: Step, tracker_options: TrackerOptions, f
         )
 
         if isinstance(resp, Stream):
-            return ProxyChatCompletionChunkStream(real_stream=resp, tracker_options=tracker_options, step=step, inputs=openai_inputs)
+            return ProxyStream(real_stream=resp, tracker_options=tracker_options, step=step, inputs=openai_inputs)
 
         # Maybe here can be patched also.
         if tracker_options.track_llm == LLMProvider.OPENAI:
@@ -75,7 +77,7 @@ def patch_openai_chat_completions(step: Step, tracker_options: TrackerOptions, f
     
     resources.chat.completions.Completions.create = patched_create
 
-class ProxyChatCompletionChunkStream(Stream):
+class ProxyStream(Stream):
     def __init__(
         self,
         real_stream: Stream[ChatCompletionChunk],
@@ -93,6 +95,31 @@ class ProxyChatCompletionChunkStream(Stream):
         self.step = step
         self.inputs = inputs
 
+    @override
+    def __next__(self):
+        chunk = self._real_stream.__next__()
+        if chunk.choices[0].finish_reason == 'stop':
+            llm_output = ''.join([output.choices[0].delta.content for output in self._output])
+            client: SyncClient = get_cached_sync_client()
+            client.log_step(
+                project_name=self.tracker_options.project_name,
+                step_name=self.step.name,
+                step_id=self.step.id,
+                trace_id=self.step.trace_id,
+                parent_step_id=self.step.parent_step_id,
+                step_type=self.step.type,
+                tags=self.step.tags,
+                input={"llm_inputs": self.inputs},
+                output={"llm_outputs": llm_output},
+                error_info=self.step.error_info,
+                model=self.step.model,
+                usage=self.step.usage,
+                start_time=self.step.start_time,
+                end_time=datetime.now()
+            )
+        return chunk
+
+    @override
     def __iter__(self):
         for chunk in self._real_stream:
             self._output.append(chunk)
@@ -118,10 +145,30 @@ class ProxyChatCompletionChunkStream(Stream):
                     end_time=datetime.now()
                 )
                 print(f"[LOG]: proxy log step successfully: {llm_output}")
-                # post request for update
-                ...
                 
             yield chunk
+
+    @override
+    def __enter__(self):
+        return super().__enter__()
+    
+    @override
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        self.close()
+
+    @override
+    def close(self) -> None:
+        """
+        Close the response and release the connection.
+
+        Automatically called if the response body is read to completion.
+        """
+        self._real_stream.response.close()
 
     def __getattr__(self, name):
         return getattr(self._real_stream, name)
