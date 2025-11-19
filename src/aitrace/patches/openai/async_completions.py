@@ -1,6 +1,8 @@
 import inspect
 from datetime import datetime
+from types import TracebackType
 from typing import Any, Dict, List
+from typing_extensions import Self, override
 
 from openai import resources, AsyncStream
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
@@ -73,6 +75,31 @@ class ProxyAsyncStream(AsyncStream):
         self.tracker_options = tracker_options
         self._output: List[ChatCompletionChunk] = []
 
+    @override
+    async def __anext__(self):
+        chat_completion_chunk: ChatCompletionChunk = await self.real_async_stream._iterator.__anext__()
+        if chat_completion_chunk.choices[0].finish_reason == 'stop':
+            llm_output = ''.join([output.choices[0].delta.content for output in self._output])
+            client: SyncClient = get_cached_sync_client()
+            client.log_step(
+                project_name=self.tracker_options.project_name,
+                step_name=self.step.name,
+                step_id=self.step.id,
+                trace_id=self.step.trace_id,
+                parent_step_id=self.step.parent_step_id,
+                step_type=self.step.type,
+                tags=self.step.tags,
+                input={"llm_inputs": self.inputs},
+                output={"llm_outputs": llm_output},
+                error_info=self.step.error_info,
+                model=self.step.model,
+                usage=self.step.usage,
+                start_time=self.step.start_time,
+                end_time=datetime.now()
+            )
+        return chat_completion_chunk
+
+    @override
     async def __aiter__(self):
         async for chunk in self.real_async_stream:
             self._output.append(chunk)
@@ -96,3 +123,21 @@ class ProxyAsyncStream(AsyncStream):
                     end_time=datetime.now()
                 )
             yield chunk
+
+    @override
+    async def __aenter__(self) -> Self:
+        return self
+    
+    @override
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        exc_tb: TracebackType | None
+    ):
+        await self.close()
+    
+    @override
+    async def close(self) -> None:
+        await self.real_async_stream.response.aclose()
+        
