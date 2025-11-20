@@ -5,6 +5,7 @@ import { AppLayout } from "./layouts/app-layout";
 import OverviewPage from "./pages/overview";
 import ProjectsPage from "./pages/projects";
 import ProjectDetailPage from "./pages/projects/track";
+import LoginPage from "./pages/login";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/projects/:name" element={<ProjectDetailPage />} />
           </Route>
+          <Route path="/login" element={<LoginPage />}/>
         </Routes>
       </ThemeProvider>
     </BrowserRouter>
