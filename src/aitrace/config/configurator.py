@@ -9,7 +9,7 @@ from .._client import client as at_client
 from .._exception import APIKeyException
 
 CLOUD_BASE_URL: Final[str] = "http://www.petmate.fun"
-localhost_base_url: str  = "http://localhost:5173"
+localhost_base_url: str  = "http://localhost:8080/api/v0"
 
 class ATConfigurator:
     """AI trace configurator
@@ -67,8 +67,10 @@ class ATConfigurator:
     def _configure_local(self):
         """configure AT local"""
         # configure local doesn't need an apikey
+        # maybe someone want need so placeholder
+        # sometimes localhost url is different with default url
         self._apikey = None
-        raise NotImplementedError("It is not supported currently. Please wait for a few days and switch to use cloud serve. Thanks.")
+        
 
     def _ask_for_apikey(self):
         """ask user to input apikey and store it in OS."""
