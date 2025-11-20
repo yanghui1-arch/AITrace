@@ -3,6 +3,8 @@ import os
 import getpass
 from typing import Final, Dict
 
+from .types import ATConfig
+from .loader import save_config
 from .._client import client as at_client
 from .._exception import APIKeyException
 
@@ -19,16 +21,16 @@ class ATConfigurator:
     def __init__(
         self,
         api_key: str | None = None,
+        url: str | None = None,
         use_local: bool = False,
-        url: str | None = None
     ):
         """Initialize ATConfigurator
-        ATConfigurator duty is to configure apikey, workspace and whether user start local option.
+        ATConfigurator duty is to configure apikey, url and whether user start local option.
 
         Args:
-             api_key(str | None): AT api key. Default to `None`.
-             use_local(bool): whether start local serve option. Default to `False`.
-             url(str | None): connect url
+            api_key(str | None): AT api key.
+            url(str | None): connect url.
+            use_local(bool): whether start local serve option. Default to `False`.
         """
 
         self._apikey = api_key
@@ -47,15 +49,20 @@ class ATConfigurator:
             self._configure_cloud()
         else:
             self._configure_local()
-
-        
+        config = ATConfig(
+            apikey=self._apikey,
+            url=self._url,
+            use_local=self._use_local
+        )
+        save_config(config=config)
+        sys.stdout.write("Congrats to configure aitrace.")
 
     def _configure_cloud(self):
         """configure AT cloud"""
         
         if not self._apikey:
             self._ask_for_apikey()
-            _set_configuration_in_os(apikey=self._apikey)
+            # _set_configuration_in_os(apikey=self._apikey)
 
     def _configure_local(self):
         """configure AT local"""
@@ -66,7 +73,7 @@ class ATConfigurator:
     def _ask_for_apikey(self):
         """ask user to input apikey and store it in OS."""
         if not self._apikey:
-            apikey = getpass.getpass(prompt="No aitrace API key was detected in your environment. Please enter your API key:")
+            apikey = getpass.getpass(prompt="Please enter your API key:")
             # validate apikey
             try:
                 # temporarily cancel validation

@@ -7,7 +7,7 @@ from .helper import cli_helper
 CONTEXT_SETTINGS = {'help_option_names': ['--help', '-h']}
 
 try:
-    pkg_version = version('at')
+    pkg_version = version('aitrace')
 except PackageNotFoundError:
     pkg_version = 'unknown'
 
@@ -32,16 +32,11 @@ def configure(
     else:
         platform_type: cli_helper.PlatformType = cli_helper.ask_for_deployment_type()
         if platform_type == cli_helper.PlatformType.CLOUD:
-            configurator = at_config.ATConfigurator(
-                use_local=False,
-                url=at_config.CLOUD_BASE_URL
-            )
+            at_config.configure()
 
         else:
             print("Invalid platform type is selected.")
             exit(1)
-        
-        configurator.configure()
 
 if __name__ == '__main__':
     cli()
