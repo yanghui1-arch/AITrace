@@ -2,23 +2,12 @@ package com.supertrace.aitrace.auth.github;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Data
-public class GithubUser {
-    private String login;
-
-    @NotNull
-    private Long id;
-
-    private String avatarUrl;
-
-    private String htmlUrl;
-
-    private String name;
-
-    @NotNull
-    private String email;
+public class GithubTokenResponse {
+    private String accessToken;
+    private String tokenType;
+    private String expiresIn;
 }

@@ -16,3 +16,8 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+github:
+  client-id: Ov23liWyhyfoA5aDkDQx
+  client-secret: adc08c0d1d204701bc7930c80e9dc42da17649b0
+  redirect-url: http://localhost:5173/auth/github/callback
