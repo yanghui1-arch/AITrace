@@ -2,7 +2,10 @@ package com.supertrace.aitrace.domain.auth;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -10,6 +13,9 @@ import java.util.UUID;
 @Entity
 @Data
 @Table(name = "user_auth")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserAuth {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -25,8 +31,6 @@ public class UserAuth {
 
     @NotBlank
     private String identifier;
-
-    private String credential;
 
     @NotBlank
     @Column(name = "created_at", nullable = false)

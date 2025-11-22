@@ -15,4 +15,8 @@ public class GithubAuthResponse implements AuthResponse {
     @NotNull
     @Email
     private String email;
+
+    private String avatarUrl;
+
+    private String name;
 }

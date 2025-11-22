@@ -3,7 +3,6 @@ package com.supertrace.aitrace.service.impl;
 import com.supertrace.aitrace.auth.github.GithubAuthRequest;
 import com.supertrace.aitrace.auth.github.GithubAuthResponse;
 import com.supertrace.aitrace.auth.github.GithubTokenResponse;
-import com.supertrace.aitrace.auth.github.GithubUser;
 import com.supertrace.aitrace.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,7 +44,7 @@ public class GithubAuthServiceImpl implements AuthService<GithubAuthRequest, Git
         String code = request.getCode();
         String accessToken = this.getAccessToken(code)
             .orElseThrow(() -> new RuntimeException("No access token"));
-        GithubUser githubUser = this.getGithubUser(accessToken);
+        GithubAuthResponse githubUser = this.getGithubUser(accessToken);
         return GithubAuthResponse.builder()
             .id(githubUser.getId())
             .email(githubUser.getEmail())
@@ -85,10 +84,10 @@ public class GithubAuthServiceImpl implements AuthService<GithubAuthRequest, Git
      * Get GitHub user with access token
      *
      * @param accessToken user access token
-     * @return GithubUser
+     * @return GithubAuthResponse
      * @throws RuntimeException When access token is expired or wrong.
      */
-    private GithubUser getGithubUser(String accessToken) {
+    private GithubAuthResponse getGithubUser(String accessToken) {
         return webClient.get()
             .uri("https://api.github.com/user")
             .header("Authorization", "Bearer " + accessToken)
@@ -98,7 +97,7 @@ public class GithubAuthServiceImpl implements AuthService<GithubAuthRequest, Git
                     new RuntimeException("Failed to get user information with github access token: " + res.statusCode())
                 )
             )
-            .bodyToMono(GithubUser.class)
+            .bodyToMono(GithubAuthResponse.class)
             .block();
     }
 }
