@@ -1,4 +1,4 @@
-package com.supertrace.aitrace.domain;
+package com.supertrace.aitrace.domain.auth;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -16,7 +16,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @NotBlank
     @Email(message = "Wrong email format")
     @Column(name = "email", unique = true)
     private String email;
@@ -24,10 +23,6 @@ public class User {
     @NotBlank
     @Column(name = "username")
     private String username;
-
-    @NotBlank
-    @Column(name = "password")
-    private String password;
 
     @NotBlank
     @Column(name = "register_time", nullable = false)
