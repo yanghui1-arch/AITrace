@@ -3,6 +3,7 @@ package com.supertrace.aitrace.domain.auth;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,7 +33,7 @@ public class User {
 
     private String avatar;
 
-    @NotBlank
+    @NotNull
     @Column(name = "register_time", nullable = false)
     private LocalDateTime registerTime;
 

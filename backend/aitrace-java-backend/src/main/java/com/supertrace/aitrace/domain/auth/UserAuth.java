@@ -2,6 +2,7 @@ package com.supertrace.aitrace.domain.auth;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,7 +22,7 @@ public class UserAuth {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @NotBlank
+    @NotNull
     @Column(name = "user_uuid")
     private UUID userId;
 
@@ -32,7 +33,7 @@ public class UserAuth {
     @NotBlank
     private String identifier;
 
-    @NotBlank
+    @NotNull
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
