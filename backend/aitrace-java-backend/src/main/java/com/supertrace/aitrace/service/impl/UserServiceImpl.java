@@ -7,7 +7,6 @@ import com.supertrace.aitrace.repository.UserAuthRepository;
 import com.supertrace.aitrace.repository.UserRepository;
 import com.supertrace.aitrace.service.UserService;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,16 +21,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(rollbackOn = Exception.class)
-    public User createUser(@NotNull String username,
-                           @NotNull String email,
-                           @NotNull String avatar,
-                           @NotNull AuthPlatform authPlatform,
-                           @NotNull String identifier) {
+    public User createUser(String username,
+                           String email,
+                           String avatar,
+                           AuthPlatform authPlatform,
+                           String identifier) {
         User user = User.builder()
             .username(username)
             .email(email)
             .avatar(avatar)
             .build();
+        userRepository.save(user);
 
         UserAuth userAuth = UserAuth.builder()
             .userId(user.getId())
@@ -39,7 +39,6 @@ public class UserServiceImpl implements UserService {
             .identifier(identifier)
             .build();
 
-        userRepository.save(user);
         userAuthRepository.save(userAuth);
 
         return user;
