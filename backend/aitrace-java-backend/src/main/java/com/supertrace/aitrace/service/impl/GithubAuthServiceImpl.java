@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -45,10 +46,7 @@ public class GithubAuthServiceImpl implements AuthService<GithubAuthRequest, Git
         String accessToken = this.getAccessToken(code)
             .orElseThrow(() -> new RuntimeException("No access token"));
         GithubAuthResponse githubUser = this.getGithubUser(accessToken);
-        return GithubAuthResponse.builder()
-            .id(githubUser.getId())
-            .email(githubUser.getEmail())
-            .build();
+        return githubUser;
     }
 
     /**
@@ -59,15 +57,15 @@ public class GithubAuthServiceImpl implements AuthService<GithubAuthRequest, Git
      * @throws RuntimeException When GitHub is down
      */
     private Optional<String> getAccessToken(String code) {
+        var form = BodyInserters
+            .fromFormData("client_id", clientId)
+            .with("client_secret", clientSecret)
+            .with("code", code)
+            .with("redirect_uri", redirectUri);
         GithubTokenResponse response =  webClient.post()
             .uri("https://github.com/login/oauth/access_token")
             .header("Accept", "application/json")
-            .bodyValue(
-                "client_id=" + clientId +
-                "&client_secret=" + clientSecret +
-                "&code=" + code +
-                "&redirect_uri=" + redirectUri
-            )
+            .body(form)
             .retrieve()
             .onStatus(HttpStatusCode::isError,
                 res -> Mono.error(
