@@ -1,11 +1,13 @@
 import "./App.css";
 import { ThemeProvider } from "./components/ui/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "./layouts/app-layout";
 import OverviewPage from "./pages/overview";
 import ProjectsPage from "./pages/projects";
 import ProjectDetailPage from "./pages/projects/track";
 import LoginPage from "./pages/login";
+import GitHubAuthPage from "./pages/auth/github";
 
 function App() {
   return (
@@ -19,8 +21,10 @@ function App() {
             <Route path="/projects/:name" element={<ProjectDetailPage />} />
           </Route>
           <Route path="/login" element={<LoginPage />}/>
+          <Route path="/auth/github/callback" element={<GitHubAuthPage />} />
         </Routes>
       </ThemeProvider>
+      <Toaster position="top-center" richColors />
     </BrowserRouter>
   );
 }
