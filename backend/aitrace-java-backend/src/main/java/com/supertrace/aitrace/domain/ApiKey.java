@@ -24,15 +24,11 @@ public class ApiKey {
     private String key;
 
     @NotNull
-    private boolean deprecated;
-
-    @NotNull
     @Column(name = "created_time", nullable = false)
     private LocalDateTime createdTime;
 
     @PrePersist
     protected void onCreate() {
-        this.deprecated = false;
         this.createdTime = LocalDateTime.now();
     }
 
