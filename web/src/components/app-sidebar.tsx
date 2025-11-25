@@ -8,6 +8,7 @@ import {
   IconSearch,
   IconSettings,
   IconCirclePlusFilled,
+  IconKey,
 } from "@tabler/icons-react"
 
 import { NavSecondary } from "@/components/nav/nav-secondary"
@@ -49,6 +50,12 @@ const data = {
       icon: IconFolder,
       label: "Observability"
     },
+    {
+      title: "API key",
+      url: "/apikey",
+      icon: IconKey,
+      label: "Manage API key"
+    }
   ],
 
   navSecondary: [

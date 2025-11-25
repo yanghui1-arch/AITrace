@@ -8,6 +8,7 @@ import ProjectsPage from "./pages/projects";
 import ProjectDetailPage from "./pages/projects/track";
 import LoginPage from "./pages/login";
 import GitHubAuthPage from "./pages/auth/github";
+import { APIKeyPage } from "./pages/apikey";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
             <Route path="/overview" element={<OverviewPage />} />
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/projects/:name" element={<ProjectDetailPage />} />
+            <Route path="/apikey" element={<APIKeyPage />} />
           </Route>
           <Route path="/login" element={<LoginPage />}/>
           <Route path="/auth/github/callback" element={<GitHubAuthPage />} />
