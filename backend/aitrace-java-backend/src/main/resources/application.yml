@@ -18,7 +18,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 jwt:
-  secret: "aitrace_initial_secret"
+  secret: "aitraceinitialsecaitraceinitialsecretaitraceinitialsecretaitraceinitialsecretaitraceinitialsecretaitraceinitialsecretaitraceinitialsecretret"
   expiration: 3600000
 
 github:
