@@ -9,6 +9,8 @@ import com.supertrace.aitrace.registry.AuthServiceRegistry;
 import com.supertrace.aitrace.response.APIResponse;
 import com.supertrace.aitrace.service.AuthService;
 import com.supertrace.aitrace.service.UserService;
+import com.supertrace.aitrace.utils.JwtUtil;
+import com.supertrace.aitrace.vo.AuthVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,11 +25,13 @@ import java.util.UUID;
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    private final JwtUtil jwtUtil;
     private final AuthServiceRegistry authServiceRegistry;
     private final UserService userService;
 
     @Autowired
-    public AuthController(AuthServiceRegistry authServiceRegistry, UserService userService) {
+    public AuthController(JwtUtil jwtUtil, AuthServiceRegistry authServiceRegistry, UserService userService) {
+        this.jwtUtil = jwtUtil;
         this.authServiceRegistry = authServiceRegistry;
         this.userService = userService;
     }
@@ -40,25 +44,35 @@ public class AuthController {
      *
      * @param code GitHub code
      * @param state GitHub state
-     * @return AITrace user uuid
+     * @return AITrace user uuid and jwt token
      */
     @GetMapping("/github/callback")
-    public ResponseEntity<APIResponse<UUID>> authenticate(@RequestParam("code") String code, @RequestParam(value = "state", required = false) String state) {
+    public ResponseEntity<APIResponse<AuthVO>> authenticate(@RequestParam("code") String code, @RequestParam(value = "state", required = false) String state) {
         try {
             AuthService<GithubAuthRequest, GithubAuthResponse> authService = this.authServiceRegistry.getService("github");
             GithubAuthResponse response = authService.authenticate(GithubAuthRequest.builder().code(code).build());
             Optional<UserAuth> userAuth = this.userService.findUserAuthByIdentifier(response.getId().toString());
+            // userId and responseMessage is both get the value in this situation.
+            UUID userId;
+            String responseMessage;
             if (userAuth.isPresent()) {
-                return ResponseEntity.ok(APIResponse.success(userAuth.get().getId(), "GitHub authenticate successfully."));
+                userId = userAuth.get().getUserId();
+                responseMessage = "GitHub authenticate successfully.";
+            } else {
+                User user = this.userService.createUser(
+                    response.getName(),
+                    response.getEmail(),
+                    response.getAvatarUrl(),
+                    AuthPlatform.GitHub,
+                    String.valueOf(response.getId())
+                );
+                userId = user.getId();
+                responseMessage = "New user with using GitHub authentication is registered successfully.";
             }
-            User user = this.userService.createUser(
-                response.getName(),
-                response.getEmail(),
-                response.getAvatarUrl(),
-                AuthPlatform.GitHub,
-                String.valueOf(response.getId())
+            String jwtToken = this.jwtUtil.generateToken(userId);
+            return ResponseEntity.ok(
+                APIResponse.success(AuthVO.builder().userId(userId).token(jwtToken).build(), responseMessage)
             );
-            return ResponseEntity.ok(APIResponse.success(user.getId(), "New user with using GitHub authentication is registered successfully."));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(APIResponse.error(e.getMessage()));
         }

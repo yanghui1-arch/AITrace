@@ -15,18 +15,36 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { AT_JWT } from "@/types/storage-const";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const navigate = useNavigate();
 
   const redirectUri = useMemo(() => {
     return import.meta.env.VITE_GITHUB_REDIRECT_URI;
   }, []);
+
+  /* jwt is valid then navigate to overview page */
+  useEffect(() => {
+    const atJwt = localStorage.getItem(AT_JWT);
+    const isAtJwtExpired = (atJwt: string) => {
+      const payload = JSON.parse(atob(atJwt.split('.')[1]));
+      const exp = payload.exp * 1000;
+      return Date.now() > exp;
+    }
+
+    if (atJwt && isAtJwtExpired(atJwt) == false) {
+      navigate("/overview");
+    }
+
+  }, [navigate])
 
   const startGithubSignIn = () => {
     const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID as

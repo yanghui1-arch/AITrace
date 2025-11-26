@@ -1,11 +1,10 @@
 import { authApi } from "@/api/auth";
 import { Label } from "@/components/ui/label";
+import { AT_JWT, GITHUB_CODE_FLAG } from "@/types/storage-const";
 import { LoaderCircleIcon } from "lucide-react";
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-
-const GITHUB_CODE_FLAG = "github_auth_code_handled";
 
 export default function GitHubAuthPage() {
   const navigate = useNavigate();
@@ -26,10 +25,11 @@ export default function GitHubAuthPage() {
     authApi
       .authenticate(githubCode)
       .then((res) => {
-        const { code, message } = res.data;
+        const { code, message, data } = res.data;
         console.log(code)
         if (code === 200) {
           toast.success("Welcome to AITrace!");
+          localStorage.setItem(AT_JWT, data.token);
           setSearchParams({}, { replace: true });
           navigate("/overview", { replace: true });
         } else {
