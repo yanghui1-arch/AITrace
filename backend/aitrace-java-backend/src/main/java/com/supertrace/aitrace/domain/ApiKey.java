@@ -3,7 +3,10 @@ package com.supertrace.aitrace.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -11,6 +14,9 @@ import java.util.UUID;
 @Entity
 @Table(name = "api_key")
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ApiKey {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

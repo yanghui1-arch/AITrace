@@ -1,6 +1,5 @@
 package com.supertrace.aitrace.service;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -13,11 +12,12 @@ import java.util.UUID;
 public interface ApiKeyService {
 
     /**
-     * Generate an api key
+     * Generate an api key and store it
      *
+     * @param userId user uuid of apikey
      * @return api key
      */
-    String generateApiKey();
+    String generateAndStoreApiKey(UUID userId);
 
     /**
      * Judge if this api key is owned by user id.
@@ -35,6 +35,6 @@ public interface ApiKeyService {
      * @param userId user id
      * @return a list of api keys owned by user id
      */
-    List<String> getUserApiKeys(UUID userId);
+    String getUserApiKeys(UUID userId);
 
 }
