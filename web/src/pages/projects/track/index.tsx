@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
-import axios from "axios";
 import { stepColumns, type Step } from "./step-columns";
 import { Separator } from "@/components/ui/separator";
 import { StepTable } from "@/components/step-table";
 import { traceColumns, type Trace } from "./trace-columns";
 import { TraceTable } from "@/components/trace-table";
+import http from "@/api/http";
 
 export default function ProjectDetailPage() {
   const { name } = useParams<{ name: string }>();
@@ -24,27 +24,14 @@ export default function ProjectDetailPage() {
   const [traceData, setTraceData] = useState<Trace[]>([]);
 
   useEffect(() => {
-    const api = axios.create({
-      baseURL: "/api/v0",
-      timeout: 5000,
-    });
-
-    api.interceptors.response.use(
-      (res) => res.data,
-      (err) => {
-        console.error(err);
-        return Promise.reject(err);
-      }
-    );
-
     const loadStepDataOfProject = async () => {
-      const steps = await api.get(
+      const steps = await http.get(
         `/step/${encodeURIComponent("aitrace_demo")}`
       );
       setStepData(steps.data);
     };
     const loadTraceDataOfProject = async () => {
-      const traces = await api.get(
+      const traces = await http.get(
         `/trace/${encodeURIComponent("aitrace_demo")}`
       );
       setTraceData(traces.data);

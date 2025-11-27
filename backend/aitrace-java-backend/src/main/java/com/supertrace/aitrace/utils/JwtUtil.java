@@ -44,7 +44,7 @@ public class JwtUtil {
      * @return true if valid else false
      */
     public boolean isTokenValid(String token, UUID uuid) {
-        return extractUuid(token).equals(uuid.toString()) && !isExpired(token);
+        return extractUuid(token).toString().equals(uuid.toString()) && !isExpired(token);
     }
 
     /**
@@ -53,13 +53,14 @@ public class JwtUtil {
      * @param token jwt token
      * @return uuid
      */
-    public String extractUuid(String token) {
-        return Jwts.parserBuilder()
+    public UUID extractUuid(String token) {
+        String userId = Jwts.parserBuilder()
             .setSigningKey(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret)))
             .build()
             .parseClaimsJws(token)
             .getBody()
             .getSubject();
+        return UUID.fromString(userId);
     }
 
     /**

@@ -1,3 +1,4 @@
+import { AT_JWT } from "@/types/storage-const";
 import axios from "axios";
 
 const http = axios.create({
@@ -5,9 +6,11 @@ const http = axios.create({
   timeout: 10000,
 });
 
-/* Temperorily don't intercept anything. In the future bearer AITrace token */
 http.interceptors.request.use((config) => {
-
+  const token = localStorage.getItem(AT_JWT);
+  if (token) {
+    config.headers["AT-token"] = token;
+  }
   return config;
 });
 
@@ -15,8 +18,15 @@ http.interceptors.request.use((config) => {
 http.interceptors.response.use(
   (res) => res,
   (error) => {
+    const status = error.response?.status;
     const message =
       error.response?.data?.message || error.message || "Request Error";
+
+    /* 401 means not authenticated */
+    if (status == 401) {
+      window.location.href = "/login";
+      return ;
+    }
 
     return Promise.reject(new Error(message));
   }
