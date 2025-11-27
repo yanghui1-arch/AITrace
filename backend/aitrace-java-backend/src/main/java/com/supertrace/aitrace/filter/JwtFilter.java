@@ -38,7 +38,7 @@ public class JwtFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
-        String token = request.getParameter("AT-token");
+        String token = request.getHeader("AT-token");
         if (isWhiteList(path)) {
             filterChain.doFilter(request, response);
             return ;
