@@ -15,8 +15,8 @@ function App() {
     <BrowserRouter>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <Routes>
+        <Route index element={<Navigate to="/login" replace />} />
           <Route element={<AppLayout />}>
-            <Route index element={<Navigate to="/overview" replace />} />
             <Route path="/overview" element={<OverviewPage />} />
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/projects/:name" element={<ProjectDetailPage />} />
