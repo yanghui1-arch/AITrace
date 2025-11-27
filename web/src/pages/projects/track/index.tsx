@@ -25,16 +25,16 @@ export default function ProjectDetailPage() {
 
   useEffect(() => {
     const loadStepDataOfProject = async () => {
-      const steps = await http.get(
-        `/step/${encodeURIComponent("aitrace_demo")}`
+      const response = await http.get(
+        `/v0/step/${encodeURIComponent("aitrace_demo")}`
       );
-      setStepData(steps.data);
+      setStepData(response.data.data);
     };
     const loadTraceDataOfProject = async () => {
-      const traces = await http.get(
-        `/trace/${encodeURIComponent("aitrace_demo")}`
+      const response = await http.get(
+        `/v0/trace/${encodeURIComponent("aitrace_demo")}`
       );
-      setTraceData(traces.data);
+      setTraceData(response.data.data);
     };
     loadStepDataOfProject();
     loadTraceDataOfProject();
