@@ -51,8 +51,9 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+        UUID userId;
         try {
-            UUID userId = this.jwtUtil.extractUuid(token);
+            userId = this.jwtUtil.extractUuid(token);
             boolean valid = this.jwtUtil.isTokenValid(token, userId);
             if (!valid) {
                 throw new AuthenticationException("Invalid token");
@@ -63,7 +64,7 @@ public class JwtFilter extends OncePerRequestFilter {
             response.getWriter().write("{\"message\": \"Invalid JWT\"}");
             return ;
         }
-
+        request.setAttribute("userId", userId);
         filterChain.doFilter(request, response);
     }
 
