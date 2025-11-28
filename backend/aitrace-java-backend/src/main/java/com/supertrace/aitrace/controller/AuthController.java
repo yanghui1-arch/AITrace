@@ -7,6 +7,7 @@ import com.supertrace.aitrace.domain.auth.User;
 import com.supertrace.aitrace.domain.auth.UserAuth;
 import com.supertrace.aitrace.registry.AuthServiceRegistry;
 import com.supertrace.aitrace.response.APIResponse;
+import com.supertrace.aitrace.service.ApiKeyService;
 import com.supertrace.aitrace.service.AuthService;
 import com.supertrace.aitrace.service.UserService;
 import com.supertrace.aitrace.utils.JwtUtil;
@@ -28,12 +29,14 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final AuthServiceRegistry authServiceRegistry;
     private final UserService userService;
+    private final ApiKeyService apiKeyService;
 
     @Autowired
-    public AuthController(JwtUtil jwtUtil, AuthServiceRegistry authServiceRegistry, UserService userService) {
+    public AuthController(JwtUtil jwtUtil, AuthServiceRegistry authServiceRegistry, UserService userService, ApiKeyService apiKeyService) {
         this.jwtUtil = jwtUtil;
         this.authServiceRegistry = authServiceRegistry;
         this.userService = userService;
+        this.apiKeyService = apiKeyService;
     }
 
     /**
@@ -67,6 +70,8 @@ public class AuthController {
                     String.valueOf(response.getId())
                 );
                 userId = user.getId();
+                // New user is created, allocate an apikey for him
+                this.apiKeyService.generateAndStoreApiKey(userId);
                 responseMessage = "New user with using GitHub authentication is registered successfully.";
             }
             String jwtToken = this.jwtUtil.generateToken(userId);
