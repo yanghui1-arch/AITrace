@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -28,7 +29,7 @@ public class ApiKeyServiceImpl implements ApiKeyService {
         String uuid = UUID.randomUUID().toString().replace("-", "");
         String apiKey = PREFIX + uuid;
         List<ApiKey> oldKey = this.apiKeyRepository.findApiKeyByUserId(userId);
-        if (oldKey != null) {
+        if (!oldKey.isEmpty()) {
             this.apiKeyRepository.deleteAll(oldKey);
         }
 
@@ -48,7 +49,10 @@ public class ApiKeyServiceImpl implements ApiKeyService {
     }
 
     @Override
-    public String getUserApiKeys(UUID userId) {
-        return "";
+    public Optional<String> getUserLatestApiKey(UUID userId) {
+        List<ApiKey> userApiKeys = this.apiKeyRepository.findApiKeyByUserId(userId);
+        return userApiKeys.stream()
+            .findFirst()
+            .map(ApiKey::getKey);
     }
 }
