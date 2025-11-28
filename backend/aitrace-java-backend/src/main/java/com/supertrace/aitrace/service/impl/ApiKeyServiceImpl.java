@@ -55,4 +55,10 @@ public class ApiKeyServiceImpl implements ApiKeyService {
             .findFirst()
             .map(ApiKey::getKey);
     }
+
+    @Override
+    public boolean isApiKeyExist(String apiKey) {
+        List<ApiKey> dbApiKeys = this.apiKeyRepository.findApiKeyByKey(apiKey);
+        return !dbApiKeys.isEmpty() && dbApiKeys.stream().anyMatch(a -> a.getKey().equals(apiKey));
+    }
 }

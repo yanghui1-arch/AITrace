@@ -16,4 +16,17 @@ public class ApiKeyUtils {
         }
         return sb.toString();
     }
+
+    /**
+     * Extract apikey from http request header
+     *
+     * @param authorizationHeader http request authorization header
+     * @return api key
+     */
+    public static String extractApiKeyFromHttpHeader(String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return authorizationHeader;
+        }
+        return authorizationHeader.substring("Bearer ".length());
+    }
 }

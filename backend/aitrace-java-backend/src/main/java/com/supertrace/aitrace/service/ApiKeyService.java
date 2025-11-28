@@ -37,4 +37,12 @@ public interface ApiKeyService {
      */
     Optional<String> getUserLatestApiKey(UUID userId);
 
+    /**
+     * Judge if the apikey exists in database
+     *
+     * @param apiKey api key
+     * @return true if exists else false
+     */
+    boolean isApiKeyExist(String apiKey);
+
 }

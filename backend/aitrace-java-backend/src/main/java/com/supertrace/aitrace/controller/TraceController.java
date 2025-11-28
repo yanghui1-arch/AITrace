@@ -2,8 +2,11 @@ package com.supertrace.aitrace.controller;
 
 import com.supertrace.aitrace.domain.core.Trace;
 import com.supertrace.aitrace.dto.trace.LogTraceRequest;
+import com.supertrace.aitrace.exception.AuthenticationException;
 import com.supertrace.aitrace.response.APIResponse;
+import com.supertrace.aitrace.service.ApiKeyService;
 import com.supertrace.aitrace.service.TraceService;
+import com.supertrace.aitrace.utils.ApiKeyUtils;
 import com.supertrace.aitrace.vo.trace.GetTraceVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,16 +20,25 @@ import java.util.UUID;
 @RequestMapping("/api/v0")
 public class TraceController {
     private final TraceService traceService;
+    private final ApiKeyService apiKeyService;
 
     @Autowired
-    public TraceController(TraceService traceService) {
+    public TraceController(TraceService traceService, ApiKeyService apiKeyService) {
         this.traceService = traceService;
+        this.apiKeyService = apiKeyService;
     }
 
     @PostMapping("/log/trace")
-    public ResponseEntity<APIResponse<UUID>> createAndLogStep(@RequestBody LogTraceRequest logTraceRequest) {
+    public ResponseEntity<APIResponse<UUID>> createAndLogStep(
+        @RequestHeader(value = "Authorization") String authorization,
+        @RequestBody LogTraceRequest logTraceRequest
+    ) {
         try {
-            System.out.println(logTraceRequest);
+            String apikey = ApiKeyUtils.extractApiKeyFromHttpHeader(authorization);
+            boolean isExisted = this.apiKeyService.isApiKeyExist(apikey);
+            if (!isExisted) {
+                throw new AuthenticationException();
+            }
             UUID traceId = this.traceService.logTrace(logTraceRequest);
             return ResponseEntity.ok(APIResponse.success(traceId));
         } catch (Exception e) {

@@ -2,8 +2,11 @@ package com.supertrace.aitrace.controller;
 
 import com.supertrace.aitrace.domain.core.step.Step;
 import com.supertrace.aitrace.dto.step.LogStepRequest;
+import com.supertrace.aitrace.exception.AuthenticationException;
 import com.supertrace.aitrace.response.APIResponse;
+import com.supertrace.aitrace.service.ApiKeyService;
 import com.supertrace.aitrace.service.StepService;
+import com.supertrace.aitrace.utils.ApiKeyUtils;
 import com.supertrace.aitrace.vo.step.GetStepVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,15 +21,25 @@ import java.util.UUID;
 public class StepController {
 
     private final StepService stepService;
+    private final ApiKeyService apiKeyService;
 
     @Autowired
-    public StepController(StepService stepService) {
+    public StepController(StepService stepService, ApiKeyService apiKeyService) {
         this.stepService = stepService;
+        this.apiKeyService = apiKeyService;
     }
 
     @PostMapping("/log/step")
-    public ResponseEntity<APIResponse<UUID>> createAndLogStep(@RequestBody LogStepRequest logStepRequest) {
+    public ResponseEntity<APIResponse<UUID>> createAndLogStep(
+        @RequestHeader(value = "Authorization") String authorization,
+        @RequestBody LogStepRequest logStepRequest
+    ) {
         try {
+            String apikey = ApiKeyUtils.extractApiKeyFromHttpHeader(authorization);
+            boolean isExisted = this.apiKeyService.isApiKeyExist(apikey);
+            if (!isExisted) {
+                throw new AuthenticationException();
+            }
             UUID stepId = this.stepService.logStep(logStepRequest);
             return ResponseEntity.ok(APIResponse.success(stepId));
         } catch (Exception e) {

@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface ApiKeyRepository extends JpaRepository<ApiKey, UUID> {
     List<ApiKey> findApiKeyByUserId(UUID userId);
+    List<ApiKey> findApiKeyByKey(String apiKey);
 }
