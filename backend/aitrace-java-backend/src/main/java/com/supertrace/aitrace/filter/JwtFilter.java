@@ -24,7 +24,8 @@ public class JwtFilter extends OncePerRequestFilter {
      */
     private static final List<String> WHITE_LIST = List.of(
         "/api/auth",
-        "/api/register"
+        "/api/register",
+        "/api/v0/log"
     );
 
 
@@ -43,7 +44,6 @@ public class JwtFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return ;
         }
-
         if (token == null || token.isBlank()) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
