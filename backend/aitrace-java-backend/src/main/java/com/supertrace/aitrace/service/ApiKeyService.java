@@ -1,5 +1,6 @@
 package com.supertrace.aitrace.service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -29,12 +30,11 @@ public interface ApiKeyService {
     boolean isApiKeyOwnedByUser(String apiKey, UUID userId);
 
     /**
-     * Get a user all api keys.
-     * Get all api keys owned by a user no matter it's deprecated
+     * Get a user latest api key.
      *
      * @param userId user id
      * @return a list of api keys owned by user id
      */
-    String getUserApiKeys(UUID userId);
+    Optional<String> getUserLatestApiKey(UUID userId);
 
 }
