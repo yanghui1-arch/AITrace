@@ -39,6 +39,19 @@ public class APIKeyController {
         }
     }
 
+    @GetMapping("/get_complete_apikey")
+    public ResponseEntity<APIResponse<String>> getCompleteAPIKey(HttpServletRequest request) {
+        try {
+            UUID userId = (UUID) request.getAttribute("userId");
+            Optional<String> apiKey = this.apiKeyService.getUserLatestApiKey(userId);
+            return apiKey
+                .map(s -> ResponseEntity.ok(APIResponse.success(s)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(APIResponse.error(e.getMessage()));
+        }
+    }
+
     @PostMapping("/change")
     public ResponseEntity<APIResponse<String>> changeApiKey(HttpServletRequest request) {
         try {
