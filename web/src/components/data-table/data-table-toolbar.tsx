@@ -37,7 +37,7 @@ export function DataTableToolbar<TData>({
 
   const createProjectSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
-      console.log("request body" + JSON.stringify(data))
+      console.log("request body" + JSON.stringify(data));
       const response = await projectApi.createNewProject(data);
       const createProjectName = response.data.data;
       console.log(createProjectName);
@@ -77,41 +77,43 @@ export function DataTableToolbar<TData>({
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
               <form onSubmit={form.handleSubmit(createProjectSubmit)}>
-                <DialogHeader>
-                  <DialogTitle>Create Project</DialogTitle>
-                  <DialogDescription>
-                    Create a new project for AITrace
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4">
-                  <div className="grid gap-3">
-                    <Label>Project Name</Label>
-                    <Input
-                      id="name-1"
-                      placeholder="New project name"
-                      {...form.register("projectName")}
-                    />
+                <div className="flex flex-col gap-2">
+                  <DialogHeader>
+                    <DialogTitle>Create Project</DialogTitle>
+                    <DialogDescription>
+                      Create a new project for AITrace
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4">
+                    <div className="grid gap-3">
+                      <Label>Project Name</Label>
+                      <Input
+                        id="name-1"
+                        placeholder="New project name"
+                        {...form.register("projectName")}
+                      />
+                    </div>
+                    <div className="grid gap-3">
+                      <Label>Description</Label>
+                      <Input
+                        id="username-1"
+                        placeholder="Brief description"
+                        {...form.register("projectDescription")}
+                      />
+                    </div>
                   </div>
-                  <div className="grid gap-3">
-                    <Label>Description</Label>
-                    <Input
-                      id="username-1"
-                      placeholder="Brief description"
-                      {...form.register("projectDescription")}
-                    />
-                  </div>
-                </div>
 
-                <DialogFooter className="justify-between">
-                  <DialogClose asChild>
-                    <Button type="button" variant="destructive">
-                      Cancel
+                  <DialogFooter className="justify-between">
+                    <DialogClose asChild>
+                      <Button type="button" variant="destructive">
+                        Cancel
+                      </Button>
+                    </DialogClose>
+                    <Button type="submit" variant="secondary">
+                      Create
                     </Button>
-                  </DialogClose>
-                  <Button type="submit" variant="secondary">
-                    Create
-                  </Button>
-                </DialogFooter>
+                  </DialogFooter>
+                </div>
               </form>
             </DialogContent>
           </Dialog>
