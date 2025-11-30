@@ -1,21 +1,10 @@
+import { ProjectRowActions } from "@/components/project-row-action";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-} from "@/components/ui/dropdown-menu";
 import { type ColumnDef } from "@tanstack/react-table";
 import {
-  MoreHorizontal,
   ArrowUp,
   ArrowDown,
-  Trash2,
-  Pencil,
   List,
   Clock,
   DollarSign,
@@ -126,36 +115,6 @@ export const projectColumns: ColumnDef<Project>[] = [
   },
   {
     id: "action",
-    cell: ({ row }) => {
-      const project = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-40" align="end">
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                Edit
-                <DropdownMenuShortcut>
-                  <Pencil className="h-4 w-4" />
-                </DropdownMenuShortcut>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <span className="text-red-400">Delete</span>
-                <DropdownMenuShortcut>
-                  <Trash2 className="h-4 w-4" />
-                </DropdownMenuShortcut>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
+    cell: ({ row }) => <ProjectRowActions project={row.original} />,
   },
 ];
