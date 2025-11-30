@@ -42,6 +42,7 @@
     "openai": "^6.8.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-hook-form": "^7.67.0",
     "react-router-dom": "^6.30.1",
     "recharts": "^2.15.4",
     "sonner": "^2.0.7",
