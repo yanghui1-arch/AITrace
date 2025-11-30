@@ -1,5 +1,6 @@
 import { type Table } from "@tanstack/react-table";
 import { X } from "lucide-react";
+import { useForm, type SubmitHandler } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,17 +16,35 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Label } from "../ui/label";
+import { projectApi } from "@/api/project";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
   hasCreateProjectComponent: boolean;
 }
 
+type Inputs = {
+  projectName: string;
+  projectDescription: string;
+};
+
 export function DataTableToolbar<TData>({
   table,
   hasCreateProjectComponent = false,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
+  const form = useForm<Inputs>();
+
+  const createProjectSubmit: SubmitHandler<Inputs> = async (data) => {
+    try {
+      console.log("request body" + JSON.stringify(data))
+      const response = await projectApi.createNewProject(data);
+      const createProjectName = response.data.data;
+      console.log(createProjectName);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div className="flex items-center justify-between">
@@ -51,45 +70,52 @@ export function DataTableToolbar<TData>({
       </div>
       <div className="flex items-center gap-2">
         <DataTableViewOptions table={table} />
-        {hasCreateProjectComponent && <Dialog>
-          <DialogTrigger asChild>
-            <Button size="sm">Create Project</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Create Project</DialogTitle>
-              <DialogDescription>
-                Create a new project for AITrace
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4">
-              <div className="grid gap-3">
-                <Label>Project Name</Label>
-                <Input id="name-1" name="name" placeholder="New project name" />
-              </div>
-              <div className="grid gap-3">
-                <Label>Description</Label>
-                <Input
-                  id="username-1"
-                  name="username"
-                  placeholder="Brief description"
-                />
-              </div>
-            </div>
-            <DialogFooter className="justify-between">
-              <DialogClose asChild>
-                <Button type="button" variant="destructive">
-                  Cancel
-                </Button>
-              </DialogClose>
-              <DialogClose asChild>
-                <Button type="button" variant="secondary">
-                  Create
-                </Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>}
+        {hasCreateProjectComponent && (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm">Create Project</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <form onSubmit={form.handleSubmit(createProjectSubmit)}>
+                <DialogHeader>
+                  <DialogTitle>Create Project</DialogTitle>
+                  <DialogDescription>
+                    Create a new project for AITrace
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4">
+                  <div className="grid gap-3">
+                    <Label>Project Name</Label>
+                    <Input
+                      id="name-1"
+                      placeholder="New project name"
+                      {...form.register("projectName")}
+                    />
+                  </div>
+                  <div className="grid gap-3">
+                    <Label>Description</Label>
+                    <Input
+                      id="username-1"
+                      placeholder="Brief description"
+                      {...form.register("projectDescription")}
+                    />
+                  </div>
+                </div>
+
+                <DialogFooter className="justify-between">
+                  <DialogClose asChild>
+                    <Button type="button" variant="destructive">
+                      Cancel
+                    </Button>
+                  </DialogClose>
+                  <Button type="submit" variant="secondary">
+                    Create
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </div>
   );
