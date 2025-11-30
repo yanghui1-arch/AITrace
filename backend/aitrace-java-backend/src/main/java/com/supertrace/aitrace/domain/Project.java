@@ -29,6 +29,8 @@ public class Project {
     @NotBlank
     private String name;
 
+    private String description;
+
     @Column(name = "avg_duration", nullable = false)
     private BigDecimal averageDuration;
 
