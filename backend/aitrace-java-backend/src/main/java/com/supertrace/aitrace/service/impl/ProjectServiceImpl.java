@@ -51,7 +51,7 @@ public class ProjectServiceImpl implements ProjectService {
             .userId(userId)
             .name(projectName)
             .description(projectDescription)
-            .averageDuration(BigDecimal.ZERO)
+            .averageDuration(0)
             .cost(BigDecimal.ZERO)
             .lastUpdateTimestamp(LocalDateTime.now())
             .build();

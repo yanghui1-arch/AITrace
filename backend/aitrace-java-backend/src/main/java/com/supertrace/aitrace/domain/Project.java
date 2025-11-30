@@ -32,7 +32,7 @@ public class Project {
     private String description;
 
     @Column(name = "avg_duration", nullable = false)
-    private BigDecimal averageDuration;
+    private Integer averageDuration;
 
     @NotNull
     private BigDecimal cost;
