@@ -151,8 +151,8 @@ export function DataTable<TData extends { name: string }, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => {
-                    /* select column skip click */
-                    const isSelectCell = cell.column.id === "select";
+                    /* select and action column skip click */
+                    const isSelectCell = cell.column.id === "select" || cell.column.id === "action";
                     return (
                       <TableCell
                         key={cell.id}
