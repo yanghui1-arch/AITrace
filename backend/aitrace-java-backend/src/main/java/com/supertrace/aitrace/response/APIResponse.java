@@ -34,4 +34,8 @@ public class APIResponse<T> {
     public static <T> APIResponse<T> error(String message) {
         return new APIResponse<>(400, message, null);
     }
+
+    public static <T> APIResponse<T> notFound(String message) {
+        return new APIResponse<>(404, message, null);
+    }
 }

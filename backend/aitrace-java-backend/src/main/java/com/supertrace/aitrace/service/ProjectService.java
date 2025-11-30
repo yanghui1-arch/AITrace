@@ -20,12 +20,12 @@ public interface ProjectService {
     Project createNewProjectByManualCreation(CreateProjectRequest createProjectRequest, UUID userId);
 
     /**
-     * Get project all information of user uuid
+     * Get all projects of user uuid
      *
      * @param userId user uuid
      * @return List of projects owned by user uuid
      */
-    List<Project> getProjectByUserId(UUID userId);
+    List<Project> getProjectsByUserId(UUID userId);
 
     /**
      * Get project all information of project name owned by user uuid

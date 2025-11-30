@@ -4,14 +4,13 @@ import com.supertrace.aitrace.domain.Project;
 import com.supertrace.aitrace.dto.project.CreateProjectRequest;
 import com.supertrace.aitrace.response.APIResponse;
 import com.supertrace.aitrace.service.ProjectService;
+import com.supertrace.aitrace.vo.project.ProjectInfoVO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -31,6 +30,31 @@ public class ProjectController {
             UUID userId = (UUID) request.getAttribute("userId");
             Project project = this.projectService.createNewProjectByManualCreation(createProjectRequest, userId);
             return ResponseEntity.ok(APIResponse.success(project.getName(), String.format("Create a new project successfully for user uuid: %s", userId)));
+        } catch (Exception exception) {
+            return ResponseEntity.badRequest().body(APIResponse.error(exception.getMessage()));
+        }
+    }
+
+    @GetMapping("/get_all_projects")
+    public ResponseEntity<APIResponse<List<ProjectInfoVO>>> getAllProjects(HttpServletRequest request) {
+        try {
+            UUID userId = (UUID) request.getAttribute("userId");
+            List<Project> projects = this.projectService.getProjectsByUserId(userId);
+            if (!projects.isEmpty()) {
+                List<ProjectInfoVO> projectsVO = projects.stream().map(
+                    p -> ProjectInfoVO.builder()
+                        .projectName(p.getName())
+                        .description(p.getDescription())
+                        .averageDuration(p.getAverageDuration())
+                        .cost(p.getCost())
+                        .createdTimestamp(p.getCreatedTimestamp())
+                        .lastUpdateTimestamp(p.getLastUpdateTimestamp())
+                        .build()
+                ).toList();
+                return ResponseEntity.ok(APIResponse.success(projectsVO));
+            } else {
+                return ResponseEntity.ok(APIResponse.notFound("Not found projects"));
+            }
         } catch (Exception exception) {
             return ResponseEntity.badRequest().body(APIResponse.error(exception.getMessage()));
         }
