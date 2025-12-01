@@ -6,6 +6,8 @@ import { Clock } from "lucide-react";
 import TokensPanel from "./tokens-panel";
 import type { CompletionUsage } from "openai/resources/completions.mjs";
 import { TraceDialogMain } from "./trace-dialog/trace-dialog-main";
+import { useDataTable } from "@/hooks/use-datatable";
+import { DataTableToolbar } from "./data-table/data-table-toolbar/common-data-table-toolbar";
 
 interface TraceTableProps<TValue> {
   columns: ColumnDef<Trace, TValue>[];
@@ -13,9 +15,13 @@ interface TraceTableProps<TValue> {
 }
 
 export function TraceTable<TValue>({ columns, data }: TraceTableProps<TValue>) {
+
+  const { table } = useDataTable({ columns, data })
+
   return (
-    <div className="container mx-auto py-2">
-      <DataTable data={data} columns={columns}>
+    <div className="container mx-auto py-2 space-y-4">
+      <DataTableToolbar table={table}/>
+      <DataTable table={table}>
         <RowPanelContent<Trace>>
           {(rowData) => {
             /* generate a new grouping result based model name and don't udpate rowData.tracks */

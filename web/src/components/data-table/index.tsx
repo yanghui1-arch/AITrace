@@ -1,8 +1,8 @@
 import {
   flexRender,
-  type ColumnDef,
   type RowData,
   type Row,
+  type Table as TanstackTable,
 } from "@tanstack/react-table";
 import {
   TableHead,
@@ -14,11 +14,9 @@ import {
 } from "@/components/ui/table";
 import React, { useState, type ReactElement } from "react";
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
-import { DataTableToolbar } from "./data-table-toolbar";
 import { useNavigate, type NavigateFunction } from "react-router-dom";
 import { RowPanelContent } from "./data-table-row-panel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
-import { useDataTable } from "@/hooks/use-datatable";
 
 /**
  * DataTable general properties
@@ -30,25 +28,20 @@ import { useDataTable } from "@/hooks/use-datatable";
  * @template isNavigate - whether start navigate while click the row. default to `false`
  * @template children - components children. Supporting `RowPanelContent`
  */
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface DataTableProps<TData> {
+  table: TanstackTable<TData>
   hasCreateProjectComponent?: boolean;
   isNavigate?: boolean;
   children?: React.ReactNode;
 }
 
-export function DataTable<TData extends { name: string }, TValue>({
-  columns,
-  data,
-  hasCreateProjectComponent = false,
+export function DataTable<TData extends { name: string }>({
+  table,
   isNavigate = false,
   children,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData>) {
   const [clickRow, setClickRow] = useState<TData | null>(null);
   const navigate: NavigateFunction = useNavigate();
-
-  const { table } = useDataTable({ columns, data });
 
   const navigateProject = (
     e: React.MouseEvent,
@@ -110,10 +103,6 @@ export function DataTable<TData extends { name: string }, TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar
-        table={table}
-        hasCreateProjectComponent={hasCreateProjectComponent}
-      />
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
@@ -164,7 +153,7 @@ export function DataTable<TData extends { name: string }, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={table.getAllColumns().length}
                   className="h-24 text-center"
                 >
                   No results.

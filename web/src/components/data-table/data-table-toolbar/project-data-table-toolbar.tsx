@@ -14,13 +14,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
-import { Label } from "../ui/label";
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { projectApi } from "@/api/project";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
-  hasCreateProjectComponent: boolean;
 }
 
 type Inputs = {
@@ -28,9 +27,8 @@ type Inputs = {
   projectDescription: string;
 };
 
-export function DataTableToolbar<TData>({
+export function ProjectDataTableToolbar<TData>({
   table,
-  hasCreateProjectComponent = false,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
   const form = useForm<Inputs>();
@@ -70,54 +68,52 @@ export function DataTableToolbar<TData>({
       </div>
       <div className="flex items-center gap-2">
         <DataTableViewOptions table={table} />
-        {hasCreateProjectComponent && (
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button size="sm">Create Project</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <form onSubmit={form.handleSubmit(createProjectSubmit)}>
-                <div className="flex flex-col gap-2">
-                  <DialogHeader>
-                    <DialogTitle>Create Project</DialogTitle>
-                    <DialogDescription>
-                      Create a new project for AITrace
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4">
-                    <div className="grid gap-3">
-                      <Label>Project Name</Label>
-                      <Input
-                        id="name-1"
-                        placeholder="New project name"
-                        {...form.register("projectName")}
-                      />
-                    </div>
-                    <div className="grid gap-3">
-                      <Label>Description</Label>
-                      <Input
-                        id="username-1"
-                        placeholder="Brief description"
-                        {...form.register("projectDescription")}
-                      />
-                    </div>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button size="sm">Create Project</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <form onSubmit={form.handleSubmit(createProjectSubmit)}>
+              <div className="flex flex-col gap-2">
+                <DialogHeader>
+                  <DialogTitle>Create Project</DialogTitle>
+                  <DialogDescription>
+                    Create a new project for AITrace
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4">
+                  <div className="grid gap-3">
+                    <Label>Project Name</Label>
+                    <Input
+                      id="name-1"
+                      placeholder="New project name"
+                      {...form.register("projectName")}
+                    />
                   </div>
-
-                  <DialogFooter className="justify-between">
-                    <DialogClose asChild>
-                      <Button type="button" variant="destructive">
-                        Cancel
-                      </Button>
-                    </DialogClose>
-                    <Button type="submit" variant="secondary">
-                      Create
-                    </Button>
-                  </DialogFooter>
+                  <div className="grid gap-3">
+                    <Label>Description</Label>
+                    <Input
+                      id="username-1"
+                      placeholder="Brief description"
+                      {...form.register("projectDescription")}
+                    />
+                  </div>
                 </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-        )}
+
+                <DialogFooter className="justify-between">
+                  <DialogClose asChild>
+                    <Button type="button" variant="destructive">
+                      Cancel
+                    </Button>
+                  </DialogClose>
+                  <Button type="submit" variant="secondary">
+                    Create
+                  </Button>
+                </DialogFooter>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

@@ -8,6 +8,8 @@ import { Label } from "./ui/label";
 import { LLMJsonCard } from "./llm-json-card";
 import { Card, CardContent } from "./ui/card";
 import type { ColumnDef } from "@tanstack/react-table";
+import { useDataTable } from "@/hooks/use-datatable";
+import { DataTableToolbar } from "./data-table/data-table-toolbar/common-data-table-toolbar";
 
 interface StepTableProps<TValue> {
   columns: ColumnDef<Step, TValue>[];
@@ -15,9 +17,13 @@ interface StepTableProps<TValue> {
 }
 
 export function StepTable<TValue>({ columns, data }: StepTableProps<TValue>) {
+
+  const { table } = useDataTable({ columns, data }) 
+
   return (
-    <div className="container mx-auto py-2">
-      <DataTable data={data} columns={columns}>
+    <div className="container mx-auto py-2 space-y-4">
+      <DataTableToolbar table={table} />
+      <DataTable table={table}>
         <RowPanelContent<Step>>
           {(rowData) => (
             <div className="flex gap-4 flex-col">

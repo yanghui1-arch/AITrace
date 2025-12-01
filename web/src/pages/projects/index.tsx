@@ -2,6 +2,8 @@ import { DataTable } from "@/components/data-table";
 import { projectColumns } from "./project-columns";
 import { useEffect, useState } from "react";
 import { projectApi } from "@/api/project";
+import { useDataTable } from "@/hooks/use-datatable";
+import { ProjectDataTableToolbar } from "@/components/data-table/data-table-toolbar/project-data-table-toolbar";
 
 type Project = {
   name: string;
@@ -27,11 +29,13 @@ export default function ProjectsPage() {
         }));
         setProject(projects);
       } else if (response.data.code == 404) {
-        console.warn("No projects found.")
+        console.warn("No projects found.");
       }
     };
     getProjects();
   }, []);
+
+  const { table } = useDataTable({ columns: projectColumns, data: project });
 
   return (
     <div className="px-4 lg:px-6">
@@ -39,11 +43,10 @@ export default function ProjectsPage() {
       <p className="text-muted-foreground mt-2">
         Create a new one project to track and improve your agent performance!
       </p>
-      <div className="container mx-auto py-5">
+      <div className="container mx-auto py-5 space-y-4">
+        <ProjectDataTableToolbar table={table} />
         <DataTable
-          data={project}
-          columns={projectColumns}
-          hasCreateProjectComponent={true}
+          table={table}
           isNavigate={true}
         />
       </div>
