@@ -44,21 +44,21 @@ export function StepTable<TValue>({ columns, data }: StepTableProps<TValue>) {
               <Label className="font-semibold">Step Function Details</Label>
               {rowData.input.func_inputs && (
                 <div className="flex gap-4">
-                  <div className="flex flex-col flex-1 gap-4">
+                  <div className="flex-1">
                     <LLMJsonCard
                       labelTitle="Step Original Input"
                       jsonObject={rowData.input.func_inputs}
                     />
                   </div>
-                  <div className="h-full border-l-5 border-muted" />
-                  <div className="flex flex-col flex-1 gap-4">
+                  <div className="h-full border-l border-muted" />
+                  <div className="flex-1">
                     {rowData.output.func_output &&
                     typeof rowData.output.func_output === "string" ? (
-                      <>
+                      <div className="flex flex-col gap-4 w-full">
                         <Label>Step Final Output</Label>
                         <Card>
                           <CardContent>
-                            <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
+                            <pre className="text-sm font-mono whitespace-pre-wrap break-all text-left">
                               <code>
                                 {JSON.stringify(
                                   rowData.output.func_output
@@ -71,7 +71,7 @@ export function StepTable<TValue>({ columns, data }: StepTableProps<TValue>) {
                             </pre>
                           </CardContent>
                         </Card>
-                      </>
+                      </div>
                     ) : (
                       <LLMJsonCard
                         labelTitle="Step Final Output"

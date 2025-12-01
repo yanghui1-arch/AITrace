@@ -17,7 +17,7 @@ export function LLMJsonCard({
   llmJsonLight = true,
 }: StepDetailProp) {
   return (
-    <>
+    <div className="flex flex-col gap-4">
       <Label>{labelTitle}</Label>
       <Card>
         <CardContent>
@@ -38,6 +38,6 @@ export function LLMJsonCard({
           </ScrollArea>
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 }
