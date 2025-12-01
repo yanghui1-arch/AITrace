@@ -21,9 +21,12 @@ import type { Project } from "@/pages/projects/project-columns";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useForm } from "react-hook-form";
+import { projectApi } from "@/api/project";
+import { toast } from "sonner";
 
 interface ProjectRowActionsProps {
   project: Project;
+  onRefresh: () => void;
 }
 
 type UpdateParams = {
@@ -31,7 +34,7 @@ type UpdateParams = {
   projectDescription: string;
 };
 
-export function ProjectRowActions({ project }: ProjectRowActionsProps) {
+export function ProjectRowActions({ project, onRefresh }: ProjectRowActionsProps) {
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const form = useForm<UpdateParams>({
@@ -44,6 +47,15 @@ export function ProjectRowActions({ project }: ProjectRowActionsProps) {
   const editUpdateSubmit = (data: UpdateParams) => {
     console.log(data);
   };
+
+  const deleteProject = async (projectName: string) => {
+    const response = await projectApi.deleteProject({projectName});
+    setOpenDelete(false);
+    if (response.data.code == 200) {
+      await onRefresh();
+      toast.success(response.data.data);
+    }
+  }
 
   return (
     <>
@@ -121,10 +133,7 @@ export function ProjectRowActions({ project }: ProjectRowActionsProps) {
             </Button>
             <Button
               variant="destructive"
-              onClick={() => {
-                console.log("delete", project);
-                setOpenDelete(false);
-              }}
+              onClick={() => deleteProject(project.name)}
             >
               Delete
             </Button>

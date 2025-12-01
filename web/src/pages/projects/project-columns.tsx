@@ -115,6 +115,6 @@ export const projectColumns: ColumnDef<Project>[] = [
   },
   {
     id: "action",
-    cell: ({ row }) => <ProjectRowActions project={row.original} />,
+    cell: ({ row, table }) => <ProjectRowActions project={row.original} onRefresh={() => table.options.meta?.onRefresh?.()}/>,
   },
 ];

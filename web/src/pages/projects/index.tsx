@@ -29,13 +29,14 @@ export default function ProjectsPage() {
       setProject(projects);
     } else if (response.data.code == 404) {
       console.warn("No projects found.");
+      setProject([]);
     }
   };
   useEffect(() => {
     getProjects();
   }, []);
 
-  const { table } = useDataTable({ columns: projectColumns, data: project });
+  const { table } = useDataTable({ columns: projectColumns, data: project, onRefresh: getProjects });
 
   return (
     <div className="px-4 lg:px-6">
@@ -44,7 +45,7 @@ export default function ProjectsPage() {
         Create a new one project to track and improve your agent performance!
       </p>
       <div className="container mx-auto py-5 space-y-4">
-        <ProjectDataTableToolbar table={table} onCreateProjectSuccessCallback={getProjects}/>
+        <ProjectDataTableToolbar table={table}/>
         <DataTable table={table} isNavigate={true} />
       </div>
     </div>

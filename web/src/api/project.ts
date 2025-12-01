@@ -1,9 +1,12 @@
 import http from "./http"
 
 
-type RequestDataType = {
+type CreateNewProjectRequestDataType = {
     projectName: string
     projectDescription: string
+}
+type DeleteProjectRequestDataType = {
+    projectName: string
 }
 
 type ReturnCreateProjectNameType = string
@@ -26,7 +29,7 @@ export const projectApi = {
     createNewProject({
         projectName,
         projectDescription,
-    }: RequestDataType) {
+    }: CreateNewProjectRequestDataType) {
         return http.post<Response<ReturnCreateProjectNameType>>(
             "/v0/project/create_new_project",
             {projectName, projectDescription},
@@ -36,6 +39,14 @@ export const projectApi = {
     getAllProjects() {
         return http.get<Response<Project[]>> (
             "/v0/project/get_all_projects"
+        )
+    },
+
+    deleteProject({
+        projectName,
+    }: DeleteProjectRequestDataType) {
+        return http.post<Response<string>> (
+            `/v0/project/delete/${projectName}`
         )
     }
 };

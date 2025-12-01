@@ -21,7 +21,6 @@ import { toast } from "sonner";
 
 interface ProjectDataTableToolbarProps<TData> {
   table: Table<TData>;
-  onCreateProjectSuccessCallback: () => void;
 }
 
 type Inputs = {
@@ -31,7 +30,6 @@ type Inputs = {
 
 export function ProjectDataTableToolbar<TData>({
   table,
-  onCreateProjectSuccessCallback,
 }: ProjectDataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
   const form = useForm<Inputs>();
@@ -42,7 +40,7 @@ export function ProjectDataTableToolbar<TData>({
       console.log("request body" + JSON.stringify(data));
       const response = await projectApi.createNewProject(data);
       if (response.data.code == 200) {
-        onCreateProjectSuccessCallback();
+        table.options.meta?.onRefresh?.();
         setOpenCreateProjectDialog(false);
         toast.success(`Congrats to create project: ${form.getValues("projectName")}`)
       }

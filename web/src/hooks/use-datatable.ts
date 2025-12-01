@@ -13,11 +13,13 @@ import { useState } from "react";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  onRefresh?: () => void;
 }
 
 export function useDataTable<TData, TValue>({
   columns,
   data,
+  onRefresh,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -41,6 +43,9 @@ export function useDataTable<TData, TValue>({
       rowSelection,
       columnFilters,
     },
+    meta: {
+      onRefresh,
+    }
   });
 
   return { table };

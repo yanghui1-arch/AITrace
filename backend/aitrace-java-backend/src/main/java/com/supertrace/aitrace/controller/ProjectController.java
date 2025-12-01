@@ -59,4 +59,15 @@ public class ProjectController {
             return ResponseEntity.badRequest().body(APIResponse.error(exception.getMessage()));
         }
     }
+
+    @PostMapping("/delete/{projectName}")
+    public ResponseEntity<APIResponse<String>> deleteProject(HttpServletRequest request, @PathVariable String projectName) {
+        try {
+            UUID userId = (UUID) request.getAttribute("userId");
+            this.projectService.deleteProject(userId, projectName);
+            return ResponseEntity.ok(APIResponse.success("Project deleted successfully"));
+        } catch (Exception exception) {
+            return ResponseEntity.badRequest().body(APIResponse.error(exception.getMessage()));
+        }
+    }
 }

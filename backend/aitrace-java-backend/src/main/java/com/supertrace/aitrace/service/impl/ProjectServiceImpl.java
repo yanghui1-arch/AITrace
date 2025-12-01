@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -83,6 +84,16 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public Project deleteProject(UUID userId,
                                  String projectName) {
-        return null;
+        List<Project> projectsOwnedByUserId = this.projectRepository.findProjectsByUserId(userId);
+        if (projectsOwnedByUserId.isEmpty()) {
+            throw new IllegalArgumentException("No projects owned by this user: " + userId);
+        } else {
+            Project projectToDelete = projectsOwnedByUserId.stream()
+                .filter(p -> p.getName().equals(projectName))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
+            this.projectRepository.deleteById(projectToDelete.getId());
+            return projectToDelete;
+        }
     }
 }
