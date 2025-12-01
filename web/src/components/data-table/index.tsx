@@ -1,13 +1,6 @@
 import {
   flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  type SortingState,
-  useReactTable,
   type ColumnDef,
-  getPaginationRowModel,
-  type ColumnFiltersState,
-  getFilteredRowModel,
   type RowData,
   type Row,
 } from "@tanstack/react-table";
@@ -25,11 +18,12 @@ import { DataTableToolbar } from "./data-table-toolbar";
 import { useNavigate, type NavigateFunction } from "react-router-dom";
 import { RowPanelContent } from "./data-table-row-panel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { useDataTable } from "@/hooks/use-datatable";
 
 /**
  * DataTable general properties
  * The property controls components of data table
- * 
+ *
  * @template TData - data type in every row
  * @template TValue - customized columndef
  * @template hasCreateProjectComponent - whether renderer a component of `Create Project` in the data table tool bar. if not provided, default to `false`
@@ -51,49 +45,33 @@ export function DataTable<TData extends { name: string }, TValue>({
   isNavigate = false,
   children,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [rowSelection, setRowSelection] = useState({});
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [clickRow, setClickRow] = useState<TData | null>(null);
   const navigate: NavigateFunction = useNavigate();
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onSortingChange: setSorting,
-    onRowSelectionChange: setRowSelection,
-    onColumnFiltersChange: setColumnFilters,
-    initialState: {
-      sorting: [{ id: "name", desc: false }],
-    },
-    state: {
-      sorting,
-      rowSelection,
-      columnFilters,
-    },
-  });
 
-  const navigateProject = (e: React.MouseEvent, isSelectCell: boolean, row: Row<TData>) => {
+  const { table } = useDataTable({ columns, data });
+
+  const navigateProject = (
+    e: React.MouseEvent,
+    isSelectCell: boolean,
+    row: Row<TData>
+  ) => {
     if (isSelectCell) {
       e.stopPropagation();
-      return ;
+      return;
     }
     const name = (row.original as TData)?.name;
     // @ts-expect-error: TData maynot have description.
     const description = (row.original as TData)?.description ?? "";
     navigate(String(name), {
       state: {
-        description: description
-      }
-    }); 
-  }
+        description: description,
+      },
+    });
+  };
 
   // Define row panel content type to avoid rowPanel raise type error.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const RowPanelContentType = RowPanelContent as unknown as React.JSXElementConstructor<any>
+  const RowPanelContentType = RowPanelContent as unknown as React.JSXElementConstructor<any>;
 
   const rowPanel: ReactElement | null | undefined = Array.isArray(children)
     ? (children as ReactElement[]).find((c) => c.type === RowPanelContentType)
@@ -101,28 +79,41 @@ export function DataTable<TData extends { name: string }, TValue>({
     ? (children as ReactElement)
     : null;
 
-  const renderPanel = (rowPanel?.props as { children ?: (rowData: RowData) => React.ReactNode})?.children;
-  const popRowPanel = (e: React.MouseEvent, isSelectCell: boolean, row: Row<TData>) => {
-    if(isSelectCell) {
+  const renderPanel = (
+    rowPanel?.props as { children?: (rowData: RowData) => React.ReactNode }
+  )?.children;
+  const popRowPanel = (
+    e: React.MouseEvent,
+    isSelectCell: boolean,
+    row: Row<TData>
+  ) => {
+    if (isSelectCell) {
       e.stopPropagation();
-      return ;
+      return;
     }
-    if(rowPanel) {
-      setClickRow(row.original as TData)
+    if (rowPanel) {
+      setClickRow(row.original as TData);
     }
-  }
+  };
 
-  const handleClickRow = (e: React.MouseEvent, isSelectCell: boolean, row: Row<TData>) => {
-    if(isNavigate) {
+  const handleClickRow = (
+    e: React.MouseEvent,
+    isSelectCell: boolean,
+    row: Row<TData>
+  ) => {
+    if (isNavigate) {
       navigateProject(e, isSelectCell, row);
     } else {
       popRowPanel(e, isSelectCell, row);
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} hasCreateProjectComponent={hasCreateProjectComponent}/>
+      <DataTableToolbar
+        table={table}
+        hasCreateProjectComponent={hasCreateProjectComponent}
+      />
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
@@ -152,12 +143,14 @@ export function DataTable<TData extends { name: string }, TValue>({
                 >
                   {row.getVisibleCells().map((cell) => {
                     /* select and action column skip click */
-                    const isSelectCell = cell.column.id === "select" || cell.column.id === "action";
+                    const isSelectCell =
+                      cell.column.id === "select" ||
+                      cell.column.id === "action";
                     return (
                       <TableCell
                         key={cell.id}
                         className={"text-center cursor-pointer"}
-                        onClick={(e) => (handleClickRow(e, isSelectCell, row))}
+                        onClick={(e) => handleClickRow(e, isSelectCell, row)}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
@@ -185,7 +178,9 @@ export function DataTable<TData extends { name: string }, TValue>({
       <Dialog open={!!clickRow} onOpenChange={() => setClickRow(null)}>
         <DialogContent className="w-[50%] sm:max-w-none max-w-[90vw] md:max-w-240 max-h-[calc(100vh-2rem)] overflow-auto ">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">{clickRow?.name as string}</DialogTitle>
+            <DialogTitle className="text-2xl font-bold">
+              {clickRow?.name as string}
+            </DialogTitle>
           </DialogHeader>
           {clickRow && renderPanel?.(clickRow)}
         </DialogContent>
