@@ -103,17 +103,34 @@ export function StepTable<TValue>({ columns, data }: StepTableProps<TValue>) {
                     </div>
                     <div className="h-full border-l border-muted" />
                     <div className="flex flex-col flex-1 gap-4 w-full">
-                      <LLMJsonCard
-                        labelTitle="Output"
-                        jsonObject={
-                          rowData.output.llm_outputs as unknown as Record<
-                            string,
-                            unknown
-                          >
-                        }
-                        errorInfo={rowData.errorInfo}
-                        llmJsonLight={true}
-                      />
+                      {rowData.output.llm_outputs &&
+                      typeof rowData.output.llm_outputs === "string" ? (
+                        <>
+                          <Label>Output</Label>
+                          <Card>
+                            <CardContent>
+                              <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
+                                <code>
+                                  {JSON.stringify(
+                                    rowData.output.llm_outputs
+                                      ? rowData.output.llm_outputs
+                                      : rowData.errorInfo ??
+                                          "Something errors.",
+                                    null,
+                                    2
+                                  )}
+                                </code>
+                              </pre>
+                            </CardContent>
+                          </Card>
+                        </>
+                      ) : (
+                        <LLMJsonCard
+                          labelTitle="Output"
+                          jsonObject={rowData.output.llm_outputs}
+                          errorInfo={rowData.errorInfo}
+                        />
+                      )}
                     </div>
                   </div>
                 )}

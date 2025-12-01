@@ -11,7 +11,7 @@ import { ArrowDown, ArrowUp, List } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 /* style as the same as openai */
-export interface FilteredFieldsOpenAIChatCompletionsOutput {
+export interface FilteredFieldsOpenAIChatCompletionsOutput extends Record<string, unknown>{
   model: string;
   created: string;
   content?: string;
