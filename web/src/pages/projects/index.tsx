@@ -15,23 +15,23 @@ type Project = {
 
 export default function ProjectsPage() {
   const [project, setProject] = useState<Project[]>([]);
+  const getProjects = async () => {
+    const response = await projectApi.getAllProjects();
+    if (response.data.code == 200) {
+      const userProjects = response.data.data;
+      const projects: Project[] = userProjects.map((p) => ({
+        name: p.projectName,
+        description: p.description,
+        cost: p.cost,
+        avgDuration: p.averageDuration,
+        lastUpdateTimestamp: p.lastUpdateTimestamp,
+      }));
+      setProject(projects);
+    } else if (response.data.code == 404) {
+      console.warn("No projects found.");
+    }
+  };
   useEffect(() => {
-    const getProjects = async () => {
-      const response = await projectApi.getAllProjects();
-      if (response.data.code == 200) {
-        const userProjects = response.data.data;
-        const projects: Project[] = userProjects.map((p) => ({
-          name: p.projectName,
-          description: p.description,
-          cost: p.cost,
-          avgDuration: p.averageDuration,
-          lastUpdateTimestamp: p.lastUpdateTimestamp,
-        }));
-        setProject(projects);
-      } else if (response.data.code == 404) {
-        console.warn("No projects found.");
-      }
-    };
     getProjects();
   }, []);
 
@@ -44,11 +44,8 @@ export default function ProjectsPage() {
         Create a new one project to track and improve your agent performance!
       </p>
       <div className="container mx-auto py-5 space-y-4">
-        <ProjectDataTableToolbar table={table} />
-        <DataTable
-          table={table}
-          isNavigate={true}
-        />
+        <ProjectDataTableToolbar table={table} onCreateProjectSuccessCallback={getProjects}/>
+        <DataTable table={table} isNavigate={true} />
       </div>
     </div>
   );

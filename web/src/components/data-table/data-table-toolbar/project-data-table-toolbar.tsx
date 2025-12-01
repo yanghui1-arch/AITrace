@@ -13,13 +13,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { projectApi } from "@/api/project";
+import { useState } from "react";
+import { toast } from "sonner";
 
-interface DataTableToolbarProps<TData> {
+interface ProjectDataTableToolbarProps<TData> {
   table: Table<TData>;
+  onCreateProjectSuccessCallback: () => void;
 }
 
 type Inputs = {
@@ -29,17 +31,23 @@ type Inputs = {
 
 export function ProjectDataTableToolbar<TData>({
   table,
-}: DataTableToolbarProps<TData>) {
+  onCreateProjectSuccessCallback,
+}: ProjectDataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
   const form = useForm<Inputs>();
+  const [openCreateProjectDialog, setOpenCreateProjectDialog] = useState(false);
 
   const createProjectSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
       console.log("request body" + JSON.stringify(data));
       const response = await projectApi.createNewProject(data);
-      const createProjectName = response.data.data;
-      console.log(createProjectName);
+      if (response.data.code == 200) {
+        onCreateProjectSuccessCallback();
+        setOpenCreateProjectDialog(false);
+        toast.success(`Congrats to create project: ${form.getValues("projectName")}`)
+      }
     } catch (error) {
+      toast.error(`Failed to create project: ${form.getValues("projectName")}`)
       console.error(error);
     }
   };
@@ -68,10 +76,13 @@ export function ProjectDataTableToolbar<TData>({
       </div>
       <div className="flex items-center gap-2">
         <DataTableViewOptions table={table} />
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button size="sm">Create Project</Button>
-          </DialogTrigger>
+        <Button size="sm" onClick={() => setOpenCreateProjectDialog(true)}>
+          Create Project
+        </Button>
+        <Dialog
+          open={openCreateProjectDialog}
+          onOpenChange={setOpenCreateProjectDialog}
+        >
           <DialogContent className="sm:max-w-md">
             <form onSubmit={form.handleSubmit(createProjectSubmit)}>
               <div className="flex flex-col gap-2">
