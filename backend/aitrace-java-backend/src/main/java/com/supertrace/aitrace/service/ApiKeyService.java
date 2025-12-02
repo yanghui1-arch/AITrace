@@ -30,6 +30,14 @@ public interface ApiKeyService {
     boolean isApiKeyOwnedByUser(String apiKey, UUID userId);
 
     /**
+     * Resolve user uuid from API key
+     *
+     * @param apiKey apikey
+     * @return Optional user uuid
+     */
+    Optional<UUID> resolveUserIdFromApiKey(String apiKey);
+
+    /**
      * Get a user latest api key.
      *
      * @param userId user id

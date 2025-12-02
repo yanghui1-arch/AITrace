@@ -49,6 +49,11 @@ public class ApiKeyServiceImpl implements ApiKeyService {
     }
 
     @Override
+    public Optional<UUID> resolveUserIdFromApiKey(String apiKey) {
+        return this.apiKeyRepository.findUserIdByKey(apiKey);
+    }
+
+    @Override
     public Optional<String> getUserLatestApiKey(UUID userId) {
         List<ApiKey> userApiKeys = this.apiKeyRepository.findApiKeyByUserId(userId);
         return userApiKeys.stream()
