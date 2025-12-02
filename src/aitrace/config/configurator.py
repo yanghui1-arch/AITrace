@@ -8,7 +8,7 @@ from .loader import save_config
 from .._client import client as at_client
 from .._exception import APIKeyException
 
-CLOUD_BASE_URL: Final[str] = "http://www.petmate.fun"
+CLOUD_BASE_URL: Final[str] = "http://localhost:8080/api/v0"
 localhost_base_url: str  = "http://localhost:8080/api/v0"
 
 class ATConfigurator:
