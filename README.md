@@ -15,17 +15,17 @@ git clone git@github.com:yanghui1-arch/AT.git
 cd src
 pip install -e .
 ```
-Then you need to configure AT through CLI. (it can be ignored now. Skip it!)
+Then you need to configure AT through CLI.
 ```bash
 aitrace configure
 ```
-
+It needs an AITrace API key. You can get the apikey after logging `http://localhost:5173`.
 Finally use `@track` to track your llm input and output
 ```python
 from aitrace import track
 from openai import OpenAI
 
-apikey = 'YOUR API KEY'
+openai_apikey = 'YOUR API KEY'
 
 
 @track(
@@ -35,7 +35,7 @@ apikey = 'YOUR API KEY'
 )
 def llm_classification(film_comment: str):
     prompt = "Please classify the film comment into happy, sad or others. Just tell me result. Don't output anything."
-    cli = OpenAI(base_url='https://api.deepseek.com', api_key=apikey)
+    cli = OpenAI(base_url='https://api.deepseek.com', api_key=openai_apikey)
     cli.chat.completions.create(
         messages=[{"role": "user", "content": f"{prompt}\nfilm_comment: {film_comment}"}],
         model="deepseek-chat"
@@ -50,7 +50,7 @@ def llm_classification(film_comment: str):
 )
 def llm_counts(film_comment: str):
     prompt = "Count the film comment words. just output word number. Don't output anything others."
-    cli = OpenAI(base_url='https://api.deepseek.com', api_key=apikey)
+    cli = OpenAI(base_url='https://api.deepseek.com', api_key=openai_apikey)
     return cli.chat.completions.create(
         messages=[{"role": "user", "content": f"{prompt}\nfilm_comment: {film_comment}"}],
         model="deepseek-chat"
