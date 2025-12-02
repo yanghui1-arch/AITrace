@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -57,6 +56,26 @@ public class ProjectServiceImpl implements ProjectService {
             .lastUpdateTimestamp(LocalDateTime.now())
             .build();
 
+        this.projectRepository.save(project);
+        return project;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Project createNewProjectByProgram(String projectName,
+                                             UUID userId) {
+        List<Project> projectsOwnedByUserId = this.projectRepository.findProjectsByUserId(userId);
+        boolean invalidProjectName = projectsOwnedByUserId.stream().anyMatch(p -> p.getName().equals(projectName));
+        if (invalidProjectName) {
+            throw new DuplicateProjectNameException();
+        }
+        Project project = Project.builder()
+            .userId(userId)
+            .name(projectName)
+            .averageDuration(0)
+            .cost(BigDecimal.ZERO)
+            .lastUpdateTimestamp(LocalDateTime.now())
+            .build();
         this.projectRepository.save(project);
         return project;
     }

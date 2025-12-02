@@ -20,6 +20,15 @@ public interface ProjectService {
     Project createNewProjectByManualCreation(CreateProjectRequest createProjectRequest, UUID userId);
 
     /**
+     * Create a new project in program
+     *
+     * @param projectName project name
+     * @param userId user uuid who owns the project
+     * @return Project
+     */
+    Project createNewProjectByProgram(String projectName, UUID userId);
+
+    /**
      * Get all projects of user uuid
      *
      * @param userId user uuid
