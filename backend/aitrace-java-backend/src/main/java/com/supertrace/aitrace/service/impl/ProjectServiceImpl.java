@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -86,9 +87,11 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Project getProjectByName(UUID userId,
-                                    String projectName) {
-        return null;
+    public Optional<Project> getProjectByUserIdAndName(UUID userId, String projectName) {
+        List<Project> projectsOwnedByUserId = this.projectRepository.findProjectsByUserId(userId);
+        return projectsOwnedByUserId.stream()
+            .filter(p -> p.getName().equals(projectName))
+            .findFirst();
     }
 
     @Override

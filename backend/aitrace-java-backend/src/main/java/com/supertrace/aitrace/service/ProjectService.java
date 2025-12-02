@@ -6,6 +6,7 @@ import com.supertrace.aitrace.dto.project.CreateProjectRequest;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ProjectService {
@@ -41,9 +42,9 @@ public interface ProjectService {
      *
      * @param userId user uuid
      * @param projectName project name
-     * @return Project
+     * @return Project optional
      */
-    Project getProjectByName(UUID userId, String projectName);
+    Optional<Project> getProjectByUserIdAndName(UUID userId, String projectName);
 
     /**
      * Update project after logging.
