@@ -9,6 +9,7 @@ import com.supertrace.aitrace.service.ApiKeyService;
 import com.supertrace.aitrace.service.StepService;
 import com.supertrace.aitrace.utils.ApiKeyUtils;
 import com.supertrace.aitrace.vo.step.GetStepVO;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,9 +48,10 @@ public class StepController {
     }
 
     @GetMapping("/step/{projectName}")
-    public ResponseEntity<APIResponse<List<GetStepVO>>> getStep(@PathVariable String projectName) {
+    public ResponseEntity<APIResponse<List<GetStepVO>>> getStep(HttpServletRequest request, @PathVariable String projectName) {
         try {
-            List<Step> steps = this.stepService.getAllSteps(projectName);
+            UUID userId = (UUID) request.getAttribute("userId");
+            List<Step> steps = this.stepService.findStepsByUserIdAndProject(userId, projectName);
             List<GetStepVO> getStepVOs = steps.stream()
                 .map(step -> GetStepVO.builder()
                     .id(step.getId())

@@ -24,10 +24,11 @@ public interface StepService {
     UUID logStep(UUID userId, LogStepRequest logStepRequest);
 
     /**
-     * get all steps of a project
+     * get all steps of a project which is owned by userId
      *
+     * @param userId user uuid
      * @param projectName a project name
      * @return all steps
      */
-    List<Step> getAllSteps(String projectName);
+    List<Step> findStepsByUserIdAndProject(UUID userId, String projectName);
 }
