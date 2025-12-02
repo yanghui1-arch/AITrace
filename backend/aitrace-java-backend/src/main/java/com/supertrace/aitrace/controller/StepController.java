@@ -3,6 +3,7 @@ package com.supertrace.aitrace.controller;
 import com.supertrace.aitrace.domain.core.step.Step;
 import com.supertrace.aitrace.dto.step.LogStepRequest;
 import com.supertrace.aitrace.exception.AuthenticationException;
+import com.supertrace.aitrace.exception.UserIdNotFoundException;
 import com.supertrace.aitrace.response.APIResponse;
 import com.supertrace.aitrace.service.ApiKeyService;
 import com.supertrace.aitrace.service.StepService;
@@ -34,8 +35,12 @@ public class StepController {
             if (!isExisted) {
                 throw new AuthenticationException();
             }
-            UUID stepId = this.stepService.logStep(logStepRequest);
+            UUID userId = this.apiKeyService.resolveUserIdFromApiKey(apikey)
+                .orElseThrow(UserIdNotFoundException::new);
+            UUID stepId = this.stepService.logStep(userId, logStepRequest);
             return ResponseEntity.ok(APIResponse.success(stepId));
+        } catch (AuthenticationException | UserIdNotFoundException e) {
+            return ResponseEntity.badRequest().body(APIResponse.error("Invalid AITrace API key. Please ensure your API Key is valid and not expired."));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(APIResponse.error(e.getMessage()));
         }

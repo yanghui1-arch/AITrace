@@ -17,10 +17,11 @@ public interface StepService {
      * Store step into the database
      * If step id is not in the db create one and store it else update it.
      *
+     * @param userId user uuid
      * @param logStepRequest log step request
      * @return step id
      */
-    UUID logStep(LogStepRequest logStepRequest);
+    UUID logStep(UUID userId, LogStepRequest logStepRequest);
 
     /**
      * get all steps of a project

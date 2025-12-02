@@ -68,6 +68,10 @@ public class Step {
     private String projectName;
 
     @NotNull
+    @Column(name = "project_id")
+    private Long projectId;
+
+    @NotNull
     @Column(name = "start_time")
     private LocalDateTime startTime;
 
