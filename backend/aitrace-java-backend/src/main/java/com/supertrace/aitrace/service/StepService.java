@@ -21,7 +21,7 @@ public interface StepService {
      * @param logStepRequest log step request
      * @return step id
      */
-    UUID logStep(UUID userId, LogStepRequest logStepRequest);
+    UUID logStep(UUID userId, LogStepRequest logStepRequest, Long projectId);
 
     /**
      * get all steps of a project which is owned by userId
