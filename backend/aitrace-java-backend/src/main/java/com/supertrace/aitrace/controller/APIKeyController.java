@@ -1,7 +1,7 @@
 package com.supertrace.aitrace.controller;
 
 import com.supertrace.aitrace.response.APIResponse;
-import com.supertrace.aitrace.service.ApiKeyService;
+import com.supertrace.aitrace.service.application.ApiKeyService;
 import com.supertrace.aitrace.utils.ApiKeyUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;

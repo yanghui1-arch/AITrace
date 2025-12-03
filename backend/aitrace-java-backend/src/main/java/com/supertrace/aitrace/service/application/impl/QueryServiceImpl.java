@@ -1,10 +1,10 @@
-package com.supertrace.aitrace.service.impl;
+package com.supertrace.aitrace.service.application.impl;
 
 import com.supertrace.aitrace.domain.Project;
 import com.supertrace.aitrace.domain.core.step.Step;
-import com.supertrace.aitrace.service.ProjectService;
-import com.supertrace.aitrace.service.QueryService;
-import com.supertrace.aitrace.service.StepService;
+import com.supertrace.aitrace.service.domain.ProjectService;
+import com.supertrace.aitrace.service.application.QueryService;
+import com.supertrace.aitrace.service.domain.StepService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

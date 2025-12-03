@@ -2,7 +2,7 @@ package com.supertrace.aitrace.registry;
 
 import com.supertrace.aitrace.auth.AuthRequest;
 import com.supertrace.aitrace.auth.AuthResponse;
-import com.supertrace.aitrace.service.AuthService;
+import com.supertrace.aitrace.service.application.AuthService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

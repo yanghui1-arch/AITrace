@@ -1,11 +1,11 @@
-package com.supertrace.aitrace.service.impl;
+package com.supertrace.aitrace.service.domain.impl;
 
 import com.supertrace.aitrace.domain.auth.AuthPlatform;
 import com.supertrace.aitrace.domain.auth.User;
 import com.supertrace.aitrace.domain.auth.UserAuth;
 import com.supertrace.aitrace.repository.UserAuthRepository;
 import com.supertrace.aitrace.repository.UserRepository;
-import com.supertrace.aitrace.service.UserService;
+import com.supertrace.aitrace.service.domain.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

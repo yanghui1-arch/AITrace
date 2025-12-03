@@ -1,4 +1,4 @@
-package com.supertrace.aitrace.service;
+package com.supertrace.aitrace.service.domain;
 
 import com.supertrace.aitrace.domain.core.step.Step;
 import com.supertrace.aitrace.dto.step.LogStepRequest;

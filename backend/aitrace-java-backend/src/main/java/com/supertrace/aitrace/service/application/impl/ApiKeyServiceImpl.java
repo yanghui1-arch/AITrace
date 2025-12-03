@@ -1,8 +1,8 @@
-package com.supertrace.aitrace.service.impl;
+package com.supertrace.aitrace.service.application.impl;
 
 import com.supertrace.aitrace.domain.ApiKey;
 import com.supertrace.aitrace.repository.ApiKeyRepository;
-import com.supertrace.aitrace.service.ApiKeyService;
+import com.supertrace.aitrace.service.application.ApiKeyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

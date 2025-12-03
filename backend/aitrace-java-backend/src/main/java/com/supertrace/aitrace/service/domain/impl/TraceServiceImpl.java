@@ -1,10 +1,10 @@
-package com.supertrace.aitrace.service.impl;
+package com.supertrace.aitrace.service.domain.impl;
 
 import com.supertrace.aitrace.domain.core.Trace;
 import com.supertrace.aitrace.dto.trace.LogTraceRequest;
 import com.supertrace.aitrace.factory.TraceFactory;
 import com.supertrace.aitrace.repository.TraceRepository;
-import com.supertrace.aitrace.service.TraceService;
+import com.supertrace.aitrace.service.domain.TraceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

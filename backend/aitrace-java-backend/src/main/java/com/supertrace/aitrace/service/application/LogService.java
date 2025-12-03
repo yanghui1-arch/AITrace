@@ -1,4 +1,4 @@
-package com.supertrace.aitrace.service;
+package com.supertrace.aitrace.service.application;
 
 import com.supertrace.aitrace.dto.step.LogStepRequest;
 import jakarta.validation.constraints.NotNull;

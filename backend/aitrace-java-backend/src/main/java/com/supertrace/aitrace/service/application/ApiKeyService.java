@@ -1,4 +1,4 @@
-package com.supertrace.aitrace.service;
+package com.supertrace.aitrace.service.application;
 
 import java.util.Optional;
 import java.util.UUID;

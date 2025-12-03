@@ -1,9 +1,9 @@
-package com.supertrace.aitrace.service.impl;
+package com.supertrace.aitrace.service.application.impl;
 
 import com.supertrace.aitrace.auth.github.GithubAuthRequest;
 import com.supertrace.aitrace.auth.github.GithubAuthResponse;
 import com.supertrace.aitrace.auth.github.GithubTokenResponse;
-import com.supertrace.aitrace.service.AuthService;
+import com.supertrace.aitrace.service.application.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
@@ -45,8 +45,7 @@ public class GithubAuthServiceImpl implements AuthService<GithubAuthRequest, Git
         String code = request.getCode();
         String accessToken = this.getAccessToken(code)
             .orElseThrow(() -> new RuntimeException("No access token"));
-        GithubAuthResponse githubUser = this.getGithubUser(accessToken);
-        return githubUser;
+        return this.getGithubUser(accessToken);
     }
 
     /**

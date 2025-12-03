@@ -3,7 +3,7 @@ package com.supertrace.aitrace.controller;
 import com.supertrace.aitrace.domain.Project;
 import com.supertrace.aitrace.dto.project.CreateProjectRequest;
 import com.supertrace.aitrace.response.APIResponse;
-import com.supertrace.aitrace.service.ProjectService;
+import com.supertrace.aitrace.service.domain.ProjectService;
 import com.supertrace.aitrace.vo.project.ProjectInfoVO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;

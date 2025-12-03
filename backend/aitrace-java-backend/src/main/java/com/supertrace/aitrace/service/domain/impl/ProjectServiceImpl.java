@@ -1,10 +1,10 @@
-package com.supertrace.aitrace.service.impl;
+package com.supertrace.aitrace.service.domain.impl;
 
 import com.supertrace.aitrace.domain.Project;
 import com.supertrace.aitrace.dto.project.CreateProjectRequest;
 import com.supertrace.aitrace.exception.project.DuplicateProjectNameException;
 import com.supertrace.aitrace.repository.ProjectRepository;
-import com.supertrace.aitrace.service.ProjectService;
+import com.supertrace.aitrace.service.domain.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,4 +1,4 @@
-package com.supertrace.aitrace.service;
+package com.supertrace.aitrace.service.domain;
 
 import com.supertrace.aitrace.domain.Project;
 import com.supertrace.aitrace.dto.project.CreateProjectRequest;

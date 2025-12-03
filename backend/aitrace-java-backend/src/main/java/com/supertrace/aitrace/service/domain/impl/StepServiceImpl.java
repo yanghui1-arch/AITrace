@@ -1,10 +1,10 @@
-package com.supertrace.aitrace.service.impl;
+package com.supertrace.aitrace.service.domain.impl;
 
 import com.supertrace.aitrace.domain.core.step.Step;
 import com.supertrace.aitrace.dto.step.LogStepRequest;
 import com.supertrace.aitrace.factory.StepFactory;
 import com.supertrace.aitrace.repository.StepRepository;
-import com.supertrace.aitrace.service.StepService;
+import com.supertrace.aitrace.service.domain.StepService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

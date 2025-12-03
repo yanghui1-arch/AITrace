@@ -1,4 +1,4 @@
-package com.supertrace.aitrace.service;
+package com.supertrace.aitrace.service.application;
 
 import com.supertrace.aitrace.auth.AuthRequest;
 import com.supertrace.aitrace.auth.AuthResponse;

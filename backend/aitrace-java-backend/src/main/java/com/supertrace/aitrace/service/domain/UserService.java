@@ -1,4 +1,4 @@
-package com.supertrace.aitrace.service;
+package com.supertrace.aitrace.service.domain;
 
 import com.supertrace.aitrace.domain.auth.AuthPlatform;
 import com.supertrace.aitrace.domain.auth.User;
