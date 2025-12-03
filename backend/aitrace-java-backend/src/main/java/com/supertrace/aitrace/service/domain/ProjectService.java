@@ -2,6 +2,7 @@ package com.supertrace.aitrace.service.domain;
 
 import com.supertrace.aitrace.domain.Project;
 import com.supertrace.aitrace.dto.project.CreateProjectRequest;
+import jakarta.validation.constraints.NotBlank;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -59,6 +60,15 @@ public interface ProjectService {
      * @return Updated project
      */
     Project updateProjectAfterLogging(UUID userId, String projectName, BigDecimal costGeneratedFromThisLog, LocalDateTime logEndTimestamp, BigDecimal durationOfThisLog);
+
+    /**
+     * Update project description
+     * @param userId user uuid
+     * @param projectId project id to be updated
+     * @param projectDescription new project description
+     * @return updated project
+     */
+    Project updateProject(UUID userId, Long projectId, String projectDescription);
 
     /**
      * Delete a project of a user by project name

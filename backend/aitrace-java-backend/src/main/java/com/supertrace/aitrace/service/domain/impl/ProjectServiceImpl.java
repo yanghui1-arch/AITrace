@@ -2,9 +2,11 @@ package com.supertrace.aitrace.service.domain.impl;
 
 import com.supertrace.aitrace.domain.Project;
 import com.supertrace.aitrace.dto.project.CreateProjectRequest;
+import com.supertrace.aitrace.exception.ProjectNotFoundException;
 import com.supertrace.aitrace.exception.project.DuplicateProjectNameException;
 import com.supertrace.aitrace.repository.ProjectRepository;
 import com.supertrace.aitrace.service.domain.ProjectService;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -101,6 +103,29 @@ public class ProjectServiceImpl implements ProjectService {
                                              LocalDateTime logEndTimestamp,
                                              BigDecimal durationOfThisLog) {
         return null;
+    }
+
+    /**
+     * Update project description
+     * New description can be null or blank.
+     *
+     * @param userId user uuid
+     * @param projectId project id to be updated
+     * @param projectDescription new project description
+     * @return Updated project
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Project updateProject(@NotNull UUID userId, @NotNull Long projectId, String projectDescription) {
+        List<Project> userProjects = this.projectRepository.findProjectsByUserId(userId);
+        Project projectToUpdate = userProjects.stream()
+            .filter(p -> p.getId().equals(projectId))
+            .findFirst()
+            .orElseThrow(() -> new ProjectNotFoundException("Failed to find project with project id " + projectId));
+        projectToUpdate.setDescription(projectDescription);
+        projectToUpdate = projectToUpdate.refreshLastUpdateTimestamp();
+        this.projectRepository.save(projectToUpdate);
+        return projectToUpdate;
     }
 
     @Override

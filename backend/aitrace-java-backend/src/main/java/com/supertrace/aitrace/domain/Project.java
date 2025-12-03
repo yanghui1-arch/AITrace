@@ -48,4 +48,9 @@ public class Project {
         this.createdTimestamp = LocalDateTime.now();
     }
 
+    public Project refreshLastUpdateTimestamp() {
+        this.lastUpdateTimestamp = LocalDateTime.now();
+        return this;
+    }
+
 }

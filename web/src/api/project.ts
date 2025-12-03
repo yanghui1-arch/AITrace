@@ -8,9 +8,14 @@ type CreateNewProjectRequestDataType = {
 type DeleteProjectRequestDataType = {
     projectName: string
 }
+type UpdateProjectDescriptionRequestDataType = {
+    projectId: number
+    newDescription: string
+}
 
 type ReturnCreateProjectNameType = string
 type Project = {
+    projectId: number,
     projectName: string
     description: string
     averageDuration: number
@@ -39,6 +44,16 @@ export const projectApi = {
     getAllProjects() {
         return http.get<Response<Project[]>> (
             "/v0/project/get_all_projects"
+        )
+    },
+
+    updateProjects({
+        projectId,
+        newDescription,
+    }: UpdateProjectDescriptionRequestDataType) {
+        return http.post<Response<Project>> (
+            `/v0/project/update/${encodeURIComponent(newDescription)}`,
+            { projectId }
         )
     },
 

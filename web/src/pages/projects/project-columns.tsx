@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 export type Project = {
+  id: number,
   name: string;
   description: string;
   cost: number;

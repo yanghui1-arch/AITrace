@@ -12,6 +12,9 @@ import java.time.LocalDateTime;
 @Builder
 public class ProjectInfoVO {
 
+    @NotNull
+    private Long projectId;
+
     @NotBlank
     private String projectName;
 

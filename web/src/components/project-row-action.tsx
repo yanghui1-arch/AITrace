@@ -30,7 +30,6 @@ interface ProjectRowActionsProps {
 }
 
 type UpdateParams = {
-  projectName: string;
   projectDescription: string;
 };
 
@@ -39,13 +38,27 @@ export function ProjectRowActions({ project, onRefresh }: ProjectRowActionsProps
   const [openDelete, setOpenDelete] = useState(false);
   const form = useForm<UpdateParams>({
     defaultValues: {
-      projectName: project.name,
       projectDescription: project.description,
     }
   });
 
-  const editUpdateSubmit = (data: UpdateParams) => {
+  const editUpdateSubmit = async (data: UpdateParams) => {
     console.log(data);
+    console.log(project)
+    try {
+      const response = await projectApi.updateProjects({projectId: project.id, newDescription: data.projectDescription})
+      if (response.data.code == 200) {
+        toast.success("Update project successfully.")
+      } else {
+        toast.error(response.data.message)
+      }
+      setOpenEdit(false)
+    } catch (e){
+      console.error("UNKNOWN ERROR: " + e)
+      toast.error("<|UNKNOWN ERROR|>")
+    } finally {
+      form.reset();
+    }
   };
 
   const deleteProject = async (projectName: string) => {
@@ -96,7 +109,9 @@ export function ProjectRowActions({ project, onRefresh }: ProjectRowActionsProps
                   <Label>Project Name</Label>
                   <Input
                     id="name-1"
-                    {...form.register("projectName")}
+                    className="cursor-not-allowed"
+                    disabled
+                    value={project.name}
                   />
                 </div>
                 <div className="grid gap-2">
@@ -108,7 +123,7 @@ export function ProjectRowActions({ project, onRefresh }: ProjectRowActionsProps
                 </div>
               </div>
               <DialogFooter>
-                <Button onClick={() => setOpenEdit(false)}>Close</Button>
+                <Button type="button" onClick={() => setOpenEdit(false)}>Close</Button>
                 <Button type="submit" variant="destructive">
                   Update
                 </Button>

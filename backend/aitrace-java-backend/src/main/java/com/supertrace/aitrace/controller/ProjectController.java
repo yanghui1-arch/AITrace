@@ -2,6 +2,7 @@ package com.supertrace.aitrace.controller;
 
 import com.supertrace.aitrace.domain.Project;
 import com.supertrace.aitrace.dto.project.CreateProjectRequest;
+import com.supertrace.aitrace.dto.project.UpdateProjectDescriptionRequest;
 import com.supertrace.aitrace.response.APIResponse;
 import com.supertrace.aitrace.service.domain.ProjectService;
 import com.supertrace.aitrace.vo.project.ProjectInfoVO;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,6 +45,7 @@ public class ProjectController {
             if (!projects.isEmpty()) {
                 List<ProjectInfoVO> projectsVO = projects.stream().map(
                     p -> ProjectInfoVO.builder()
+                        .projectId(p.getId())
                         .projectName(p.getName())
                         .description(p.getDescription())
                         .averageDuration(p.getAverageDuration())
@@ -68,6 +71,29 @@ public class ProjectController {
             return ResponseEntity.ok(APIResponse.success("Project deleted successfully"));
         } catch (Exception exception) {
             return ResponseEntity.badRequest().body(APIResponse.error(exception.getMessage()));
+        }
+    }
+
+    @PostMapping("/update/{projectDescription}")
+    public ResponseEntity<APIResponse<ProjectInfoVO>> updateProject(HttpServletRequest request, @PathVariable String projectDescription, @RequestBody
+                                                                    UpdateProjectDescriptionRequest updateProjectDescriptionRequest) {
+        try {
+            UUID userId = (UUID) request.getAttribute("userId");
+            Long projectId = updateProjectDescriptionRequest.getProjectId();
+            Project newProject = this.projectService.updateProject(userId, projectId, projectDescription);
+
+            ProjectInfoVO projectInfoVO = ProjectInfoVO.builder()
+                .projectId(newProject.getId())
+                .projectName(newProject.getName())
+                .description(newProject.getDescription())
+                .averageDuration(newProject.getAverageDuration())
+                .cost(newProject.getCost())
+                .createdTimestamp(newProject.getCreatedTimestamp())
+                .lastUpdateTimestamp(newProject.getLastUpdateTimestamp())
+                .build();
+            return ResponseEntity.ok(APIResponse.success(projectInfoVO, "Update project description successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(APIResponse.error(e.getMessage()));
         }
     }
 }
