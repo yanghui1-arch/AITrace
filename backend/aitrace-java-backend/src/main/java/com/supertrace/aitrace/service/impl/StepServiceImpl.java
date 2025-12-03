@@ -1,11 +1,9 @@
 package com.supertrace.aitrace.service.impl;
 
-import com.supertrace.aitrace.domain.Project;
 import com.supertrace.aitrace.domain.core.step.Step;
 import com.supertrace.aitrace.dto.step.LogStepRequest;
 import com.supertrace.aitrace.factory.StepFactory;
 import com.supertrace.aitrace.repository.StepRepository;
-import com.supertrace.aitrace.service.ProjectService;
 import com.supertrace.aitrace.service.StepService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +17,6 @@ import java.util.*;
 public class StepServiceImpl implements StepService {
 
     private final StepRepository stepRepository;
-    private final ProjectService projectService;
     private final StepFactory stepFactory;
 
     /**
@@ -63,11 +60,7 @@ public class StepServiceImpl implements StepService {
     }
 
     @Override
-    public List<Step> findStepsByUserIdAndProject(UUID userId,
-                                  String projectName) {
-        Project project = this.projectService.getProjectByUserIdAndName(userId, projectName)
-            .orElseThrow(() -> new RuntimeException("Project not found: " + projectName));
-        Long projectId = project.getId();
+    public List<Step> findStepsByProjectId(Long projectId) {
         return this.stepRepository.findStepsByProjectId(projectId);
     }
 }

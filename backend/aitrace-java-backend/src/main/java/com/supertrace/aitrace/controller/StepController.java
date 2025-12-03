@@ -7,7 +7,7 @@ import com.supertrace.aitrace.exception.UserIdNotFoundException;
 import com.supertrace.aitrace.response.APIResponse;
 import com.supertrace.aitrace.service.ApiKeyService;
 import com.supertrace.aitrace.service.LogService;
-import com.supertrace.aitrace.service.StepService;
+import com.supertrace.aitrace.service.QueryService;
 import com.supertrace.aitrace.utils.ApiKeyUtils;
 import com.supertrace.aitrace.vo.step.GetStepVO;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,9 +22,8 @@ import java.util.UUID;
 @RequestMapping("/api/v0")
 @RequiredArgsConstructor
 public class StepController {
-
-    private final StepService stepService;
     private final LogService logService;
+    private final QueryService queryService;
     private final ApiKeyService apiKeyService;
 
     @PostMapping("/log/step")
@@ -53,7 +52,7 @@ public class StepController {
     public ResponseEntity<APIResponse<List<GetStepVO>>> getStep(HttpServletRequest request, @PathVariable String projectName) {
         try {
             UUID userId = (UUID) request.getAttribute("userId");
-            List<Step> steps = this.stepService.findStepsByUserIdAndProject(userId, projectName);
+            List<Step> steps = this.queryService.getSteps(userId, projectName);
             List<GetStepVO> getStepVOs = steps.stream()
                 .map(step -> GetStepVO.builder()
                     .id(step.getId())

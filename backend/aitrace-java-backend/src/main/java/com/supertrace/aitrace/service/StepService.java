@@ -26,9 +26,8 @@ public interface StepService {
     /**
      * get all steps of a project which is owned by userId
      *
-     * @param userId user uuid
-     * @param projectName a project name
+     * @param projectId project id.
      * @return all steps
      */
-    List<Step> findStepsByUserIdAndProject(UUID userId, String projectName);
+    List<Step> findStepsByProjectId(Long projectId);
 }
