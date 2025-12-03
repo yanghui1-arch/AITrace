@@ -3,12 +3,14 @@ package com.supertrace.aitrace.controller;
 import com.supertrace.aitrace.domain.core.Trace;
 import com.supertrace.aitrace.dto.trace.LogTraceRequest;
 import com.supertrace.aitrace.exception.AuthenticationException;
+import com.supertrace.aitrace.exception.UserIdNotFoundException;
 import com.supertrace.aitrace.response.APIResponse;
 import com.supertrace.aitrace.service.application.ApiKeyService;
+import com.supertrace.aitrace.service.application.LogService;
 import com.supertrace.aitrace.service.domain.TraceService;
 import com.supertrace.aitrace.utils.ApiKeyUtils;
 import com.supertrace.aitrace.vo.trace.GetTraceVO;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,16 +19,12 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v0")
 public class TraceController {
     private final TraceService traceService;
     private final ApiKeyService apiKeyService;
-
-    @Autowired
-    public TraceController(TraceService traceService, ApiKeyService apiKeyService) {
-        this.traceService = traceService;
-        this.apiKeyService = apiKeyService;
-    }
+    private final LogService logService;
 
     @PostMapping("/log/trace")
     public ResponseEntity<APIResponse<UUID>> createAndLogStep(
@@ -39,7 +37,9 @@ public class TraceController {
             if (!isExisted) {
                 throw new AuthenticationException();
             }
-            UUID traceId = this.traceService.logTrace(logTraceRequest);
+            UUID userId = this.apiKeyService.resolveUserIdFromApiKey(apikey)
+                .orElseThrow(UserIdNotFoundException::new);
+            UUID traceId = this.logService.logTrace(userId, logTraceRequest);
             return ResponseEntity.ok(APIResponse.success(traceId));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(APIResponse.error(e.getMessage()));

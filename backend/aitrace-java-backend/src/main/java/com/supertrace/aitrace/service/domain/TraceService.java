@@ -18,9 +18,10 @@ public interface TraceService {
      * Trace is the one generation in the complete workflow of agent
      *
      * @param logTraceRequest log trace request
+     * @param projectId project id which trace belongs to
      * @return step id
      */
-    UUID logTrace(LogTraceRequest logTraceRequest);
+    UUID createTrace(LogTraceRequest logTraceRequest, Long projectId);
 
     /**
      * get all traces of a project

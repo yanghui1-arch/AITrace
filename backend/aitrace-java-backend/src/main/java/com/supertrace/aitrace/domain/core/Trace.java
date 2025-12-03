@@ -39,6 +39,10 @@ public class Trace {
     @Column(name = "project_name")
     private String projectName;
 
+    @NotNull
+    @Column(name = "project_id")
+    private Long projectId;
+
     @NotBlank
     private String name;
 

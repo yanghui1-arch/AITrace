@@ -21,16 +21,13 @@ public class TraceServiceImpl implements TraceService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public UUID logTrace(LogTraceRequest logTraceRequest) {
-        // 1. using factory to build a step domain
-        Trace trace = traceFactory.createTrace(logTraceRequest);
-
-        // 2. save step
+    public UUID createTrace(LogTraceRequest logTraceRequest, Long projectId) {
+        // 1. using factory to build a trace
+        Trace trace = traceFactory.createTrace(logTraceRequest, projectId);
+        // 2. save trace
         traceRepository.saveAndFlush(trace);
-
         // 3. logger
-
-        // 4. return step id
+        // 4. return trace id
         return trace.getId();
     }
 
