@@ -1,5 +1,6 @@
 package com.supertrace.aitrace.service.application;
 
+import com.supertrace.aitrace.domain.core.Trace;
 import com.supertrace.aitrace.domain.core.step.Step;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,4 +16,12 @@ public interface QueryService {
      * @return All steps.
      */
     List<Step> getSteps(@NotNull UUID userId, @NotBlank String projectName);
+
+    /**
+     * Get all traces of project which is owned by user uuid
+     * @param userId user uuid
+     * @param projectName project name
+     * @return All traces
+     */
+    List<Trace> getTraces(@NotNull UUID userId, @NotBlank String projectName);
 }

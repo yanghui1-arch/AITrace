@@ -24,10 +24,10 @@ public interface TraceService {
     UUID createTrace(LogTraceRequest logTraceRequest, Long projectId);
 
     /**
-     * get all traces of a project
+     * Get all traces given a project Id
      *
-     * @param projectName project name
+     * @param projectId project id
      * @return all traces
      */
-    List<Trace> getTrace(String projectName);
+    List<Trace> getTracesByProjectId(Long projectId);
 }

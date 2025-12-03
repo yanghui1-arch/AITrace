@@ -1,10 +1,12 @@
 package com.supertrace.aitrace.service.application.impl;
 
 import com.supertrace.aitrace.domain.Project;
+import com.supertrace.aitrace.domain.core.Trace;
 import com.supertrace.aitrace.domain.core.step.Step;
 import com.supertrace.aitrace.service.domain.ProjectService;
 import com.supertrace.aitrace.service.application.QueryService;
 import com.supertrace.aitrace.service.domain.StepService;
+import com.supertrace.aitrace.service.domain.TraceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class QueryServiceImpl implements QueryService {
     private final StepService stepService;
+    private final TraceService traceService;
     private final ProjectService projectService;
 
     /**
@@ -30,5 +33,13 @@ public class QueryServiceImpl implements QueryService {
             .orElseThrow(() -> new RuntimeException("Project not found: " + projectName));
         Long projectId = project.getId();
         return this.stepService.findStepsByProjectId(projectId);
+    }
+
+    @Override
+    public List<Trace> getTraces(UUID userId, String projectName) {
+        Project project = this.projectService.getProjectByUserIdAndName(userId, projectName)
+            .orElseThrow(() -> new RuntimeException("Project not found: " + projectName));
+        Long projectId = project.getId();
+        return this.traceService.getTracesByProjectId(projectId);
     }
 }

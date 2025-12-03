@@ -33,7 +33,7 @@ public class TraceServiceImpl implements TraceService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public List<Trace> getTrace(String projectName) {
-        return this.traceRepository.findByProjectName(projectName);
+    public List<Trace> getTracesByProjectId(Long projectId) {
+        return this.traceRepository.findTracesByProjectId(projectId);
     }
 }

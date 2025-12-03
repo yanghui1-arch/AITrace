@@ -7,14 +7,14 @@ import com.supertrace.aitrace.exception.UserIdNotFoundException;
 import com.supertrace.aitrace.response.APIResponse;
 import com.supertrace.aitrace.service.application.ApiKeyService;
 import com.supertrace.aitrace.service.application.LogService;
-import com.supertrace.aitrace.service.domain.TraceService;
+import com.supertrace.aitrace.service.application.QueryService;
 import com.supertrace.aitrace.utils.ApiKeyUtils;
 import com.supertrace.aitrace.vo.trace.GetTraceVO;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,9 +22,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/v0")
 public class TraceController {
-    private final TraceService traceService;
     private final ApiKeyService apiKeyService;
     private final LogService logService;
+    private final QueryService queryService;
 
     @PostMapping("/log/trace")
     public ResponseEntity<APIResponse<UUID>> createAndLogStep(
@@ -47,26 +47,25 @@ public class TraceController {
     }
 
     @GetMapping("/trace/{projectName}")
-    public ResponseEntity<APIResponse<List<GetTraceVO>>> getTrace(@PathVariable("projectName") String projectName) {
+    public ResponseEntity<APIResponse<List<GetTraceVO>>> getTrace(HttpServletRequest request, @PathVariable("projectName") String projectName) {
         try {
-            List<Trace> traces = this.traceService.getTrace(projectName);
-            List<GetTraceVO> getTraceVOList = new ArrayList<>();
-            for (Trace trace : traces) {
-                getTraceVOList.add(
-                        GetTraceVO.builder()
-                                .id(trace.getId())
-                                .name(trace.getName())
-                                .tags(trace.getTags())
-                                .input(trace.getInput())
-                                .output(trace.getOutput())
-                                .tracks(trace.getTracks())
-                                .errorInfo(trace.getErrorInfo())
-                                .startTime(trace.getStartTime())
-                                .lastUpdateTimestamp(trace.getLastUpdateTimestamp())
-                                .build()
-                );
-            }
-            return ResponseEntity.ok(APIResponse.success(getTraceVOList));
+            UUID userId = (UUID) request.getAttribute("userId");
+            List<Trace> traces = this.queryService.getTraces(userId, projectName);
+            List<GetTraceVO> getTraceVOs = traces.stream()
+                .map(trace -> GetTraceVO.builder()
+                    .id(trace.getId())
+                    .name(trace.getName())
+                    .tags(trace.getTags())
+                    .input(trace.getInput())
+                    .output(trace.getOutput())
+                    .tracks(trace.getTracks())
+                    .errorInfo(trace.getErrorInfo())
+                    .startTime(trace.getStartTime())
+                    .lastUpdateTimestamp(trace.getLastUpdateTimestamp())
+                    .build()
+                )
+                .toList();
+            return ResponseEntity.ok(APIResponse.success(getTraceVOs));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(APIResponse.error(e.getMessage()));
         }
