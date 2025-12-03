@@ -53,6 +53,7 @@ export function ProjectRowActions({ project, onRefresh }: ProjectRowActionsProps
         toast.error(response.data.message)
       }
       setOpenEdit(false)
+      onRefresh();
     } catch (e){
       console.error("UNKNOWN ERROR: " + e)
       toast.error("<|UNKNOWN ERROR|>")
