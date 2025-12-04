@@ -56,6 +56,7 @@ public class StepController {
             List<GetStepVO> getStepVOs = steps.stream()
                 .map(step -> GetStepVO.builder()
                     .id(step.getId())
+                    .parentStepId(step.getParentStepId())
                     .name(step.getName())
                     .type(step.getType())
                     .tags(step.getTags())

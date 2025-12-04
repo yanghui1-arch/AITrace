@@ -39,6 +39,7 @@ export interface OutputData {
 
 export type Step = {
   id: string;
+  parentStepId: string
   name: string;
   type: "customized" | "llm_response" | "retrieve" | "tool";
   input: InputData;

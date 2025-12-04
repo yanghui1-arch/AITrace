@@ -16,6 +16,8 @@ import java.util.UUID;
 public class GetStepVO {
     private UUID id;
 
+    private UUID parentStepId;
+
     @NotNull
     private String name;
 
