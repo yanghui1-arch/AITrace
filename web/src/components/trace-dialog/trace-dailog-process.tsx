@@ -42,7 +42,7 @@ export function TraceDialogProcessPanel({
   dagreGraph.setDefaultEdgeLabel(() => ({}));
 
   if (input) {
-    dagreGraph.setNode("0", {
+    dagreGraph.setNode("input", {
       width: nodeWidth,
       height: nodeHeight,
     });
@@ -54,14 +54,14 @@ export function TraceDialogProcessPanel({
     });
   });
   if (output) {
-    dagreGraph.setNode((tracks.length + 1).toString(), {
+    dagreGraph.setNode("output", {
       width: nodeWidth,
       height: nodeHeight,
     });
   }
 
   if (input) {
-    dagreGraph.setEdge("0", "1");
+    dagreGraph.setEdge("input", "1");
   }
   tracks.slice(0, -1).forEach((_, index) => {
     dagreGraph.setEdge(index.toString(), (index + 1).toString());
@@ -69,7 +69,7 @@ export function TraceDialogProcessPanel({
   if (output) {
     dagreGraph.setEdge(
       tracks.length.toString(),
-      (tracks.length + 1).toString()
+      "output"
     );
   }
 
@@ -85,9 +85,9 @@ export function TraceDialogProcessPanel({
   let inputNode: Node | undefined = undefined;
   let outputNode: Node | undefined = undefined;
   if (input) {
-    const { x, y } = dagreGraph.node("0");
+    const { x, y } = dagreGraph.node("input");
     inputNode = {
-      id: "0",
+      id: "input",
       data: {
         input: input,
         total: tracks.length,
@@ -122,9 +122,9 @@ export function TraceDialogProcessPanel({
     };
   });
   if (output) {
-    const { x, y } = dagreGraph.node((tracks.length + 1).toString());
+    const { x, y } = dagreGraph.node("output");
     outputNode = {
-      id: (tracks.length + 1).toString(),
+      id: "output",
       data: {
         output: output,
         errorInfo: errorInfo,
@@ -152,15 +152,15 @@ export function TraceDialogProcessPanel({
   let outputEdge: Edge | undefined = undefined;
   if (input) {
     inputEdge = {
-      id: `e0`,
-      source: "0",
+      id: `edge-0`,
+      source: "input",
       target: "1",
     };
   }
 
   const processEdges: Edge[] = tracks.slice(0, -1).map((_, index) => {
     return {
-      id: `e${index + 1}`,
+      id: `edge-${index + 1}`,
       source: (index + 1).toString(),
       target: (index + 2).toString(),
     };
@@ -168,9 +168,9 @@ export function TraceDialogProcessPanel({
 
   if (output) {
     outputEdge = {
-      id: `e${tracks.length}`,
+      id: `edge-${tracks.length}`,
       source: `${tracks.length}`,
-      target: `${tracks.length + 1}`,
+      target: "output",
     };
   }
   const initialProcessEdges: Edge[] = [
