@@ -1,5 +1,11 @@
-import type { Trace } from "@/pages/projects/track/trace-columns";
-import { Background, ReactFlow, type Node, type Edge } from "@xyflow/react";
+import type { Trace, Track } from "@/pages/projects/track/trace-columns";
+import {
+  Background,
+  ReactFlow,
+  type Node,
+  type Edge,
+  MarkerType,
+} from "@xyflow/react";
 import { TraceProcessNode } from "./trace-process-node";
 import dagre from "dagre";
 import { useState } from "react";
@@ -20,6 +26,26 @@ interface TraceDialogProcessPanelProps {
 const nodeTypes = {
   processNode: TraceProcessNode,
   ioNode: TraceIONode,
+};
+
+const findFirstRootTrackStepId = (idx: number, tracks: Track[]): string => {
+  if (idx < 0 || idx >= tracks.length) {
+    console.warn(
+      `pass idx exceeds track length: ${tracks.length} or less than 0`
+    );
+    return `<ERROR_IDX>${idx}`;
+  }
+  const newTrack = tracks.slice(idx);
+  const rootTrack: Track[] = newTrack.filter(
+    (t) => t.step.parent_step_id === null
+  );
+  return rootTrack[0].step.id;
+};
+
+const findLastRootTrackStepId = (tracks: Track[]): string => {
+  const reversedTracks = [...tracks].reverse();
+  return reversedTracks.filter((t) => t.step.parent_step_id === null)[0].step
+    .id;
 };
 
 export function TraceDialogProcessPanel({
@@ -47,12 +73,23 @@ export function TraceDialogProcessPanel({
       height: nodeHeight,
     });
   }
+
+  // (parent_id, self_step_id)
+  // if step is root node. Don't do anything
+  const childGroups = new Map<string, string[]>();
   tracks.forEach((t) => {
     dagreGraph.setNode(`process-${t.step.id}`, {
       width: nodeWidth,
       height: nodeHeight,
     });
+    const parentStepId = t.step.parent_step_id;
+    if (!parentStepId) return;
+    if (!childGroups.get(parentStepId)) {
+      childGroups.set(parentStepId, []);
+    }
+    childGroups.get(parentStepId)!.push(`process-${t.step.id}`);
   });
+
   if (output) {
     dagreGraph.setNode("output", {
       width: nodeWidth,
@@ -60,28 +97,37 @@ export function TraceDialogProcessPanel({
     });
   }
 
+  const startProcessNodeStepId = findFirstRootTrackStepId(0, tracks);
   if (input) {
-    dagreGraph.setEdge("input", `process-${tracks[0].step.id}`);
+    dagreGraph.setEdge("input", `process-${startProcessNodeStepId}`);
   }
-  tracks.slice(0, -1).forEach((t, index) => {
-    dagreGraph.setEdge(`process-${t.step.id}`, `process-${tracks[index + 1].step.id}`);
+  tracks.forEach((t, index) => {
+    const parentStepId = t.step.parent_step_id;
+    if (parentStepId) {
+      dagreGraph.setEdge(`process-${parentStepId}`, `process-${t.step.id}`);
+    } else {
+      const nextProcessNodeStepId = findFirstRootTrackStepId(index + 1, tracks);
+      dagreGraph.setEdge(
+        `process-${t.step.id}`,
+        `process-${nextProcessNodeStepId}`
+      );
+    }
   });
+
+  const lastProcessNodeStepId = findLastRootTrackStepId(tracks);
   if (output) {
-    dagreGraph.setEdge(
-      `process-${tracks[tracks.length - 1].step.id}`,
-      "output"
-    );
+    dagreGraph.setEdge(`process-${lastProcessNodeStepId}`, "output");
   }
 
   dagre.layout(dagreGraph);
 
-  /* xyflow nodes 
-  * 0 -> input node
-  * 1 -> track start node
-  * ...
-  * tracks.length -> last track node 
-  * tracks.length + 1 -> output node
-  */
+  /* xyflow nodes
+   * 0 -> input node
+   * 1 -> track start node
+   * ...
+   * tracks.length -> last track node
+   * tracks.length + 1 -> output node
+   */
   let inputNode: Node | undefined = undefined;
   let outputNode: Node | undefined = undefined;
   if (input) {
@@ -143,34 +189,54 @@ export function TraceDialogProcessPanel({
   ];
 
   /* xyflow edges
-  * (0 -> 1): input -> track start node
-  * ....
-  * (tracks.length - 1 -> tracks.length): last second -> last
-  * (tracks.length -> tracks.length + 1): last track node -> output node
-  */
+   * (0 -> 1): input -> track start node
+   * ....
+   * (tracks.length - 1 -> tracks.length): last second -> last
+   * (tracks.length -> tracks.length + 1): last track node -> output node
+   */
   let inputEdge: Edge | undefined = undefined;
   let outputEdge: Edge | undefined = undefined;
   if (input) {
     inputEdge = {
       id: `edge-0`,
       source: "input",
-      target: `process-${tracks[0].step.id}`,
+      target: `process-${startProcessNodeStepId}`,
+      type: "default",
+      markerEnd: {
+        type: MarkerType.Arrow,
+      },
     };
   }
 
-  const processEdges: Edge[] = tracks.slice(0, -1).map((t, index) => {
+  const processEdges: Edge[] = tracks.map((t, index) => {
+    if (t.step.parent_step_id) {
+      return {
+        id: `edge-${index + 1}`,
+        source: `process-${t.step.parent_step_id}`,
+        target: `process-${t.step.id}`,
+      };
+    }
+    const nextProcessNodeStepId = findFirstRootTrackStepId(index + 1, tracks);
     return {
       id: `edge-${index + 1}`,
       source: `process-${t.step.id}`,
-      target: `process-${tracks[index + 1].step.id}`,
+      target: `process-${nextProcessNodeStepId}`,
+      type: "default",
+      markerEnd: {
+        type: MarkerType.Arrow,
+      },
     };
   });
 
   if (output) {
     outputEdge = {
       id: `edge-${tracks.length}`,
-      source: `process-${tracks[tracks.length - 1].step.id}`,
+      source: `process-${lastProcessNodeStepId}`,
       target: "output",
+      type: "default",
+      markerEnd: {
+        type: MarkerType.Arrow,
+      },
     };
   }
   const initialProcessEdges: Edge[] = [
@@ -196,89 +262,92 @@ export function TraceDialogProcessPanel({
         <Background />
       </ReactFlow>
       <Sheet open={!!selectedNode} onOpenChange={() => setSelectedNode(null)}>
-        {selectedNode && selectedNode.id !== "0" && selectedNode.id !== `${tracks.length + 1}` && (
-          <SheetContent className="p-4 max-w-[40vw] md:max-w-[480px] max-h-[calc(100vh-2rem)] overflow-auto">
-            <SheetHeader>
-              <SheetTitle>
-                {(selectedNode.data.title ?? "Step") as string}
-              </SheetTitle>
-            </SheetHeader>
-            <div className="flex gap-2">
-              <Button
-                variant="link"
-                className={
-                  nodeDetailDisplayType === "llm"
-                    ? "bg-foreground text-black"
-                    : ""
-                }
-                onClick={() => {
-                  setNodeDetailDisplayType("llm");
-                }}
-              >
-                <Label>LLM Input/Output</Label>
-              </Button>
-              <Button
-                variant="link"
-                className={
-                  nodeDetailDisplayType === "fn"
-                    ? "bg-foreground text-black"
-                    : ""
-                }
-                onClick={() => {
-                  setNodeDetailDisplayType("fn");
-                }}
-              >
-                <Label>Step Function Input/Output</Label>
-              </Button>
-            </div>
-            {nodeDetailDisplayType === "llm" &&
-              (selectedNode.data.llm_inputs || selectedNode.data.llm_outputs ? (
-                <div className="flex flex-col gap-4">
-                  <LLMJsonCard
-                    jsonObject={
-                      selectedNode.data.llm_inputs as Record<string, unknown>
-                    }
-                    labelTitle="Input"
-                  />
-                  <LLMJsonCard
-                    jsonObject={
-                      selectedNode.data.llm_outputs as Record<string, unknown>
-                    }
-                    labelTitle="Output"
-                  />
-                </div>
-              ) : (
-                `No llm function is tracked in \`${selectedNode.data.title}\`.`
-              ))}
-            {nodeDetailDisplayType === "fn" &&
-              (selectedNode.data.fn_inputs || selectedNode.data.fn_output ? (
-                <div className="flex flex-col gap-4">
-                  <FunctionIOCard
-                    data={
-                      selectedNode.data.fn_inputs as
-                        | Record<string, unknown>
-                        | undefined
-                    }
-                    labelTitle="Input"
-                  />
-                  <FunctionIOCard
-                    data={
-                      selectedNode.data.fn_output as
-                        | string
-                        | Record<string, unknown>
-                        | undefined
-                    }
-                    labelTitle="Output"
-                    errorInfo={
-                      selectedNode.data.errorInfo as string | undefined
-                    }
-                  />
-                </div>
-              ) : (
-                `No function is tracked in \`${selectedNode.data.title}\`.`
-              ))}
-          </SheetContent>
-        )}
+        {selectedNode &&
+          selectedNode.id !== "0" &&
+          selectedNode.id !== `${tracks.length + 1}` && (
+            <SheetContent className="p-4 max-w-[40vw] md:max-w-[480px] max-h-[calc(100vh-2rem)] overflow-auto">
+              <SheetHeader>
+                <SheetTitle>
+                  {(selectedNode.data.title ?? "Step") as string}
+                </SheetTitle>
+              </SheetHeader>
+              <div className="flex gap-2">
+                <Button
+                  variant="link"
+                  className={
+                    nodeDetailDisplayType === "llm"
+                      ? "bg-foreground text-black"
+                      : ""
+                  }
+                  onClick={() => {
+                    setNodeDetailDisplayType("llm");
+                  }}
+                >
+                  <Label>LLM Input/Output</Label>
+                </Button>
+                <Button
+                  variant="link"
+                  className={
+                    nodeDetailDisplayType === "fn"
+                      ? "bg-foreground text-black"
+                      : ""
+                  }
+                  onClick={() => {
+                    setNodeDetailDisplayType("fn");
+                  }}
+                >
+                  <Label>Step Function Input/Output</Label>
+                </Button>
+              </div>
+              {nodeDetailDisplayType === "llm" &&
+                (selectedNode.data.llm_inputs ||
+                selectedNode.data.llm_outputs ? (
+                  <div className="flex flex-col gap-4">
+                    <LLMJsonCard
+                      jsonObject={
+                        selectedNode.data.llm_inputs as Record<string, unknown>
+                      }
+                      labelTitle="Input"
+                    />
+                    <LLMJsonCard
+                      jsonObject={
+                        selectedNode.data.llm_outputs as Record<string, unknown>
+                      }
+                      labelTitle="Output"
+                    />
+                  </div>
+                ) : (
+                  `No llm function is tracked in \`${selectedNode.data.title}\`.`
+                ))}
+              {nodeDetailDisplayType === "fn" &&
+                (selectedNode.data.fn_inputs || selectedNode.data.fn_output ? (
+                  <div className="flex flex-col gap-4">
+                    <FunctionIOCard
+                      data={
+                        selectedNode.data.fn_inputs as
+                          | Record<string, unknown>
+                          | undefined
+                      }
+                      labelTitle="Input"
+                    />
+                    <FunctionIOCard
+                      data={
+                        selectedNode.data.fn_output as
+                          | string
+                          | Record<string, unknown>
+                          | undefined
+                      }
+                      labelTitle="Output"
+                      errorInfo={
+                        selectedNode.data.errorInfo as string | undefined
+                      }
+                    />
+                  </div>
+                ) : (
+                  `No function is tracked in \`${selectedNode.data.title}\`.`
+                ))}
+            </SheetContent>
+          )}
       </Sheet>
     </div>
   );

@@ -13,7 +13,7 @@ export const TraceProcessNode = memo(({ data }: NodeProps) => {
 
   return (
     /* first node doesn't contain input handle and the last node doesn't contain output handle */
-    <BaseNode className="w-auto max-w-64">
+    <BaseNode className="w-[100px] h-[100px]">
       {hasPrev && (
         <Handle
           type="target"
