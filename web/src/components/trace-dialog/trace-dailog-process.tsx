@@ -47,8 +47,8 @@ export function TraceDialogProcessPanel({
       height: nodeHeight,
     });
   }
-  tracks.forEach((_, index) => {
-    dagreGraph.setNode((index + 1).toString(), {
+  tracks.forEach((t) => {
+    dagreGraph.setNode(`process-${t.step.id}`, {
       width: nodeWidth,
       height: nodeHeight,
     });
@@ -61,14 +61,14 @@ export function TraceDialogProcessPanel({
   }
 
   if (input) {
-    dagreGraph.setEdge("input", "1");
+    dagreGraph.setEdge("input", `process-${tracks[0].step.id}`);
   }
-  tracks.slice(0, -1).forEach((_, index) => {
-    dagreGraph.setEdge(index.toString(), (index + 1).toString());
+  tracks.slice(0, -1).forEach((t, index) => {
+    dagreGraph.setEdge(`process-${t.step.id}`, `process-${tracks[index + 1].step.id}`);
   });
   if (output) {
     dagreGraph.setEdge(
-      tracks.length.toString(),
+      `process-${tracks[tracks.length - 1].step.id}`,
       "output"
     );
   }
@@ -100,9 +100,9 @@ export function TraceDialogProcessPanel({
     };
   }
   const processNode: Node[] = tracks.map((track, index) => {
-    const { x, y } = dagreGraph.node((index + 1).toString());
+    const { x, y } = dagreGraph.node(`process-${track.step.id}`);
     return {
-      id: (index + 1).toString(),
+      id: `process-${track.step.id}`,
       data: {
         title: track.step.name,
         total: tracks.length,
@@ -154,22 +154,22 @@ export function TraceDialogProcessPanel({
     inputEdge = {
       id: `edge-0`,
       source: "input",
-      target: "1",
+      target: `process-${tracks[0].step.id}`,
     };
   }
 
-  const processEdges: Edge[] = tracks.slice(0, -1).map((_, index) => {
+  const processEdges: Edge[] = tracks.slice(0, -1).map((t, index) => {
     return {
       id: `edge-${index + 1}`,
-      source: (index + 1).toString(),
-      target: (index + 2).toString(),
+      source: `process-${t.step.id}`,
+      target: `process-${tracks[index + 1].step.id}`,
     };
   });
 
   if (output) {
     outputEdge = {
       id: `edge-${tracks.length}`,
-      source: `${tracks.length}`,
+      source: `process-${tracks[tracks.length - 1].step.id}`,
       target: "output",
     };
   }
