@@ -9,7 +9,7 @@ export const TraceIONode = memo(({ data }: NodeProps) => {
 
   return (
     /* first node doesn't contain input handle and the last node doesn't contain output handle */
-    <div className="w-[100px] h-[100px]">
+    <div className="w-[200px]">
       {!source && (
         <Handle
           type="target"
@@ -22,7 +22,7 @@ export const TraceIONode = memo(({ data }: NodeProps) => {
         data={io}
         labelTitle={source ? "Input" : "Output"}
         errorInfo={errorInfo}
-        className="nowheel"
+        className="nowheel break-all"
       />
 
       {source && (

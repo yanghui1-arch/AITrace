@@ -57,7 +57,12 @@ export function TraceDialogProcessPanel({
   const tracks = data.tracks;
 
   const nodeWidth = 100;
-  const nodeHeight = 100;
+  const nodeHeight = 40;
+  const ioWidth = 200;
+  // 400 because ScrollArea in FunctionIOCard component obeys max-h-58
+  const ioHeight = 400;
+  const offsetHeight = 100;
+
   /* use dagre to calculate the position of nodes */
   const dagreGraph = new dagre.graphlib.Graph();
   dagreGraph.setGraph({
@@ -69,8 +74,8 @@ export function TraceDialogProcessPanel({
 
   if (input) {
     dagreGraph.setNode("input", {
-      width: nodeWidth,
-      height: nodeHeight,
+      width: ioWidth,
+      height: ioHeight,
     });
   }
 
@@ -92,8 +97,8 @@ export function TraceDialogProcessPanel({
 
   if (output) {
     dagreGraph.setNode("output", {
-      width: nodeWidth,
-      height: nodeHeight,
+      width: ioWidth,
+      height: ioHeight,
     });
   }
 
@@ -140,7 +145,7 @@ export function TraceDialogProcessPanel({
       },
       position: {
         x: x,
-        y: y - nodeHeight,
+        y: y - offsetHeight,
       },
       type: "ioNode",
     };
@@ -162,7 +167,7 @@ export function TraceDialogProcessPanel({
       },
       position: {
         x: x,
-        y: y - nodeHeight,
+        y: y,
       },
       type: "processNode",
     };
@@ -177,7 +182,7 @@ export function TraceDialogProcessPanel({
       },
       position: {
         x: x,
-        y: y - nodeHeight,
+        y: y - offsetHeight,
       },
       type: "ioNode",
     };
@@ -251,7 +256,7 @@ export function TraceDialogProcessPanel({
   >("llm");
 
   return (
-    <div className="w-full h-[45vh]">
+    <div className="w-full h-[80vh]">
       <ReactFlow
         proOptions={{ hideAttribution: true }}
         defaultNodes={initailProcessNodes}

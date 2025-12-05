@@ -4,7 +4,6 @@ import {
   BaseNodeHeader,
   BaseNodeHeaderTitle,
 } from "@/components/xyflow-ui/base-node";
-import { Rocket } from "lucide-react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 
 export const TraceProcessNode = memo(({ data }: NodeProps) => {
@@ -13,7 +12,7 @@ export const TraceProcessNode = memo(({ data }: NodeProps) => {
 
   return (
     /* first node doesn't contain input handle and the last node doesn't contain output handle */
-    <BaseNode className="w-[100px] h-[100px]">
+    <BaseNode className="w-[100px] h-[40px]">
       {hasPrev && (
         <Handle
           type="target"
@@ -23,7 +22,6 @@ export const TraceProcessNode = memo(({ data }: NodeProps) => {
       )}
 
       <BaseNodeHeader className="justify-center">
-        <Rocket className="size-4" />
         <BaseNodeHeaderTitle className="wrap-break-words text-sm truncate">
           {data.title as string}
         </BaseNodeHeaderTitle>
