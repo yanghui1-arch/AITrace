@@ -5,6 +5,7 @@ import {
   type Node,
   type Edge,
   MarkerType,
+  Panel,
 } from "@xyflow/react";
 import { TraceProcessNode } from "./trace-process-node";
 import dagre from "dagre";
@@ -15,6 +16,7 @@ import { LLMJsonCard } from "../llm-json-card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import { FunctionIOCard } from "../fn-io-card";
 import { TraceIONode } from "./trace-process-io-node";
+import { NodeSearch } from "../xyflow-ui/node-search";
 
 interface TraceDialogProcessPanelProps {
   input?: Record<string, unknown> | undefined;
@@ -31,7 +33,7 @@ const nodeTypes = {
 const findFirstRootTrackStepId = (idx: number, tracks: Track[]): string => {
   if (idx < 0 || idx >= tracks.length) {
     console.warn(
-      `pass idx exceeds track length: ${tracks.length} or less than 0`
+      `pass idx is greater than track length: ${tracks.length} or less than 0. Pass idx: ${idx}`
     );
     return `<ERROR_IDX>${idx}`;
   }
@@ -140,6 +142,7 @@ export function TraceDialogProcessPanel({
     inputNode = {
       id: "input",
       data: {
+        label: "input",
         input: input,
         total: tracks.length,
       },
@@ -155,6 +158,7 @@ export function TraceDialogProcessPanel({
     return {
       id: `process-${track.step.id}`,
       data: {
+        label: track.step.name,
         title: track.step.name,
         total: tracks.length,
         hasPrev: index !== 0 || input,
@@ -177,6 +181,7 @@ export function TraceDialogProcessPanel({
     outputNode = {
       id: "output",
       data: {
+        label: "output",
         output: output,
         errorInfo: errorInfo,
       },
@@ -235,7 +240,7 @@ export function TraceDialogProcessPanel({
 
   if (output) {
     outputEdge = {
-      id: `edge-${tracks.length}`,
+      id: `edge-${tracks.length + 1}`,
       source: `process-${lastProcessNodeStepId}`,
       target: "output",
       type: "default",
@@ -265,6 +270,12 @@ export function TraceDialogProcessPanel({
         onNodeClick={(_, node) => setSelectedNode(node)}
       >
         <Background />
+        <Panel
+          className="flex gap-1 rounded-md bg-primary-foreground p-1 text-foreground"
+          position="top-left"
+        >
+          <NodeSearch />
+        </Panel>
       </ReactFlow>
       <Sheet open={!!selectedNode} onOpenChange={() => setSelectedNode(null)}>
         {selectedNode &&
