@@ -138,6 +138,7 @@ class ProxyStream(Stream):
                 # post log request or push into storage context and then _ALREADY_PATCH=False
                 #                       ↑---- need think carefully.
                 llm_output = ''.join([output.choices[0].delta.content for output in self._output])
+                # TODO: Not support tool now. Quickly adaptation to tool calling.
                 patch_stream_response = PatchStreamResponse(role="assistant", content=llm_output)
                 client: SyncClient = get_cached_sync_client()
                 client.log_step(

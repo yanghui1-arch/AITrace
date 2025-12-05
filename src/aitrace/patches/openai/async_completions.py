@@ -107,6 +107,7 @@ class ProxyAsyncStream(AsyncStream):
             self._output.append(chunk)
             if chunk.choices[0].finish_reason == 'stop':
                 llm_output = ''.join([output.choices[0].delta.content for output in self._output])
+                # TODO: Not support tool now. Quickly adaptation to tool calling.
                 patch_stream_response = PatchStreamResponse(role="assistant", content=llm_output)
                 client: SyncClient = get_cached_sync_client()
                 client.log_step(
