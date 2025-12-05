@@ -7,6 +7,7 @@ from typing_extensions import Self, override
 from openai import resources, AsyncStream
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 
+from ..stream import PatchStreamResponse
 from ...models import Step, LLMProvider
 from ...track.options import TrackerOptions
 from ...context.func_context import current_function_name_context
@@ -80,6 +81,7 @@ class ProxyAsyncStream(AsyncStream):
         chat_completion_chunk: ChatCompletionChunk = await self.real_async_stream._iterator.__anext__()
         if chat_completion_chunk.choices[0].finish_reason == 'stop':
             llm_output = ''.join([output.choices[0].delta.content for output in self._output])
+            patch_stream_response = PatchStreamResponse(role="assistant", content=llm_output)
             client: SyncClient = get_cached_sync_client()
             client.log_step(
                 project_name=self.tracker_options.project_name,
@@ -90,7 +92,7 @@ class ProxyAsyncStream(AsyncStream):
                 step_type=self.step.type,
                 tags=self.step.tags,
                 input={"llm_inputs": self.inputs},
-                output={"llm_outputs": llm_output},
+                output={"llm_outputs": patch_stream_response.model_dump(exclude_none=True)},
                 error_info=self.step.error_info,
                 model=self.step.model,
                 usage=self.step.usage,
@@ -105,6 +107,7 @@ class ProxyAsyncStream(AsyncStream):
             self._output.append(chunk)
             if chunk.choices[0].finish_reason == 'stop':
                 llm_output = ''.join([output.choices[0].delta.content for output in self._output])
+                patch_stream_response = PatchStreamResponse(role="assistant", content=llm_output)
                 client: SyncClient = get_cached_sync_client()
                 client.log_step(
                     project_name=self.tracker_options.project_name,
@@ -115,7 +118,7 @@ class ProxyAsyncStream(AsyncStream):
                     step_type=self.step.type,
                     tags=self.step.tags,
                     input={"llm_inputs": self.inputs},
-                    output={"llm_outputs": llm_output},
+                    output={"llm_outputs": patch_stream_response.model_dump(exclude_none=True)},
                     error_info=self.step.error_info,
                     model=self.step.model,
                     usage=self.step.usage,

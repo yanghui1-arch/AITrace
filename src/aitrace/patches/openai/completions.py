@@ -14,6 +14,7 @@ from typing import Any, List, Dict
 from typing_extensions import Self, override
 from openai import resources, Stream
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
+from ..stream import PatchStreamResponse
 from ...track.options import TrackerOptions
 from ...models import Step, LLMProvider
 from ...helper import inspect_helper
@@ -109,6 +110,7 @@ class ProxyStream(Stream):
         chunk = self._real_stream.__next__()
         if chunk.choices[0].finish_reason == 'stop':
             llm_output = ''.join([output.choices[0].delta.content for output in self._output])
+            patch_stream_response = PatchStreamResponse(role="assistant", content=llm_output)
             client: SyncClient = get_cached_sync_client()
             client.log_step(
                 project_name=self.tracker_options.project_name,
@@ -119,7 +121,7 @@ class ProxyStream(Stream):
                 step_type=self.step.type,
                 tags=self.tags,
                 input={"llm_inputs": self.inputs},
-                output={"llm_outputs": llm_output},
+                output={"llm_outputs": patch_stream_response.model_dump(exclude_none=True)},
                 error_info=self.step.error_info,
                 model=self.model,
                 usage=self.step.usage,
@@ -136,6 +138,7 @@ class ProxyStream(Stream):
                 # post log request or push into storage context and then _ALREADY_PATCH=False
                 #                       ↑---- need think carefully.
                 llm_output = ''.join([output.choices[0].delta.content for output in self._output])
+                patch_stream_response = PatchStreamResponse(role="assistant", content=llm_output)
                 client: SyncClient = get_cached_sync_client()
                 client.log_step(
                     project_name=self.tracker_options.project_name,
@@ -146,7 +149,7 @@ class ProxyStream(Stream):
                     step_type=self.step.type,
                     tags=self.tags,
                     input={"llm_inputs": self.inputs},
-                    output={"llm_outputs": llm_output},
+                    output={"llm_outputs": patch_stream_response.model_dump(exclude_none=True)},
                     error_info=self.step.error_info,
                     model=self.model,
                     usage=self.step.usage,
