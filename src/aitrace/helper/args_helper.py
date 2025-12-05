@@ -110,7 +110,6 @@ def create_new_trace(
     name: str | None = None,
     tags: List[str] | None = None,
     error_info: str | None = None,
-    model: str | None = None,
     trace_id: str | UUID | int | None = None,
     conversation_id: str | UUID | int | None = None,
     **kwargs
@@ -125,7 +124,6 @@ def create_new_trace(
         name(str | None): trace name. It defines what the trace does or its topic. Default to `None`. If it's None, it will be set using input user content.
         tags(List[str] | None): step tags. Default to `None`. If it's None, it will be set an empty list.
         error_info(str | None): error information while tracking trace. Default to `None`.
-        model(str | None): model name. Which model agent using. Default to `None`.
         trace_id(str | UUID | int | None): trace id. Default to `None`. If it's None, it will be thought as a new trace and create a new id for the trace.
         conversation_id(str | UUID | int | None): conversation id which the trace belongs to. Default to `None`. If it's None, it will be thought as a new
                                                     conversation and create a new id for the new conversation.
@@ -148,7 +146,6 @@ def create_new_trace(
         id=trace_id,
         conversation_id=conversation_id,
         name=name,
-        model=model,
         tags=tags,
         input=input,
         output=output,

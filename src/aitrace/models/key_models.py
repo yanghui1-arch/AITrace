@@ -49,7 +49,6 @@ class Trace(BaseModel):
     id: str | UUID | int
     conversation_id: str | UUID
     name: str
-    model: str | None = None
     tags: List[str] = Field(default_factory=list)
     input: Dict[str, Any] | None = None
     output: Any | None = None

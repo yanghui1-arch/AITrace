@@ -71,8 +71,6 @@ public class Trace {
     @Column(name = "error_info")
     private String errorInfo;
 
-    private String model;
-
     @Column(name = "start_time")
     private LocalDateTime startTime;
 

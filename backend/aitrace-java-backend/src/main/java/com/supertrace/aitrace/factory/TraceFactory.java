@@ -27,7 +27,6 @@ public class TraceFactory {
             .output(logTraceRequest.getOutput())
             .tracks(logTraceRequest.getTracks())
             .errorInfo(logTraceRequest.getErrorInfo())
-            .model(logTraceRequest.getModel())
             .startTime(logTraceRequest.getStartTime())
             .lastUpdateTimestamp(logTraceRequest.getLastUpdateTimestamp())
             .build();

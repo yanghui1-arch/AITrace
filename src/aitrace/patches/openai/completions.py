@@ -15,7 +15,7 @@ from typing_extensions import Self, override
 from openai import resources, Stream
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from ...track.options import TrackerOptions
-from ...models import Step, Trace, LLMProvider
+from ...models import Step, LLMProvider
 from ...helper import inspect_helper
 from ...helper.llm import openai_helper
 from ...context.func_context import current_function_name_context

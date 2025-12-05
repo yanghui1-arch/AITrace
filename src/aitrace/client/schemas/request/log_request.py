@@ -35,7 +35,6 @@ class LogTraceRequest(BaseModel):
     output: Dict[str, Any] | None
     tracks: List[Track] | None
     error_info: str | None
-    model: str | None
     start_time: datetime
     last_update_timestamp: datetime
 

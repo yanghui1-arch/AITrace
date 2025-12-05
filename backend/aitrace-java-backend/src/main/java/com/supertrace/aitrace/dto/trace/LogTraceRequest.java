@@ -36,8 +36,6 @@ public class LogTraceRequest {
 
     private String errorInfo;
 
-    private String model;
-
     private LocalDateTime startTime;
 
     private LocalDateTime lastUpdateTimestamp;

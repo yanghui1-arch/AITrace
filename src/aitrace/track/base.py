@@ -240,7 +240,6 @@ class BaseTracker(ABC):
                 input=start_arguments.input,
                 name=tracker_options.trace_name,
                 tags=tracker_options.tags,
-                model=tracker_options.model,
             )
             context.set_storage_trace(current_trace=current_trace)
         
@@ -332,7 +331,6 @@ class BaseTracker(ABC):
                 project_name=tracker_options.project_name,
                 name=tracker_options.trace_name,
                 tags=tracker_options.tags,
-                model=tracker_options.model,
             )
             context.set_storage_trace(current_trace=current_trace)
         
@@ -387,7 +385,6 @@ class BaseTracker(ABC):
             output=current_trace.output,
             tracks=current_trace.tracks,
             error_info=current_trace.error_info,
-            model=current_trace.model,
             start_time=current_trace.start_time,
             last_update_timestamp=current_trace.last_update_timestamp,
         )
