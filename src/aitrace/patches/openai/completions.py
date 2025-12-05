@@ -53,7 +53,12 @@ def patch_openai_chat_completions(step: Step, tracker_options: TrackerOptions, f
         if isinstance(resp, Stream):
             return ProxyStream(real_stream=resp, tracker_options=tracker_options, step=step, inputs=openai_inputs)
 
-        # Maybe here can be patched also.
+        # No steam calling openai
+        model = openai_inputs.get('model', step.model)
+        tags = step.tags
+        if model is not None:
+            tags += [model]
+
         if tracker_options.track_llm == LLMProvider.OPENAI:
             # log
             client: SyncClient = get_cached_sync_client()
@@ -64,11 +69,11 @@ def patch_openai_chat_completions(step: Step, tracker_options: TrackerOptions, f
                 trace_id=step.trace_id,
                 parent_step_id=step.parent_step_id,
                 step_type=step.type,
-                tags=step.tags,
+                tags=tags,
                 input={"llm_inputs": openai_inputs},
                 output={"llm_outputs": resp},
                 error_info=step.error_info,
-                model=step.model,
+                model=model,
                 usage=resp.usage,
                 start_time=step.start_time,
                 end_time=datetime.now()
@@ -94,6 +99,10 @@ class ProxyStream(Stream):
         self.tracker_options = tracker_options
         self.step = step
         self.inputs = inputs
+        self.model = inputs.get('model', step.model)
+        self.tags = step.tags
+        if self.model is not None:
+            self.tags += [self.model]
 
     @override
     def __next__(self):
@@ -108,11 +117,11 @@ class ProxyStream(Stream):
                 trace_id=self.step.trace_id,
                 parent_step_id=self.step.parent_step_id,
                 step_type=self.step.type,
-                tags=self.step.tags,
+                tags=self.tags,
                 input={"llm_inputs": self.inputs},
                 output={"llm_outputs": llm_output},
                 error_info=self.step.error_info,
-                model=self.step.model,
+                model=self.model,
                 usage=self.step.usage,
                 start_time=self.step.start_time,
                 end_time=datetime.now()
@@ -135,11 +144,11 @@ class ProxyStream(Stream):
                     trace_id=self.step.trace_id,
                     parent_step_id=self.step.parent_step_id,
                     step_type=self.step.type,
-                    tags=self.step.tags,
+                    tags=self.tags,
                     input={"llm_inputs": self.inputs},
                     output={"llm_outputs": llm_output},
                     error_info=self.step.error_info,
-                    model=self.step.model,
+                    model=self.model,
                     usage=self.step.usage,
                     start_time=self.step.start_time,
                     end_time=datetime.now()
