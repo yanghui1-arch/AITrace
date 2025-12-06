@@ -1,6 +1,7 @@
 from typing import Literal, List
 from pydantic import BaseModel
 from openai.types.completion_usage import CompletionUsage
+from openai.types.chat import ChatCompletionAudio
 
 class Function(BaseModel):
     name: str
@@ -15,4 +16,5 @@ class PatchStreamResponse(BaseModel):
     role: Literal['assistant', 'tool']
     content: str
     tool_calls: List[ToolFunctionCall] | None = None
+    audio: ChatCompletionAudio | None = None
     usage: CompletionUsage | None = None
