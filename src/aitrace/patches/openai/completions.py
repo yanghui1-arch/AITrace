@@ -108,6 +108,7 @@ class ProxyStream(Stream):
     @override
     def __next__(self):
         chunk = self._real_stream.__next__()
+        self._output.append(chunk)
         if chunk.choices[0].finish_reason == 'stop':
             llm_output = ''.join([output.choices[0].delta.content for output in self._output])
             patch_stream_response = PatchStreamResponse(role="assistant", content=llm_output)

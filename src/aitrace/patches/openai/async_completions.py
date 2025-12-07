@@ -79,6 +79,7 @@ class ProxyAsyncStream(AsyncStream):
     @override
     async def __anext__(self):
         chat_completion_chunk: ChatCompletionChunk = await self.real_async_stream._iterator.__anext__()
+        self._output.append(chat_completion_chunk)
         if chat_completion_chunk.choices[0].finish_reason == 'stop':
             llm_output = ''.join([output.choices[0].delta.content for output in self._output])
             patch_stream_response = PatchStreamResponse(role="assistant", content=llm_output)
