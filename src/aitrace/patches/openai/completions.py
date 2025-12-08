@@ -13,8 +13,8 @@ from types import TracebackType
 from typing import Any, List, Dict
 from typing_extensions import Self, override
 from openai import resources, Stream
-from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
-from ..stream import PatchStreamResponse
+from openai.types.chat.chat_completion_chunk import ChatCompletionChunk, Choice, ChoiceDelta, ChoiceDeltaToolCall
+from ..stream import PatchStreamResponse, ToolFunctionCall, Function
 from ...track.options import TrackerOptions
 from ...models import Step, LLMProvider
 from ...helper import inspect_helper
@@ -109,9 +109,18 @@ class ProxyStream(Stream):
     def __next__(self):
         chunk = self._real_stream.__next__()
         self._output.append(chunk)
-        if chunk.choices[0].finish_reason == 'stop':
-            llm_output = ''.join([output.choices[0].delta.content for output in self._output])
-            patch_stream_response = PatchStreamResponse(role="assistant", content=llm_output)
+        
+        if chunk.choices[0].finish_reason is not None:
+            llm_output = self._extract_content(self._output)
+            llm_tool_calls_output = None
+            if self.inputs.get('tools', None) is not None:
+                llm_tool_calls_output:List[ToolFunctionCall] | None = self._extract_tool_calling_function(self._output)
+            
+            patch_stream_response = PatchStreamResponse(
+                role="assistant",
+                content=llm_output,
+                tool_calls=llm_tool_calls_output
+            )
             client: SyncClient = get_cached_sync_client()
             client.log_step(
                 project_name=self.tracker_options.project_name,
@@ -135,12 +144,19 @@ class ProxyStream(Stream):
     def __iter__(self):
         for chunk in self._real_stream:
             self._output.append(chunk)
-            if chunk.choices[0].finish_reason == 'stop':
+            if chunk.choices[0].finish_reason is not None:
                 # post log request or push into storage context and then _ALREADY_PATCH=False
                 #                       ↑---- need think carefully.
-                llm_output = ''.join([output.choices[0].delta.content for output in self._output])
-                # TODO: Not support tool now. Quickly adaptation to tool calling.
-                patch_stream_response = PatchStreamResponse(role="assistant", content=llm_output)
+                llm_output = self._extract_content(self._output)
+                llm_tool_calls_output = None
+                if self.inputs.get('tools', None) is not None:
+                    llm_tool_calls_output:List[ToolFunctionCall] | None = self._extract_tool_calling_function(self._output)
+                
+                patch_stream_response = PatchStreamResponse(
+                    role="assistant",
+                    content=llm_output,
+                    tool_calls=llm_tool_calls_output
+                )
                 client: SyncClient = get_cached_sync_client()
                 client.log_step(
                     project_name=self.tracker_options.project_name,
@@ -187,3 +203,109 @@ class ProxyStream(Stream):
     def __getattr__(self, name):
         return getattr(self._real_stream, name)
     
+    def _extract_content(self, outputs: List[ChatCompletionChunk]) -> str:
+        """Extrace content part from llm stream resposne chunk
+        
+        Args:
+            outputs(List[ChatCompletionChunk]): a list of chunks which are in a complete stream response.
+        
+        Returns:
+            LLM response content after joint
+        """
+
+        llm_content_output = ""
+        for output in outputs:
+            content:str | None = output.choices[0].delta.content
+            if content is None:
+                continue
+            llm_content_output += content
+        return llm_content_output
+    
+    def _extract_tool_calling_function(self, outputs: List[ChatCompletionChunk]) -> List[ToolFunctionCall] | None:
+        """Extrace tool calling function part from llm stream response chunk
+        
+        Args:
+            outputs(List[ChatCompletionChunk]): a list of chunks which are in a complete stream response.
+
+        Returns:
+            A list of ToolFunctionCall if LLM uses tool function.
+            None else if LLM doesn't use tool function.
+        """
+
+        choices:List[Choice] = [output.choices[0] for output in outputs]
+        tool_call_outputs = self._integrate_tool_calling_function(choices=choices)
+        if len(tool_call_outputs) == 0:
+            return None
+        return tool_call_outputs
+    
+    def _integrate_tool_calling_function(self, choices: List[Choice]) -> List[ToolFunctionCall]:
+        """Integrate tool calling function given a complete list choices
+        Passing choices is not a list of choices in a ChatCompletionChunk. It's a collection of all ChatCompletionChunk.choices[0] in a complete stream response.
+        Args:
+            choices(List[Choice]): a collection of all ChatCompletionChunk.choices[0] in a complete stream response.
+
+        Returns:
+            A list of ToolFunctionCall. Empty means no tool call.
+        """
+
+        current_args = ""
+        current_name = ""
+        current_index = 0
+        tool_call_outputs:List[ToolFunctionCall] = []
+
+        for choice in choices:
+            finish_reason: str | None = choice.finish_reason
+            # Every thing done.
+            # Happends in only one tool call and the last one tool call process
+            # Record the only one tool call or the last one information.
+            if finish_reason is not None and current_args != "" and current_name != "":
+                tool_function_call = ToolFunctionCall(
+                    id=current_index,
+                    function=Function(name=current_name, arguments=current_args)
+                )
+                tool_call_outputs.append(tool_function_call)
+
+            delta:ChoiceDelta = choice.delta
+            tool_calls = delta.tool_calls
+            if tool_calls is None:
+                continue
+            
+            index, name, arguments = self._parse_tool_calls(tool_calls=tool_calls)
+            # It means not the same tool information in the parallel calling tools.
+            # Record it and reinit current arguments, function name and index
+            if index != current_index:
+                tool_function_call = ToolFunctionCall(
+                    id=current_index, 
+                    function=Function(name=current_name, arguments=current_args)
+                )
+                tool_call_outputs.append(tool_function_call)
+
+                current_index = index
+                current_args = ""
+                current_name = ""
+
+            if name is not None:
+                current_name = name
+            if arguments is not None:
+                current_args += arguments
+    
+        return tool_call_outputs
+
+    def _parse_tool_calls(self, tool_calls: List[ChoiceDeltaToolCall]) -> tuple[int, str | None, str | None]:
+        """Parse tool calls output in stream mode.
+        In stream mode the number of element in a list of ChoiceDeltaToolCall is only one.
+
+        Args:
+            tool_calls(List[ChoiceDeltaToolCall]): tool calls of a ChoiceDelta
+        
+        Returns:
+            tuple(int, str | None, str | None): tool index, tool name, tool arguments.
+        """
+
+        delta_tool_call = tool_calls[0]
+        function = delta_tool_call.function
+        
+        index = delta_tool_call.index
+        name = function.name
+        arguments = function.arguments
+        return index, name, arguments
