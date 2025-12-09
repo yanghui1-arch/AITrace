@@ -63,4 +63,12 @@ public class StepServiceImpl implements StepService {
     public List<Step> findStepsByProjectId(Long projectId) {
         return this.stepRepository.findStepsByProjectId(projectId);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public List<UUID> deleteStepsByStepUUID(List<UUID> stepIdToDelete) {
+        this.stepRepository.deleteAllById(stepIdToDelete);
+        return stepIdToDelete;
+    }
+
 }

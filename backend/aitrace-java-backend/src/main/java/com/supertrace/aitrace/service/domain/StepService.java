@@ -30,4 +30,14 @@ public interface StepService {
      * @return all steps
      */
     List<Step> findStepsByProjectId(Long projectId);
+
+    /**
+     * Delete steps by their uuid.
+     * The function doesn't check whether the uuids of stepIdToDelete all exist in the database.
+     * If some don't exist, it will ignore them.
+     *
+     * @param stepIdToDelete a list step uuid to delete
+     * @return delete steps uuid
+     */
+    List<UUID> deleteStepsByStepUUID(List<UUID> stepIdToDelete);
 }

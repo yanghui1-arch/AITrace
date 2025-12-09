@@ -8,6 +8,7 @@ import com.supertrace.aitrace.response.APIResponse;
 import com.supertrace.aitrace.service.application.ApiKeyService;
 import com.supertrace.aitrace.service.application.LogService;
 import com.supertrace.aitrace.service.application.QueryService;
+import com.supertrace.aitrace.service.domain.StepService;
 import com.supertrace.aitrace.utils.ApiKeyUtils;
 import com.supertrace.aitrace.vo.step.GetStepVO;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +26,7 @@ public class StepController {
     private final LogService logService;
     private final QueryService queryService;
     private final ApiKeyService apiKeyService;
+    private final StepService stepService;
 
     @PostMapping("/log/step")
     public ResponseEntity<APIResponse<UUID>> createAndLogStep(
@@ -71,6 +73,19 @@ public class StepController {
                 )
                 .toList();
             return ResponseEntity.ok(APIResponse.success(getStepVOs));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(APIResponse.error(e.getMessage()));
+        }
+    }
+
+    @PostMapping("/step/delete")
+    public ResponseEntity<APIResponse<List<UUID>>> deleteSteps(@RequestBody List<String> stepIds) {
+        try {
+            List<UUID> stepsUUIDToDelete = stepIds.stream().map(UUID::fromString).toList();
+            List<UUID> stepsUUIDToDeleteSuccess = this.stepService.deleteStepsByStepUUID(stepsUUIDToDelete);
+            return ResponseEntity.ok(APIResponse.success(stepsUUIDToDeleteSuccess));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(APIResponse.error("Please ensure step id to delete is correct."));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(APIResponse.error(e.getMessage()));
         }
