@@ -11,7 +11,7 @@ pip install aitrace
 ```
 OR pip install from source.
 ```bash
-git clone git@github.com:yanghui1-arch/AT.git
+git clone https://github.com/yanghui1-arch/AITrace.git
 cd src
 pip install -e .
 ```
