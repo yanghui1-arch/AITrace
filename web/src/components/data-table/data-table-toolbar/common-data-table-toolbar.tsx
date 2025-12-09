@@ -1,5 +1,5 @@
 import { type Table } from "@tanstack/react-table";
-import { X } from "lucide-react";
+import { Trash, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ export function DataTableToolbar<TData>({
   table,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
+  const isSelected = table.getSelectedRowModel().rows.length > 0;
 
   return (
     <div className="flex items-center justify-between">
@@ -37,6 +38,15 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <div className="flex items-center gap-2">
+        {isSelected && (
+          <Button
+            variant="ghost"
+            onClick={() => console.log(table.getSelectedRowModel().rows)}
+            className="h-8 px-2 lg:px-3"
+          >
+            <Trash />
+          </Button>
+        )}
         <DataTableViewOptions table={table} />
       </div>
     </div>
