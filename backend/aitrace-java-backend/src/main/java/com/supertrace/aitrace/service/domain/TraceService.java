@@ -30,4 +30,11 @@ public interface TraceService {
      * @return all traces
      */
     List<Trace> getTracesByProjectId(Long projectId);
+
+    /**
+     * Delete trace by trace id
+     * @param traceIdsToDelete trace ids to delete
+     * @return a list of uuid to delete.
+     */
+    List<UUID> deleteTraceByTraceId(List<UUID> traceIdsToDelete);
 }

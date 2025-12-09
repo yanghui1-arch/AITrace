@@ -36,4 +36,11 @@ public class TraceServiceImpl implements TraceService {
     public List<Trace> getTracesByProjectId(Long projectId) {
         return this.traceRepository.findTracesByProjectId(projectId);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public List<UUID> deleteTraceByTraceId(List<UUID> traceIdsToDelete) {
+        this.traceRepository.deleteAllById(traceIdsToDelete);
+        return traceIdsToDelete;
+    }
 }
