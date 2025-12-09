@@ -1,26 +1,27 @@
 import type { Trace } from "@/pages/projects/track/trace-columns";
 import { DataTable } from "./data-table";
 import { RowPanelContent } from "./data-table/data-table-row-panel";
-import type { ColumnDef } from "@tanstack/react-table";
+import type { Table } from "@tanstack/react-table";
 import { Clock } from "lucide-react";
 import TokensPanel from "./tokens-panel";
 import type { CompletionUsage } from "openai/resources/completions.mjs";
 import { TraceDialogMain } from "./trace-dialog/trace-dialog-main";
-import { useDataTable } from "@/hooks/use-datatable";
 import { DataTableToolbar } from "./data-table/data-table-toolbar/common-data-table-toolbar";
+import { traceApi } from "@/api/trace";
 
-interface TraceTableProps<TValue> {
-  columns: ColumnDef<Trace, TValue>[];
-  data: Trace[];
+interface TraceTableProps {
+  table: Table<Trace>
 }
 
-export function TraceTable<TValue>({ columns, data }: TraceTableProps<TValue>) {
-
-  const { table } = useDataTable({ columns, data })
+export function TraceTable({ table }: TraceTableProps) {
+  const onDelete = async (deleteIds: string[]): Promise<number> => {
+      const count = (await traceApi.deleteTraces({ deleteIds})).data.data.length;
+      return count
+    }
 
   return (
     <div className="container mx-auto py-2 space-y-4">
-      <DataTableToolbar table={table}/>
+      <DataTableToolbar table={table} onDelete={onDelete}/>
       <DataTable table={table}>
         <RowPanelContent<Trace>>
           {(rowData) => {

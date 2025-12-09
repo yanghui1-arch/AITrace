@@ -31,7 +31,16 @@ export default function ProjectDetailPage() {
     setStepData(response.data.data);
   };
 
+  const refreshTraceData = async () => {
+    const response = await http.get(
+      `/v0/trace/${encodeURIComponent(name as string)}`
+    );
+    setTraceData(response.data.data);
+    await refreshStepData()
+  };
+
   const { table: stepTable } = useDataTable({columns: stepColumns, data: stepData, onRefresh: refreshStepData})
+  const { table: traceTable } = useDataTable({ columns: traceColumns, data: traceData, onRefresh: refreshTraceData})
 
   useEffect(() => {
     const loadStepDataOfProject = async () => {
@@ -106,7 +115,7 @@ export default function ProjectDetailPage() {
         <StepTable table={stepTable} />
       ) : navButtonType === "trace" ? (
         <div>
-          <TraceTable data={traceData} columns={traceColumns} />
+          <TraceTable table={traceTable} />
         </div>
       ) : (
         "Unknow"
