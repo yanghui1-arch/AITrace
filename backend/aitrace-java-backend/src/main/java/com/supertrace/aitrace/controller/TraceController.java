@@ -6,6 +6,7 @@ import com.supertrace.aitrace.exception.AuthenticationException;
 import com.supertrace.aitrace.exception.UserIdNotFoundException;
 import com.supertrace.aitrace.response.APIResponse;
 import com.supertrace.aitrace.service.application.ApiKeyService;
+import com.supertrace.aitrace.service.application.DeleteService;
 import com.supertrace.aitrace.service.application.LogService;
 import com.supertrace.aitrace.service.application.QueryService;
 import com.supertrace.aitrace.utils.ApiKeyUtils;
@@ -25,6 +26,7 @@ public class TraceController {
     private final ApiKeyService apiKeyService;
     private final LogService logService;
     private final QueryService queryService;
+    private final DeleteService deleteService;
 
     @PostMapping("/log/trace")
     public ResponseEntity<APIResponse<UUID>> createAndLogStep(
@@ -66,6 +68,19 @@ public class TraceController {
                 )
                 .toList();
             return ResponseEntity.ok(APIResponse.success(getTraceVOs));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(APIResponse.error(e.getMessage()));
+        }
+    }
+
+    @PostMapping("/trace/delete")
+    public ResponseEntity<APIResponse<List<UUID>>> deleteSteps(@RequestBody List<String> traceIds) {
+        try {
+            List<UUID> tracesUUIDToDelete = traceIds.stream().map(UUID::fromString).toList();
+            List<UUID> tracesUUIDToDeleteSuccess = this.deleteService.deleteTracesAndRelatedStepsByTraceIds(tracesUUIDToDelete);
+            return ResponseEntity.ok(APIResponse.success(tracesUUIDToDeleteSuccess));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(APIResponse.error("Please ensure trace id to delete is correct."));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(APIResponse.error(e.getMessage()));
         }
