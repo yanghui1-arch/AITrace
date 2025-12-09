@@ -2,6 +2,7 @@ package com.supertrace.aitrace.service.domain;
 
 import com.supertrace.aitrace.domain.core.step.Step;
 import com.supertrace.aitrace.dto.step.LogStepRequest;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +31,13 @@ public interface StepService {
      * @return all steps
      */
     List<Step> findStepsByProjectId(Long projectId);
+
+    /**
+     * Find all related steps by trace id
+     * @param traceId trace id
+     * @return all related steps.
+     */
+    List<Step> findStepsByTraceId(@NotNull UUID traceId);
 
     /**
      * Delete steps by their uuid.

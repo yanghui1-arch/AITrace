@@ -65,6 +65,11 @@ public class StepServiceImpl implements StepService {
     }
 
     @Override
+    public List<Step> findStepsByTraceId(@NotNull UUID traceId) {
+        return this.stepRepository.findStepsByTraceId(traceId);
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public List<UUID> deleteStepsByStepUUID(List<UUID> stepIdToDelete) {
         this.stepRepository.deleteAllById(stepIdToDelete);

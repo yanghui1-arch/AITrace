@@ -11,4 +11,6 @@ import java.util.UUID;
 @Repository
 public interface StepRepository extends JpaRepository<Step, UUID> {
     List<Step> findStepsByProjectId(@NotNull Long projectId);
+
+    List<Step> findStepsByTraceId(@NotNull UUID traceId);
 }
