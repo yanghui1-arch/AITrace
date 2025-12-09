@@ -7,6 +7,7 @@ import { StepTable } from "@/components/step-table";
 import { traceColumns, type Trace } from "./trace-columns";
 import { TraceTable } from "@/components/trace-table";
 import http from "@/api/http";
+import { useDataTable } from "@/hooks/use-datatable";
 
 export default function ProjectDetailPage() {
   const { name } = useParams<{ name: string }>();
@@ -22,6 +23,15 @@ export default function ProjectDetailPage() {
 
   const [stepData, setStepData] = useState<Step[]>([]);
   const [traceData, setTraceData] = useState<Trace[]>([]);
+
+  const refreshStepData = async () => {
+    const response = await http.get(
+      `/v0/step/${encodeURIComponent(name as string)}`
+    );
+    setStepData(response.data.data);
+  };
+
+  const { table: stepTable } = useDataTable({columns: stepColumns, data: stepData, onRefresh: refreshStepData})
 
   useEffect(() => {
     const loadStepDataOfProject = async () => {
@@ -93,7 +103,7 @@ export default function ProjectDetailPage() {
       </div>
       <Separator />
       {navButtonType === "step" ? (
-        <StepTable data={stepData} columns={stepColumns} />
+        <StepTable table={stepTable} />
       ) : navButtonType === "trace" ? (
         <div>
           <TraceTable data={traceData} columns={traceColumns} />

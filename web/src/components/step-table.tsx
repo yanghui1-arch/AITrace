@@ -1,3 +1,4 @@
+import { type Table } from "@tanstack/react-table";
 import { type Step } from "@/pages/projects/track/step-columns";
 import { DataTable } from "./data-table";
 import { RowPanelContent } from "./data-table/data-table-row-panel";
@@ -7,22 +8,22 @@ import { Separator } from "@radix-ui/react-separator";
 import { Label } from "./ui/label";
 import { LLMJsonCard } from "./llm-json-card";
 import { Card, CardContent } from "./ui/card";
-import type { ColumnDef } from "@tanstack/react-table";
-import { useDataTable } from "@/hooks/use-datatable";
 import { DataTableToolbar } from "./data-table/data-table-toolbar/common-data-table-toolbar";
+import { stepApi } from "@/api/step";
 
-interface StepTableProps<TValue> {
-  columns: ColumnDef<Step, TValue>[];
-  data: Step[];
+interface StepTableProps {
+  table: Table<Step>
 }
 
-export function StepTable<TValue>({ columns, data }: StepTableProps<TValue>) {
-
-  const { table } = useDataTable({ columns, data }) 
+export function StepTable({ table }: StepTableProps) {
+  const onDelete = async (deleteIds: string[]): Promise<number> => {
+    const count = (await stepApi.deleteSteps({ deleteIds})).data.data.length;
+    return count
+  }
 
   return (
     <div className="container mx-auto py-2 space-y-4">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table} onDelete={onDelete}/>
       <DataTable table={table}>
         <RowPanelContent<Step>>
           {(rowData) => (

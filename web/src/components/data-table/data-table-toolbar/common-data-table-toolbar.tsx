@@ -5,15 +5,33 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 
+/**
+ * @param table tanstack table
+ * @param onDelete delete row callback function. Parameter is a list of string which is id to delete. Argument is passed by this component.
+ */
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
+  onDelete: (idsToDelete: string[]) => Promise<number>;
 }
 
 export function DataTableToolbar<TData>({
   table,
+  onDelete,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
   const isSelected = table.getSelectedRowModel().rows.length > 0;
+
+  const deleteRows = async () => {
+    const idsToDelete: string[] = table.getSelectedRowModel().rows.map((row) => row.id);
+    if (idsToDelete.length == 0) return ;
+    try {
+      const count = await onDelete(idsToDelete);
+      console.log(`Delete ${count} rows Data.`)
+      table.options.meta?.onRefresh?.();
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   return (
     <div className="flex items-center justify-between">
@@ -41,7 +59,7 @@ export function DataTableToolbar<TData>({
         {isSelected && (
           <Button
             variant="ghost"
-            onClick={() => console.log(table.getSelectedRowModel().rows)}
+            onClick={deleteRows}
             className="h-8 px-2 lg:px-3"
           >
             <Trash />

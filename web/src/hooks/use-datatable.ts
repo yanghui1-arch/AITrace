@@ -16,7 +16,14 @@ interface DataTableProps<TData, TValue> {
   onRefresh?: () => void;
 }
 
-export function useDataTable<TData, TValue>({
+/**
+ * Auto pagination React table hook
+ * 
+ * @param columns table columns definition.
+ * @param data row data
+ * @param onRefresh a refresh function to refresh row data
+ */
+export function useDataTable<TData extends {id: string}, TValue>({
   columns,
   data,
   onRefresh,
@@ -28,6 +35,7 @@ export function useDataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    getRowId: (row) => row.id,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -49,4 +57,8 @@ export function useDataTable<TData, TValue>({
   });
 
   return { table };
+}
+
+export function useManulPaginationReactTable() {
+  
 }
