@@ -5,6 +5,7 @@ from typing import Any, Dict, List
 from typing_extensions import Self, override
 
 from openai import resources, AsyncStream
+from openai.types.completion_usage import CompletionUsage
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk, Choice, ChoiceDelta, ChoiceDeltaToolCall
 
 from ..stream import PatchStreamResponse, ToolFunctionCall, Function
@@ -82,6 +83,7 @@ class ProxyAsyncStream(AsyncStream):
         self._output.append(chat_completion_chunk)
         if chat_completion_chunk.choices[0].finish_reason is not None:
             llm_output = self._extract_content(self._output)
+            llm_usage:CompletionUsage | None = chat_completion_chunk.usage
             llm_tool_calls_output = None
             if self.inputs.get('tools', None) is not None:
                 llm_tool_calls_output:List[ToolFunctionCall] | None = self._extract_tool_calling_function(self._output)
@@ -89,7 +91,8 @@ class ProxyAsyncStream(AsyncStream):
             patch_stream_response = PatchStreamResponse(
                 role="assistant",
                 content=llm_output,
-                tool_calls=llm_tool_calls_output
+                tool_calls=llm_tool_calls_output,
+                usage=llm_usage,
             )
             client: SyncClient = get_cached_sync_client()
             client.log_step(
@@ -104,7 +107,7 @@ class ProxyAsyncStream(AsyncStream):
                 output={"llm_outputs": patch_stream_response.model_dump(exclude_none=True)},
                 error_info=self.step.error_info,
                 model=self.step.model,
-                usage=self.step.usage,
+                usage=llm_usage,
                 start_time=self.step.start_time,
                 end_time=datetime.now()
             )
@@ -117,13 +120,15 @@ class ProxyAsyncStream(AsyncStream):
             if chunk.choices[0].finish_reason is not None:
                 llm_output = self._extract_content(self._output)
                 llm_tool_calls_output = None
+                llm_usage:CompletionUsage | None = chunk.usage
                 if self.inputs.get('tools', None) is not None:
                     llm_tool_calls_output:List[ToolFunctionCall] | None = self._extract_tool_calling_function(self._output)
                             
                 patch_stream_response = PatchStreamResponse(
                     role="assistant",
                     content=llm_output,
-                    tool_calls=llm_tool_calls_output
+                    tool_calls=llm_tool_calls_output,
+                    usage=llm_usage,
                 )
                 client: SyncClient = get_cached_sync_client()
                 client.log_step(
@@ -138,7 +143,7 @@ class ProxyAsyncStream(AsyncStream):
                     output={"llm_outputs": patch_stream_response.model_dump(exclude_none=True)},
                     error_info=self.step.error_info,
                     model=self.step.model,
-                    usage=self.step.usage,
+                    usage=llm_usage,
                     start_time=self.step.start_time,
                     end_time=datetime.now()
                 )
