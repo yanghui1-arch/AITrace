@@ -109,8 +109,10 @@ class ProxyStream(Stream):
     @override
     def __next__(self):
         chunk = self._real_stream.__next__()
-        self._output.append(chunk)
-        if chunk.choices[0].finish_reason is not None:
+        # If set stream=True and stream_options: {"include_usage": True} at the same time the last chunk choices length is 0
+        if len(chunk.choices) != 0:
+            self._output.append(chunk)
+        if len(chunk.choices) == 0 or chunk.choices[0].finish_reason is not None:
             llm_output = self._extract_content(self._output)
             llm_tool_calls_output = None
             llm_usage:CompletionUsage | None = chunk.usage
@@ -145,8 +147,9 @@ class ProxyStream(Stream):
     @override
     def __iter__(self):
         for chunk in self._real_stream:
-            self._output.append(chunk)
-            if chunk.choices[0].finish_reason is not None:
+            if len(chunk.choices) != 0:
+                self._output.append(chunk)
+            if len(chunk.choices) == 0 or chunk.choices[0].finish_reason is not None:
                 # post log request or push into storage context and then _ALREADY_PATCH=False
                 #                       ↑---- need think carefully.
                 llm_output = self._extract_content(self._output)

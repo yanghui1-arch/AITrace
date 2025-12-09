@@ -80,8 +80,10 @@ class ProxyAsyncStream(AsyncStream):
     @override
     async def __anext__(self):
         chat_completion_chunk: ChatCompletionChunk = await self.real_async_stream._iterator.__anext__()
-        self._output.append(chat_completion_chunk)
-        if chat_completion_chunk.choices[0].finish_reason is not None:
+        # If set stream=True and stream_options: {"include_usage": True} at the same time the last chunk choices length is 0
+        if len(chat_completion_chunk.choices) != 0:
+            self._output.append(chat_completion_chunk)
+        if len(chat_completion_chunk.choices) == 0 or chat_completion_chunk.choices[0].finish_reason is not None:
             llm_output = self._extract_content(self._output)
             llm_usage:CompletionUsage | None = chat_completion_chunk.usage
             llm_tool_calls_output = None
@@ -116,8 +118,9 @@ class ProxyAsyncStream(AsyncStream):
     @override
     async def __aiter__(self):
         async for chunk in self.real_async_stream:
-            self._output.append(chunk)
-            if chunk.choices[0].finish_reason is not None:
+            if len(chunk.choices) != 0:
+                self._output.append(chunk)
+            if len(chunk.choices) == 0 or chunk.choices[0].finish_reason is not None:
                 llm_output = self._extract_content(self._output)
                 llm_tool_calls_output = None
                 llm_usage:CompletionUsage | None = chunk.usage
