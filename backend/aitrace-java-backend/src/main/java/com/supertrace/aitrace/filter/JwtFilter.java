@@ -23,7 +23,7 @@ public class JwtFilter extends OncePerRequestFilter {
      * Dont need jwt route
      */
     private static final List<String> WHITE_LIST = List.of(
-        "/api/auth",
+        "/api/auth/github/callback",
         "/api/register",
         "/api/v0/log"
     );
