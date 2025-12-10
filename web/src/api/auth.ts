@@ -1,21 +1,28 @@
 import http from "./http";
 
 type DataType = {
-  token: string
-  userId: string
+  token: string,
+  userName: string,
+  avatar: string,
 }
 
-type Response = {
+type Response<T> = {
   code: number,
   message: string,
-  data: DataType
+  data: T
 }
 
 /* Authentication api */
 export const authApi = {
   authenticate(code: string) {
-    return http.get<Response>(
+    return http.get<Response<DataType>>(
       `/auth/github/callback?code=${code}`
     );
   },
+
+  me() {
+    return http.get<Response<DataType>>(
+      "/auth/me"
+    )
+  }
 };
