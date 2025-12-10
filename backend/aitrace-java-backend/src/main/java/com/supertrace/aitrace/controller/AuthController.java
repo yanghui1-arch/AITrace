@@ -5,6 +5,7 @@ import com.supertrace.aitrace.auth.github.GithubAuthResponse;
 import com.supertrace.aitrace.domain.auth.AuthPlatform;
 import com.supertrace.aitrace.domain.auth.User;
 import com.supertrace.aitrace.domain.auth.UserAuth;
+import com.supertrace.aitrace.exception.UserIdNotFoundException;
 import com.supertrace.aitrace.registry.AuthServiceRegistry;
 import com.supertrace.aitrace.response.APIResponse;
 import com.supertrace.aitrace.service.application.ApiKeyService;
@@ -12,12 +13,10 @@ import com.supertrace.aitrace.service.application.AuthService;
 import com.supertrace.aitrace.service.domain.UserService;
 import com.supertrace.aitrace.utils.JwtUtil;
 import com.supertrace.aitrace.vo.AuthVO;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -55,29 +54,48 @@ public class AuthController {
             AuthService<GithubAuthRequest, GithubAuthResponse> authService = this.authServiceRegistry.getService("github");
             GithubAuthResponse response = authService.authenticate(GithubAuthRequest.builder().code(code).build());
             Optional<UserAuth> userAuth = this.userService.findUserAuthByIdentifier(response.getId().toString());
-            // userId and responseMessage is both get the value in this situation.
-            UUID userId;
+            // user and responseMessage is both get the value in this situation.
+            User user;
             String responseMessage;
             if (userAuth.isPresent()) {
-                userId = userAuth.get().getUserId();
+                UUID userId = userAuth.get().getUserId();
+                user = this.userService.findUserByUserId(userId).orElseThrow(UserIdNotFoundException::new);
                 responseMessage = "GitHub authenticate successfully.";
             } else {
-                User user = this.userService.createUser(
+                user = this.userService.createUser(
                     response.getName(),
                     response.getEmail(),
                     response.getAvatarUrl(),
                     AuthPlatform.GitHub,
                     String.valueOf(response.getId())
                 );
-                userId = user.getId();
                 // New user is created, allocate an apikey for him
-                this.apiKeyService.generateAndStoreApiKey(userId);
+                this.apiKeyService.generateAndStoreApiKey(user.getId());
                 responseMessage = "New user with using GitHub authentication is registered successfully.";
             }
-            String jwtToken = this.jwtUtil.generateToken(userId);
+            String jwtToken = this.jwtUtil.generateToken(user.getId());
             return ResponseEntity.ok(
-                APIResponse.success(AuthVO.builder().userId(userId).token(jwtToken).build(), responseMessage)
+                APIResponse.success(
+                    AuthVO.builder()
+                        .userName(user.getUsername())
+                        .avatar(user.getAvatar())
+                        .token(jwtToken)
+                        .build(),
+                    responseMessage
+                )
             );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(APIResponse.error(e.getMessage()));
+        }
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<APIResponse<AuthVO>> me(HttpServletRequest request) {
+        try {
+            String token = request.getHeader("AT-token");
+            UUID userId = (UUID) request.getAttribute("userId");
+            User user = this.userService.findUserByUserId(userId).orElseThrow(UserIdNotFoundException::new);
+            return ResponseEntity.ok(APIResponse.success(AuthVO.builder().userName(user.getUsername()).avatar(user.getAvatar()).token(token).build()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(APIResponse.error(e.getMessage()));
         }

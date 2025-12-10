@@ -6,6 +6,7 @@ import com.supertrace.aitrace.domain.auth.UserAuth;
 import jakarta.transaction.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface UserService {
     /**
@@ -21,10 +22,18 @@ public interface UserService {
     User createUser(String username, String email, String avatar, AuthPlatform authPlatform, String identifier);
 
     /**
+     * TODO: Later create a UserAuthService and move this function there.
      * Find user with identifier
      *
      * @param identifier authentication platform identifier
      * @return Optional UserAuth
      */
     Optional<UserAuth> findUserAuthByIdentifier(String identifier);
+
+    /**
+     * Find user given a user uuid
+     * @param userId user uuid
+     * @return User or Optional.empty()
+     */
+    Optional<User> findUserByUserId(UUID userId);
 }

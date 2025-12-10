@@ -10,7 +10,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +49,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<UserAuth> findUserAuthByIdentifier(String identifier) {
         return this.userAuthRepository.findUserAuthByIdentifier(identifier);
+    }
+
+    @Override
+    public Optional<User> findUserByUserId(UUID userId) {
+        List<User> userList = this.userRepository.findUserById(userId);
+        return userList.isEmpty() ? Optional.empty() : Optional.of(userList.get(0));
     }
 
 }
