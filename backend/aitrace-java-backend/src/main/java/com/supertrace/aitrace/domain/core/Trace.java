@@ -63,11 +63,6 @@ public class Trace {
     @Column(columnDefinition = "jsonb")
     private Map<String, Object> output;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @NotNull
-    @Column(columnDefinition = "jsonb")
-    private List<Track> tracks;
-
     @Column(name = "error_info")
     private String errorInfo;
 

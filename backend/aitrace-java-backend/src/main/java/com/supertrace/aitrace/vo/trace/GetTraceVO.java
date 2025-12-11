@@ -1,6 +1,5 @@
 package com.supertrace.aitrace.vo.trace;
 
-import com.supertrace.aitrace.domain.core.Track;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -24,9 +23,6 @@ public class GetTraceVO {
     private Map<String, Object> input;
 
     private Map<String, Object> output;
-
-    @NotNull
-    private List<Track> tracks;
 
     private String errorInfo;
 

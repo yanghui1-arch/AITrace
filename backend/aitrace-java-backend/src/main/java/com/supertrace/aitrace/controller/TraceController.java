@@ -60,7 +60,6 @@ public class TraceController {
                     .tags(trace.getTags())
                     .input(trace.getInput())
                     .output(trace.getOutput())
-                    .tracks(trace.getTracks())
                     .errorInfo(trace.getErrorInfo())
                     .startTime(trace.getStartTime())
                     .lastUpdateTimestamp(trace.getLastUpdateTimestamp())

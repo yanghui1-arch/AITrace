@@ -2,7 +2,6 @@ package com.supertrace.aitrace.dto.trace;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.supertrace.aitrace.domain.core.Track;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -31,8 +30,6 @@ public class LogTraceRequest {
     private Map<String, Object> input;
 
     private Map<String, Object> output;
-
-    private List<Track> tracks;
 
     private String errorInfo;
 
