@@ -24,10 +24,13 @@ http.interceptors.response.use(
 
     /* 401 means not authenticated */
     if (status == 401) {
-      window.location.href = "/login";
-      return ;
+      /* Clear stale token and avoid redirect loop when already on /login */
+      localStorage.removeItem(AT_JWT);
+      const currentPath = window.location.pathname;
+      if (currentPath !== "/login") {
+        window.location.href = "/login";
+      }
     }
-
     return Promise.reject(new Error(message));
   }
 );

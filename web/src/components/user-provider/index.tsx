@@ -10,9 +10,15 @@ type UserProviderProps = {
 export function UserProvider({ children }: UserProviderProps) {
   const [user, setUser] = useState<User | null>(null);
 
+  const isAtJwtExpired = (atJwt: string) => {
+    const payload = JSON.parse(atob(atJwt.split('.')[1]));
+    const exp = payload.exp * 1000;
+    return Date.now() > exp;
+  }
+
   useEffect(() => {
     const token = localStorage.getItem(AT_JWT);
-    if (token) {
+    if (token && !isAtJwtExpired(token)) {
       const getUserFromJwt = async () => {
         const response = await authApi.me();
         const code = response.data.code;
