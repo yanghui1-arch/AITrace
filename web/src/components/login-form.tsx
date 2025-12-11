@@ -19,7 +19,6 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { AT_JWT } from "@/types/storage-const";
-import { useUser } from "./user-provider/use-user";
 
 export function LoginForm({
   className,
@@ -27,7 +26,6 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const navigate = useNavigate();
-  const { setUser } = useUser();
 
   const redirectUri = useMemo(() => {
     return import.meta.env.VITE_GITHUB_REDIRECT_URI;
@@ -46,7 +44,7 @@ export function LoginForm({
       navigate("/overview");
     }
 
-  }, [navigate, setUser])
+  }, [navigate])
 
   const startGithubSignIn = () => {
     const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID as
