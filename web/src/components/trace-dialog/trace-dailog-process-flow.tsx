@@ -1,4 +1,3 @@
-import type { Trace, Track } from "@/pages/projects/track/trace-columns";
 import {
   Background,
   ReactFlow,
@@ -17,10 +16,11 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import { FunctionIOCard } from "../fn-io-card";
 import { TraceIONode } from "./trace-process-io-node";
 import { NodeSearch } from "../xyflow-ui/node-search";
+import type { Track } from "@/api/trace";
 
 interface TraceDialogProcessPanelProps {
   input?: Record<string, unknown> | undefined;
-  data: Trace;
+  tracks: Track[];
   output?: Record<string, unknown> | string | undefined;
   errorInfo?: string;
 }
@@ -39,25 +39,26 @@ const findFirstRootTrackStepId = (idx: number, tracks: Track[]): string => {
   }
   const newTrack = tracks.slice(idx);
   const rootTrack: Track[] = newTrack.filter(
-    (t) => t.step.parent_step_id === null
+    (t) => t.parent_step_id === null
   );
-  return rootTrack[0].step.id;
+  // TODO: rootTrack maybe is empty
+  return rootTrack[0].id;
 };
 
 const findLastRootTrackStepId = (tracks: Track[]): string => {
   const reversedTracks = [...tracks].reverse();
-  return reversedTracks.filter((t) => t.step.parent_step_id === null)[0].step
+  // TODO: after filter array maybe is empty
+  return reversedTracks.filter((t) => t.parent_step_id === null)[0]
     .id;
 };
 
 export function TraceDialogProcessPanel({
   input,
-  data,
+  tracks,
   output,
   errorInfo,
 }: TraceDialogProcessPanelProps) {
-  const tracks = data.tracks;
-
+  
   const nodeWidth = 100;
   const nodeHeight = 40;
   const ioWidth = 200;
@@ -85,16 +86,16 @@ export function TraceDialogProcessPanel({
   // if step is root node. Don't do anything
   const childGroups = new Map<string, string[]>();
   tracks.forEach((t) => {
-    dagreGraph.setNode(`process-${t.step.id}`, {
+    dagreGraph.setNode(`process-${t.id}`, {
       width: nodeWidth,
       height: nodeHeight,
     });
-    const parentStepId = t.step.parent_step_id;
+    const parentStepId = t.parent_step_id;
     if (!parentStepId) return;
     if (!childGroups.get(parentStepId)) {
       childGroups.set(parentStepId, []);
     }
-    childGroups.get(parentStepId)!.push(`process-${t.step.id}`);
+    childGroups.get(parentStepId)!.push(`process-${t.id}`);
   });
 
   if (output) {
@@ -109,13 +110,13 @@ export function TraceDialogProcessPanel({
     dagreGraph.setEdge("input", `process-${startProcessNodeStepId}`);
   }
   tracks.forEach((t, index) => {
-    const parentStepId = t.step.parent_step_id;
+    const parentStepId = t.parent_step_id;
     if (parentStepId) {
-      dagreGraph.setEdge(`process-${parentStepId}`, `process-${t.step.id}`);
+      dagreGraph.setEdge(`process-${parentStepId}`, `process-${t.id}`);
     } else {
       const nextProcessNodeStepId = findFirstRootTrackStepId(index + 1, tracks);
       dagreGraph.setEdge(
-        `process-${t.step.id}`,
+        `process-${t.id}`,
         `process-${nextProcessNodeStepId}`
       );
     }
@@ -154,20 +155,20 @@ export function TraceDialogProcessPanel({
     };
   }
   const processNode: Node[] = tracks.map((track, index) => {
-    const { x, y } = dagreGraph.node(`process-${track.step.id}`);
+    const { x, y } = dagreGraph.node(`process-${track.id}`);
     return {
-      id: `process-${track.step.id}`,
+      id: `process-${track.id}`,
       data: {
-        label: track.step.name,
-        title: track.step.name,
+        label: track.name,
+        title: track.name,
         total: tracks.length,
         hasPrev: index !== 0 || input,
         hasNext: index !== tracks.length - 1 || output,
-        llm_inputs: track.step.input.llm_inputs,
-        llm_outputs: track.step.output.llm_outputs,
-        fn_inputs: track.step.input.func_inputs,
-        fn_output: track.step.output.func_output,
-        errorInfo: track.step.errorInfo,
+        llm_inputs: track.input.llm_inputs,
+        llm_outputs: track.output.llm_outputs,
+        fn_inputs: track.input.func_inputs,
+        fn_output: track.output.func_output,
+        errorInfo: track.error_info,
       },
       position: {
         x: x,
@@ -219,17 +220,17 @@ export function TraceDialogProcessPanel({
   }
 
   const processEdges: Edge[] = tracks.map((t, index) => {
-    if (t.step.parent_step_id) {
+    if (t.parent_step_id) {
       return {
         id: `edge-${index + 1}`,
-        source: `process-${t.step.parent_step_id}`,
-        target: `process-${t.step.id}`,
+        source: `process-${t.parent_step_id}`,
+        target: `process-${t.id}`,
       };
     }
     const nextProcessNodeStepId = findFirstRootTrackStepId(index + 1, tracks);
     return {
       id: `edge-${index + 1}`,
-      source: `process-${t.step.id}`,
+      source: `process-${t.id}`,
       target: `process-${nextProcessNodeStepId}`,
       type: "default",
       markerEnd: {

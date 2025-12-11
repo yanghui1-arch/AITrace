@@ -1,5 +1,4 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import type { Step } from "./step-columns";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { ArrowDown, ArrowUp, List } from "lucide-react";
@@ -10,18 +9,12 @@ interface TraceOutput {
   func_output: Record<string, unknown>;
 }
 
-export type Track = {
-  step: Step;
-  localDatetime: string;
-};
-
 export type Trace = {
   id: string;
   name: string;
   tags: string[];
   input?: Record<string, unknown>;
   output?: TraceOutput;
-  tracks: Track[];
   errorInfo?: string;
   startTime: string;
   lastUpdateTimestamp: string;
@@ -147,38 +140,39 @@ export const traceColumns: ColumnDef<Trace>[] = [
       );
     },
   },
-  {
-    accessorKey: "process",
-    header: () => (
-      <div className="w-full flex justify-center">
-        <span className="font-semibold">Process</span>
-      </div>
-    ),
-    cell: ({ row }) => {
-      const tracks = row.original.tracks;
-      return (
-        <div className="flex gap-2 justify-center">
-          <ScrollArea className="h-20 w-58 rounded-md p-4">
-              {tracks.map((track, index) => {
-                return (
-                  <div key={index} className="flex flex-col items-center">
-                    <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
-                      <code>{track.step.name}</code>
-                    </pre>
-                    {index < tracks.length - 1 && (
-                      <span className="text-center text-gray-400">↓</span>
-                    )}
-                  </div>
-                );
-              })}
-            <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
-              <code></code>
-            </pre>
-          </ScrollArea>
-        </div>
-      );
-    },
-  },
+  // Remain it first. Maybe in the future AITrace need it.
+  // {
+  //   accessorKey: "process",
+  //   header: () => (
+  //     <div className="w-full flex justify-center">
+  //       <span className="font-semibold">Process</span>
+  //     </div>
+  //   ),
+  //   cell: ({ row }) => {
+  //     const tracks = row.original.tracks;
+  //     return (
+  //       <div className="flex gap-2 justify-center">
+  //         <ScrollArea className="h-20 w-58 rounded-md p-4">
+  //             {tracks.map((track, index) => {
+  //               return (
+  //                 <div key={index} className="flex flex-col items-center">
+  //                   <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
+  //                     <code>{track.step.name}</code>
+  //                   </pre>
+  //                   {index < tracks.length - 1 && (
+  //                     <span className="text-center text-gray-400">↓</span>
+  //                   )}
+  //                 </div>
+  //               );
+  //             })}
+  //           <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
+  //             <code></code>
+  //           </pre>
+  //         </ScrollArea>
+  //       </div>
+  //     );
+  //   },
+  // },
   {
     accessorKey: "startTime",
     header: () => (

@@ -7,29 +7,39 @@ import TokensPanel from "./tokens-panel";
 import type { CompletionUsage } from "openai/resources/completions.mjs";
 import { TraceDialogMain } from "./trace-dialog/trace-dialog-main";
 import { DataTableToolbar } from "./data-table/data-table-toolbar/common-data-table-toolbar";
-import { traceApi } from "@/api/trace";
+import { traceApi, type Track } from "@/api/trace";
 
 interface TraceTableProps {
   table: Table<Trace>
 }
 
 export function TraceTable({ table }: TraceTableProps) {
-  const onDelete = async (deleteIds: string[]): Promise<number> => {
-      const count = (await traceApi.deleteTraces({ deleteIds})).data.data.length;
-      return count
+
+  const getTracks = async (traceId: string): Promise<Track[]> => {
+    const response = await traceApi.getTracks(traceId);
+    if (response.data.code === 200) {
+      return response.data.data;
     }
+    return [];
+  }
+  
+  const onDelete = async (deleteIds: string[]): Promise<number> => {
+    const count = (await traceApi.deleteTraces({ deleteIds})).data.data.length;
+    return count
+  }
 
   return (
     <div className="container mx-auto py-2 space-y-4">
       <DataTableToolbar table={table} onDelete={onDelete}/>
       <DataTable table={table}>
         <RowPanelContent<Trace>>
-          {(rowData) => {
+          {async (rowData) => {
             /* generate a new grouping result based model name and don't udpate rowData.tracks */
-            const groupedUsage = rowData.tracks.reduce(
+            const tracks = await getTracks(rowData.id);
+            const groupedUsage = tracks.reduce(
               (acc, track) => {
-                const model: string | undefined = track.step.model;
-                const usage: CompletionUsage | undefined = track.step.usage;
+                const model: string | undefined = track.model;
+                const usage: CompletionUsage | undefined = track.usage;
                 if (!usage || !model) return acc;
 
                 const prev = acc.get(model);
