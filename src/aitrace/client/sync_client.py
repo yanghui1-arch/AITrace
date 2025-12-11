@@ -8,7 +8,6 @@ from openai.types.completion_usage import CompletionUsage
 from .config import ClientConfig, build_client_config
 from .schemas.request.log_request import LogStepRequest, LogTraceRequest
 from .schemas.response.log_response import LogStepResponse, LogTraceResponse
-from ..models import Track
 
 class SyncClient:
     """SyncClient is to communicate with server.
@@ -120,7 +119,6 @@ class SyncClient:
         tags: List[str],
         input: Dict[str, Any] | None,
         output: Dict[str, Any] | None,
-        tracks: List[Track] | None,
         error_info: str | None,
         start_time: datetime,
         last_update_timestamp: datetime
@@ -135,7 +133,6 @@ class SyncClient:
             tags=tags,
             input=input,
             output=output,
-            tracks=tracks,
             error_info=error_info,
             start_time=start_time,
             last_update_timestamp=last_update_timestamp,

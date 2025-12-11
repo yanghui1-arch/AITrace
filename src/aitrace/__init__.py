@@ -1,5 +1,5 @@
 from .track import track
-from .models import LLMProvider, StepType, Step, Trace, Track, Conversation
+from .models import LLMProvider, StepType, Step, Trace, Conversation
 
 __all__ = [
     "track",
@@ -7,6 +7,5 @@ __all__ = [
     "StepType",
     "Step",
     "Trace",
-    "Track",
     "Conversation",
 ]

@@ -8,7 +8,7 @@ from ._types import STREAM_CONSUMED
 from .options import TrackerOptions
 from .. import context
 from ..context.func_context import current_function_name_context 
-from ..models.key_models import StepType, Step, Trace, Track
+from ..models.key_models import StepType, Step, Trace
 from ..models.common import LLMProvider
 from ..helper import args_helper
 from ..client import sync_client
@@ -337,11 +337,6 @@ class BaseTracker(ABC):
         current_trace: Trace = context.get_storage_current_trace_data()
         # refresh trace update timestamp
         current_trace.last_update_timestamp = datetime.now()
-        if not current_trace.tracks:
-            current_trace.tracks = []
-        # TODO: add a selectable region to track.
-        # TODO: fix timedelta -> remove it.
-        current_trace.tracks.append(Track(step=current_step, call_timestamp=datetime.now()))
 
         # TODO: improve current trace final output
         # The easist way to record current trace output. But it's not for the final output just every step output.
@@ -383,7 +378,6 @@ class BaseTracker(ABC):
             tags=current_trace.tags,
             input=current_trace.input,
             output=current_trace.output,
-            tracks=current_trace.tracks,
             error_info=current_trace.error_info,
             start_time=current_trace.start_time,
             last_update_timestamp=current_trace.last_update_timestamp,

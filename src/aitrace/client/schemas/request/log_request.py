@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import List, Dict, Any
 from pydantic import BaseModel, field_serializer
 from openai.types.completion_usage import CompletionUsage
-from ....models import Track
 from ....helper import serialize_helper
 
 class LogStepRequest(BaseModel):
@@ -33,11 +32,10 @@ class LogTraceRequest(BaseModel):
     tags: List[str]
     input: Dict[str, Any] | None
     output: Dict[str, Any] | None
-    tracks: List[Track] | None
     error_info: str | None
     start_time: datetime
     last_update_timestamp: datetime
 
-    @field_serializer('input', 'output', 'tracks')
+    @field_serializer('input', 'output')
     def serialize_any_field(self, value: Any):
         return serialize_helper.safe_serialize(value)

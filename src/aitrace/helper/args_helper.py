@@ -4,7 +4,7 @@ from typing import Any, List, Dict
 from pydantic import BaseModel
 from openai.types.completion_usage import CompletionUsage
 from . import id_helper
-from ..models import Step, Trace, StepType, Track
+from ..models import Step, Trace, StepType
 from .. import context
 
 class StartArguments(BaseModel):
@@ -106,7 +106,6 @@ def create_new_trace(
     project_name: str,
     input: Dict[str, Any] | None = None,
     output: Dict[str, Any] | None = None,
-    tracks: List[Track] | None = None,
     name: str | None = None,
     tags: List[str] | None = None,
     error_info: str | None = None,
@@ -120,7 +119,6 @@ def create_new_trace(
         project_name(str): project name.
         input(Dict[str, Any] | None): User input. Default to `None`. If it's None, it's logging output.
         output(Dict[str, Any] | None): agent final output. Default to `None`. If it's None, it's logging input.
-        tracks(List[Track] | None): a list of execution tracks. Default to `None`. Maybe it's an easy question so that it doesn't include any track.
         name(str | None): trace name. It defines what the trace does or its topic. Default to `None`. If it's None, it will be set using input user content.
         tags(List[str] | None): step tags. Default to `None`. If it's None, it will be set an empty list.
         error_info(str | None): error information while tracking trace. Default to `None`.
@@ -149,7 +147,6 @@ def create_new_trace(
         tags=tags,
         input=input,
         output=output,
-        tracks=tracks,
         error_info=error_info
     )
 

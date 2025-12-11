@@ -32,18 +32,6 @@ class Step(BaseModel):
     def serialize_any_field(self, value: Any):
         return serialize_helper.safe_serialize(value)
 
-class Track(BaseModel):
-    step: Step
-    call_timestamp: datetime
-
-    @property
-    def project_name(self):
-        return self.step.project_name
-    
-    @property
-    def usage(self) -> CompletionUsage | None:
-        return self.step.usage
-
 class Trace(BaseModel):
     project_name: str
     id: str | UUID | int
@@ -52,12 +40,11 @@ class Trace(BaseModel):
     tags: List[str] = Field(default_factory=list)
     input: Dict[str, Any] | None = None
     output: Any | None = None
-    tracks: List[Track] | None = None
     error_info: str | None = None
     start_time: datetime = Field(default_factory=datetime.now)
     last_update_timestamp: datetime = Field(default_factory=datetime.now)
 
-    @field_serializer('input', 'output', 'tracks')
+    @field_serializer('input', 'output')
     def serialize_any_field(self, value: Any):
         return serialize_helper.safe_serialize(value)
 
