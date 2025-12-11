@@ -26,6 +26,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { AT_JWT } from "@/types/storage-const"
 
 export function NavUser({
   user,
@@ -37,6 +38,11 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
+
+  const logOut = () => {
+    localStorage.removeItem(AT_JWT);
+    window.location.href = "/login";
+  }
 
   return (
     <SidebarMenu>
@@ -96,7 +102,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={logOut}>
               <IconLogout />
               Log out
             </DropdownMenuItem>
