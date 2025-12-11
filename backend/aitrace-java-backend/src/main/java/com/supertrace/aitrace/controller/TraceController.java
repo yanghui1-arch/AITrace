@@ -1,6 +1,8 @@
 package com.supertrace.aitrace.controller;
 
 import com.supertrace.aitrace.domain.core.Trace;
+import com.supertrace.aitrace.domain.core.step.Step;
+import com.supertrace.aitrace.dto.trace.GetTracksRequest;
 import com.supertrace.aitrace.dto.trace.LogTraceRequest;
 import com.supertrace.aitrace.exception.AuthenticationException;
 import com.supertrace.aitrace.exception.UserIdNotFoundException;
@@ -9,8 +11,10 @@ import com.supertrace.aitrace.service.application.ApiKeyService;
 import com.supertrace.aitrace.service.application.DeleteService;
 import com.supertrace.aitrace.service.application.LogService;
 import com.supertrace.aitrace.service.application.QueryService;
+import com.supertrace.aitrace.service.domain.StepService;
 import com.supertrace.aitrace.utils.ApiKeyUtils;
 import com.supertrace.aitrace.vo.trace.GetTraceVO;
+import com.supertrace.aitrace.vo.trace.TrackVO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +31,7 @@ public class TraceController {
     private final LogService logService;
     private final QueryService queryService;
     private final DeleteService deleteService;
+    private final StepService stepService;
 
     @PostMapping("/log/trace")
     public ResponseEntity<APIResponse<UUID>> createAndLogStep(
@@ -80,6 +85,33 @@ public class TraceController {
             return ResponseEntity.ok(APIResponse.success(tracesUUIDToDeleteSuccess));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(APIResponse.error("Please ensure trace id to delete is correct."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(APIResponse.error(e.getMessage()));
+        }
+    }
+
+    @PostMapping("/trace/get_tracks")
+    public ResponseEntity<APIResponse<List<TrackVO>>> getTracks(@RequestBody GetTracksRequest request) {
+        try {
+            System.out.println(request.getTraceId());
+            List<Step> steps = this.stepService.findStepsByTraceId(UUID.fromString(request.getTraceId()));
+            List<TrackVO> tracks = steps.stream()
+                .map(s -> TrackVO.builder()
+                    .id(s.getId())
+                    .parentStepId(s.getParentStepId())
+                    .name(s.getName())
+                    .type(s.getType())
+                    .tags(s.getTags())
+                    .input(s.getInput())
+                    .output(s.getOutput())
+                    .errorInfo(s.getErrorInfo())
+                    .model(s.getModel())
+                    .usage(s.getUsage())
+                    .startTime(s.getStartTime())
+                    .endTime(s.getEndTime())
+                    .build())
+                .toList();
+            return ResponseEntity.ok(APIResponse.success(tracks));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(APIResponse.error(e.getMessage()));
         }
