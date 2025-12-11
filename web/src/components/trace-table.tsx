@@ -69,7 +69,7 @@ export function TraceTable({ table }: TraceTableProps) {
                     prePromptTokensDetails?: CompletionUsage.PromptTokensDetails,
                     curPromptTokensDetails?: CompletionUsage.PromptTokensDetails,
                   ): CompletionUsage.PromptTokensDetails | undefined => {
-                    return prePromptTokensDetails === undefined || curPromptTokensDetails === undefined ? undefined : (
+                    return !prePromptTokensDetails || !curPromptTokensDetails ? undefined : (
                       {
                         audio_tokens: addUsage(prePromptTokensDetails.audio_tokens, curPromptTokensDetails.audio_tokens),
                         cached_tokens: addUsage(prePromptTokensDetails.cached_tokens, curPromptTokensDetails.cached_tokens),
