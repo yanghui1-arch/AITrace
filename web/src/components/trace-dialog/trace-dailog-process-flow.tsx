@@ -35,11 +35,11 @@ const findFirstRootTrackStepId = (idx: number, tracks: Track[]): string => {
     console.warn(
       `pass idx is greater than track length: ${tracks.length} or less than 0. Pass idx: ${idx}`
     );
-    return `<ERROR_IDX>${idx}`;
+    return `<ERROR_IDX>`;
   }
   const newTrack = tracks.slice(idx);
   const rootTrack: Track[] = newTrack.filter(
-    (t) => t.parent_step_id === null
+    (t) => t.parent_step_id === null || t.parent_step_id === undefined
   );
   // TODO: rootTrack maybe is empty
   return rootTrack[0].id;
@@ -48,8 +48,7 @@ const findFirstRootTrackStepId = (idx: number, tracks: Track[]): string => {
 const findLastRootTrackStepId = (tracks: Track[]): string => {
   const reversedTracks = [...tracks].reverse();
   // TODO: after filter array maybe is empty
-  return reversedTracks.filter((t) => t.parent_step_id === null)[0]
-    .id;
+  return reversedTracks.filter((t) => t.parent_step_id === null)[0].id;
 };
 
 export function TraceDialogProcessPanel({
@@ -58,7 +57,6 @@ export function TraceDialogProcessPanel({
   output,
   errorInfo,
 }: TraceDialogProcessPanelProps) {
-  
   const nodeWidth = 100;
   const nodeHeight = 40;
   const ioWidth = 200;
@@ -109,16 +107,45 @@ export function TraceDialogProcessPanel({
   if (input) {
     dagreGraph.setEdge("input", `process-${startProcessNodeStepId}`);
   }
+
+  const processEdges: Edge[] = [];
+
   tracks.forEach((t, index) => {
     const parentStepId = t.parent_step_id;
     if (parentStepId) {
+      console.log(`${t.name} has parent_id: ${t.parent_step_id}`);
       dagreGraph.setEdge(`process-${parentStepId}`, `process-${t.id}`);
+
+      processEdges.push({
+        id: `edge-${index + 1}`,
+        source: `process-${t.parent_step_id}`,
+        target: `process-${t.id}`,
+      });
     } else {
       const nextProcessNodeStepId = findFirstRootTrackStepId(index + 1, tracks);
-      dagreGraph.setEdge(
-        `process-${t.id}`,
-        `process-${nextProcessNodeStepId}`
-      );
+      if (nextProcessNodeStepId !== "<ERROR_IDX>") {
+        console.log(
+          `${t.name} has't parent_id. Its next root step id: ${nextProcessNodeStepId}`
+        );
+        dagreGraph.setEdge(
+          `process-${t.id}`,
+          `process-${nextProcessNodeStepId}`
+        );
+
+        processEdges.push({
+          id: `edge-${index + 1}`,
+          source: `process-${t.id}`,
+          target: `process-${nextProcessNodeStepId}`,
+          style: {
+            stroke: "rgb(var(--process-flow-main-rgb))",
+            strokeWidth: 2,
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: "rgb(var(--process-flow-main-rgb))",
+          },
+        });
+      }
     }
   });
 
@@ -212,41 +239,25 @@ export function TraceDialogProcessPanel({
       id: `edge-0`,
       source: "input",
       target: `process-${startProcessNodeStepId}`,
-      type: "default",
+      style: { stroke: "rgb(var(--process-flow-main-rgb))", strokeWidth: 2 },
       markerEnd: {
-        type: MarkerType.Arrow,
+        type: MarkerType.ArrowClosed,
+        color: "rgb(var(--process-flow-main-rgb))",
       },
     };
   }
 
-  const processEdges: Edge[] = tracks.map((t, index) => {
-    if (t.parent_step_id) {
-      return {
-        id: `edge-${index + 1}`,
-        source: `process-${t.parent_step_id}`,
-        target: `process-${t.id}`,
-      };
-    }
-    const nextProcessNodeStepId = findFirstRootTrackStepId(index + 1, tracks);
-    return {
-      id: `edge-${index + 1}`,
-      source: `process-${t.id}`,
-      target: `process-${nextProcessNodeStepId}`,
-      type: "default",
-      markerEnd: {
-        type: MarkerType.Arrow,
-      },
-    };
-  });
+  // processEdges is defined before dagre calculation.
 
   if (output) {
     outputEdge = {
       id: `edge-${tracks.length + 1}`,
       source: `process-${lastProcessNodeStepId}`,
       target: "output",
-      type: "default",
+      style: { stroke: "rgb(var(--process-flow-main-rgb))", strokeWidth: 2 },
       markerEnd: {
-        type: MarkerType.Arrow,
+        type: MarkerType.ArrowClosed,
+        color: "rgb(var(--process-flow-main-rgb))",
       },
     };
   }

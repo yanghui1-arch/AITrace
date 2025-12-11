@@ -92,6 +92,7 @@
   --json-2: oklch(0.4375 0.1395 287.44);
   --json-3: oklch(0.5642 0.1824 310.64);
   --json-4: oklch(0.6157 0.2057 332.72);
+  --process-flow-main-rgb: 56 162 255;
 }
 
 .dark {
@@ -131,6 +132,7 @@
   --json-2: oklch(0.4375 0.1395 287.44);
   --json-3: oklch(0.5642 0.1824 310.64);
   --json-4: oklch(0.6157 0.2057 332.72);
+  --process-flow-main-rgb: 56 103 163;
 }
 
 @layer base {
