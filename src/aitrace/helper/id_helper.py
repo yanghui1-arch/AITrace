@@ -10,8 +10,8 @@ from datetime import datetime, timezone, timedelta
 
 from uuid6 import uuid7
 
-def generate_id() -> UUID:
-    return uuid7()
+def generate_id() -> str:
+    return str(uuid7())
 
 def get_datetime_from_uuid7(u: UUID | str, timedelta_hours:int=8) -> datetime:
     """get datetime from uuid7
