@@ -7,6 +7,9 @@ import com.supertrace.aitrace.repository.StepRepository;
 import com.supertrace.aitrace.service.domain.StepService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,8 +63,9 @@ public class StepServiceImpl implements StepService {
     }
 
     @Override
-    public List<Step> findStepsByProjectId(Long projectId) {
-        return this.stepRepository.findStepsByProjectId(projectId);
+    public Page<Step> findStepsByProjectId(Long projectId, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page, pageSize);
+        return this.stepRepository.findStepsByProjectId(projectId, pageable);
     }
 
     @Override

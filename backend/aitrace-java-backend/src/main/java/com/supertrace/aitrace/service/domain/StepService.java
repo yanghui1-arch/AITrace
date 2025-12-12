@@ -3,6 +3,7 @@ package com.supertrace.aitrace.service.domain;
 import com.supertrace.aitrace.domain.core.step.Step;
 import com.supertrace.aitrace.dto.step.LogStepRequest;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,9 +29,11 @@ public interface StepService {
      * get all steps of a project which is owned by userId
      *
      * @param projectId project id.
-     * @return all steps
+     * @param page current page
+     * @param pageSize page size
+     * @return all pagination information about steps.
      */
-    List<Step> findStepsByProjectId(Long projectId);
+    Page<Step> findStepsByProjectId(Long projectId, int page, int pageSize);
 
     /**
      * Find all related steps by trace id

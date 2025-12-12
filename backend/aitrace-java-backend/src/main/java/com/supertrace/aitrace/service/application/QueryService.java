@@ -4,6 +4,7 @@ import com.supertrace.aitrace.domain.core.Trace;
 import com.supertrace.aitrace.domain.core.step.Step;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,9 +14,11 @@ public interface QueryService {
      * Get all steps of project which is owned by user uuid.
      * @param userId user uuid
      * @param projectName project name
-     * @return All steps.
+     * @param page current page
+     * @param pageSize page size
+     * @return All pagination information about steps.
      */
-    List<Step> getSteps(@NotNull UUID userId, @NotBlank String projectName);
+    Page<Step> getSteps(@NotNull UUID userId, @NotBlank String projectName, int page, int pageSize);
 
     /**
      * Get all traces of project which is owned by user uuid

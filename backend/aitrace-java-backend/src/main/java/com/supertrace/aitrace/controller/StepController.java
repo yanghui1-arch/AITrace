@@ -10,9 +10,11 @@ import com.supertrace.aitrace.service.application.LogService;
 import com.supertrace.aitrace.service.application.QueryService;
 import com.supertrace.aitrace.service.domain.StepService;
 import com.supertrace.aitrace.utils.ApiKeyUtils;
+import com.supertrace.aitrace.vo.PageVO;
 import com.supertrace.aitrace.vo.step.GetStepVO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,10 +53,15 @@ public class StepController {
     }
 
     @GetMapping("/step/{projectName}")
-    public ResponseEntity<APIResponse<List<GetStepVO>>> getStep(HttpServletRequest request, @PathVariable String projectName) {
+    public ResponseEntity<APIResponse<PageVO<GetStepVO>>> getStep(
+        HttpServletRequest request,
+        @PathVariable String projectName,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "15") int pageSize
+    ) {
         try {
             UUID userId = (UUID) request.getAttribute("userId");
-            List<Step> steps = this.queryService.getSteps(userId, projectName);
+            Page<Step> steps = this.queryService.getSteps(userId, projectName, page, pageSize);
             List<GetStepVO> getStepVOs = steps.stream()
                 .map(step -> GetStepVO.builder()
                     .id(step.getId())
@@ -72,7 +79,11 @@ public class StepController {
                     .build()
                 )
                 .toList();
-            return ResponseEntity.ok(APIResponse.success(getStepVOs));
+            PageVO<GetStepVO> pageVO = PageVO.<GetStepVO>builder()
+                .data(getStepVOs)
+                .pageCount(steps.getTotalPages())
+                .build();
+            return ResponseEntity.ok(APIResponse.success(pageVO));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(APIResponse.error(e.getMessage()));
         }
