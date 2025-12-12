@@ -10,119 +10,76 @@ import { LLMJsonCard } from "./llm-json-card";
 import { Card, CardContent } from "./ui/card";
 import { DataTableToolbar } from "./data-table/data-table-toolbar/common-data-table-toolbar";
 import { stepApi } from "@/api/step";
+import { Badge } from "./ui/badge";
 
 interface StepTableProps {
-  table: Table<Step>
+  table: Table<Step>;
 }
 
 export function StepTable({ table }: StepTableProps) {
   const onDelete = async (deleteIds: string[]): Promise<number> => {
-    const count = (await stepApi.deleteSteps({ deleteIds})).data.data.length;
-    return count
-  }
+    const count = (await stepApi.deleteSteps({ deleteIds })).data.data.length;
+    return count;
+  };
 
   return (
     <div className="container mx-auto py-2 space-y-4">
-      <DataTableToolbar table={table} onDelete={onDelete}/>
+      <DataTableToolbar table={table} onDelete={onDelete} />
       <DataTable table={table}>
         <RowPanelContent<Step>>
-          {(rowData) => (
-            <div className="flex gap-4 flex-col">
-              <div className="ml-auto font-mono text-xs flex gap-1">
-                <Clock size={"16px"} />
-                {new Date(rowData.endTime).getTime() -
-                  new Date(rowData.startTime).getTime() <
-                1000
-                  ? new Date(rowData.endTime).getTime() -
-                    new Date(rowData.startTime).getTime() +
-                    "ms"
-                  : (
-                      (new Date(rowData.endTime).getTime() -
-                        new Date(rowData.startTime).getTime()) /
-                      1000
-                    ).toFixed(2) + "s"}
-              </div>
-              <TokensPanel
-                model={rowData.model}
-                usage={rowData.usage}
-                cost={1}
-              />
-              <Separator />
-              <Label className="font-semibold">Step Function Details</Label>
-              {rowData.input.func_inputs && (
-                <div className="flex gap-4">
-                  <div className="flex-1">
-                    <LLMJsonCard
-                      labelTitle="Step Original Input"
-                      jsonObject={rowData.input.func_inputs}
-                    />
+          {(rowData) => {
+            const tags = rowData.tags.map(tag => <Badge className="bg-sidebar-primary" variant="outline">{tag}</Badge>)
+            return (
+              <div className="flex gap-4 flex-col">
+                <div className="flex">
+                  <div className="mr-auto flex gap-2 font-mono">
+                    {tags}
                   </div>
-                  <div className="h-full border-l border-muted" />
-                  <div className="flex-1">
-                    {rowData.output.func_output &&
-                    typeof rowData.output.func_output === "string" ? (
-                      <div className="flex flex-col gap-4 w-full">
-                        <Label>Step Final Output</Label>
-                        <Card>
-                          <CardContent>
-                            <pre className="text-sm font-mono whitespace-pre-wrap break-all text-left">
-                              <code>
-                                {JSON.stringify(
-                                  rowData.output.func_output
-                                    ? rowData.output.func_output
-                                    : rowData.errorInfo ?? "Something errors.",
-                                  null,
-                                  2
-                                )}
-                              </code>
-                            </pre>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    ) : (
-                      <LLMJsonCard
-                        labelTitle="Step Final Output"
-                        jsonObject={
-                          rowData.output.func_output as Record<
-                            string,
-                            undefined
-                          >
-                        }
-                        errorInfo={rowData.errorInfo}
-                        llmJsonLight={false}
-                      />
-                    )}
+                  <div className="ml-auto font-mono text-xs flex gap-1">
+                    <Clock size={"16px"} />
+                    {new Date(rowData.endTime).getTime() -
+                      new Date(rowData.startTime).getTime() <
+                    1000
+                      ? new Date(rowData.endTime).getTime() -
+                        new Date(rowData.startTime).getTime() +
+                        "ms"
+                      : (
+                          (new Date(rowData.endTime).getTime() -
+                            new Date(rowData.startTime).getTime()) /
+                          1000
+                        ).toFixed(2) + "s"}
                   </div>
                 </div>
-              )}
-              <Separator />
-              <Label className="font-semibold">LLM Details</Label>
-              <div className="flex flex-col gap-4">
-                {rowData.input.llm_inputs && (
+
+                <TokensPanel
+                  model={rowData.model}
+                  usage={rowData.usage}
+                  cost={1}
+                />
+                <Separator />
+                <Label className="font-semibold">Step Function Details</Label>
+                {rowData.input.func_inputs && (
                   <div className="flex gap-4">
-                    <div className="flex flex-col flex-1 gap-4">
+                    <div className="flex-1">
                       <LLMJsonCard
-                        labelTitle="Input"
-                        jsonObject={
-                          rowData.input.llm_inputs as Record<string, unknown>
-                        }
+                        labelTitle="Step Original Input"
+                        jsonObject={rowData.input.func_inputs}
                       />
                     </div>
                     <div className="h-full border-l border-muted" />
-                    <div className="flex flex-col flex-1 gap-4 w-full">
-                      {rowData.output.llm_outputs &&
-                      typeof rowData.output.llm_outputs === "string" ? (
-                        <>
-                          <Label>Output</Label>
+                    <div className="flex-1">
+                      {rowData.output.func_output &&
+                      typeof rowData.output.func_output === "string" ? (
+                        <div className="flex flex-col gap-4 w-full">
+                          <Label>Step Final Output</Label>
                           <Card>
                             <CardContent>
-                              <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
+                              <pre className="text-sm font-mono whitespace-pre-wrap break-all text-left">
                                 <code>
                                   {JSON.stringify(
-                                    rowData.output.llm_outputs
-                                      ? rowData.output.llm_outputs
-                                      : rowData.errorInfo ??
-                                          "Something errors.",
+                                    rowData.output.func_output
+                                      ? rowData.output.func_output
+                                      : rowData.errorInfo ?? "Something errors.",
                                     null,
                                     2
                                   )}
@@ -130,20 +87,73 @@ export function StepTable({ table }: StepTableProps) {
                               </pre>
                             </CardContent>
                           </Card>
-                        </>
+                        </div>
                       ) : (
                         <LLMJsonCard
-                          labelTitle="Output"
-                          jsonObject={rowData.output.llm_outputs}
+                          labelTitle="Step Final Output"
+                          jsonObject={
+                            rowData.output.func_output as Record<
+                              string,
+                              undefined
+                            >
+                          }
                           errorInfo={rowData.errorInfo}
+                          llmJsonLight={false}
                         />
                       )}
                     </div>
                   </div>
                 )}
+                <Separator />
+                <Label className="font-semibold">LLM Details</Label>
+                <div className="flex flex-col gap-4">
+                  {rowData.input.llm_inputs && (
+                    <div className="flex gap-4">
+                      <div className="flex flex-col flex-1 gap-4">
+                        <LLMJsonCard
+                          labelTitle="Input"
+                          jsonObject={
+                            rowData.input.llm_inputs as Record<string, unknown>
+                          }
+                        />
+                      </div>
+                      <div className="h-full border-l border-muted" />
+                      <div className="flex flex-col flex-1 gap-4 w-full">
+                        {rowData.output.llm_outputs &&
+                        typeof rowData.output.llm_outputs === "string" ? (
+                          <>
+                            <Label>Output</Label>
+                            <Card>
+                              <CardContent>
+                                <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
+                                  <code>
+                                    {JSON.stringify(
+                                      rowData.output.llm_outputs
+                                        ? rowData.output.llm_outputs
+                                        : rowData.errorInfo ??
+                                            "Something errors.",
+                                      null,
+                                      2
+                                    )}
+                                  </code>
+                                </pre>
+                              </CardContent>
+                            </Card>
+                          </>
+                        ) : (
+                          <LLMJsonCard
+                            labelTitle="Output"
+                            jsonObject={rowData.output.llm_outputs}
+                            errorInfo={rowData.errorInfo}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )
+          }}
         </RowPanelContent>
       </DataTable>
     </div>
