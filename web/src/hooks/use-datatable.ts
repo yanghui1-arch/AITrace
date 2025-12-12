@@ -6,6 +6,8 @@ import {
   useReactTable,
   type ColumnDef,
   type ColumnFiltersState,
+  type OnChangeFn,
+  type PaginationState,
   type SortingState,
 } from "@tanstack/react-table";
 import { useState } from "react";
@@ -59,6 +61,54 @@ export function useDataTable<TData extends {id: string}, TValue>({
   return { table };
 }
 
-export function useManulPaginationReactTable() {
-  
+
+interface ManulPaginationDataTableProps<TData, TValue> {
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  pagination: PaginationState;
+  pageCount: number,
+  setPagination: OnChangeFn<PaginationState>;
+  onRefresh?: () => void;
+}
+
+export function useManulPaginationDataTable<TData extends {id: string}, TValue>({
+  columns,
+  data,
+  pagination,
+  pageCount,
+  setPagination,
+  onRefresh,
+}: ManulPaginationDataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [rowSelection, setRowSelection] = useState({});
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
+  const table = useReactTable({
+    data,
+    columns,
+    pageCount,
+    getRowId: (row) => row.id,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: setSorting,
+    onRowSelectionChange: setRowSelection,
+    onColumnFiltersChange: setColumnFilters,
+    onPaginationChange: setPagination,
+    initialState: {
+      sorting: [{ id: "name", desc: false }],
+    },
+    state: {
+      sorting,
+      rowSelection,
+      columnFilters,
+      pagination,
+    },
+    manualPagination: true,
+    meta: {
+      onRefresh,
+    }
+  });
+
+  return { table };
 }
