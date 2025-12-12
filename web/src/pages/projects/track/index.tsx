@@ -7,7 +7,7 @@ import { StepTable } from "@/components/step-table";
 import { traceColumns, type Trace } from "./trace-columns";
 import { TraceTable } from "@/components/trace-table";
 import http from "@/api/http";
-import { useDataTable, useManulPaginationDataTable } from "@/hooks/use-datatable";
+import { useManulPaginationDataTable } from "@/hooks/use-datatable";
 import { type PaginationState} from "@tanstack/react-table";
 
 export default function ProjectDetailPage() {
@@ -26,6 +26,8 @@ export default function ProjectDetailPage() {
   const [pagination, setPagination] = useState<PaginationState>({pageIndex: 0, pageSize: 10})
   const [pageCount, setPageCount] = useState<number>(0);
   const [traceData, setTraceData] = useState<Trace[]>([]);
+  const [tracePagination, setTracePagination] = useState<PaginationState>({pageIndex: 0, pageSize: 10})
+  const [tracePageCount, setTracePageCount] = useState<number>(0);
 
   const refreshStepData = async () => {
     const response = await http.get(
@@ -36,7 +38,7 @@ export default function ProjectDetailPage() {
 
   const refreshTraceData = async () => {
     const response = await http.get(
-      `/v0/trace/${encodeURIComponent(name as string)}`
+      `/v0/trace/${encodeURIComponent(name as string)}?page=${tracePagination.pageIndex}&pageSize=${tracePagination.pageSize}`
     );
     setTraceData(response.data.data);
     await refreshStepData()
@@ -51,7 +53,14 @@ export default function ProjectDetailPage() {
     onRefresh: refreshStepData
   })
 
-  const { table: traceTable } = useDataTable({ columns: traceColumns, data: traceData, onRefresh: refreshTraceData})
+  const { table: traceTable } = useManulPaginationDataTable({
+    columns: traceColumns,
+    data: traceData,
+    pagination: tracePagination,
+    pageCount: tracePageCount,
+    setPagination: setTracePagination,
+    onRefresh: refreshTraceData
+  })
 
   useEffect(() => {
     const loadStepDataOfProject = async () => {
@@ -66,13 +75,17 @@ export default function ProjectDetailPage() {
     };
     const loadTraceDataOfProject = async () => {
       const response = await http.get(
-        `/v0/trace/${encodeURIComponent(name as string)}`
+        `/v0/trace/${encodeURIComponent(name as string)}?page=${tracePagination.pageIndex}&pageSize=${tracePagination.pageSize}`
       );
-      setTraceData(response.data.data);
+      const responseData = response.data.data;
+      const data = responseData.data;
+      const pageCount = responseData.pageCount;
+      setTraceData(data);
+      setTracePageCount(pageCount)
     };
     loadStepDataOfProject();
     loadTraceDataOfProject();
-  }, [pagination, name]);
+  }, [pagination, name, tracePagination]);
 
   return (
     <div className="flex flex-col gap-2 px-4 lg:px-6">
