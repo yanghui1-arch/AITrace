@@ -120,6 +120,18 @@ export function TraceDialogProcessPanel({
         id: `edge-${index + 1}`,
         source: `process-${t.parent_step_id}`,
         target: `process-${t.id}`,
+        style: {
+          stroke: "yellow",
+          strokeWidth: 2,
+        },
+        markerStart: {
+          color: "yellow",
+          type: MarkerType.ArrowClosed,
+        },
+        markerEnd: {
+          color: "yellow",
+          type: MarkerType.ArrowClosed,
+        },
       });
     } else {
       const nextProcessNodeStepId = findFirstRootTrackStepId(index + 1, tracks);
