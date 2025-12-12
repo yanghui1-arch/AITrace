@@ -13,10 +13,12 @@ import com.supertrace.aitrace.service.application.LogService;
 import com.supertrace.aitrace.service.application.QueryService;
 import com.supertrace.aitrace.service.domain.StepService;
 import com.supertrace.aitrace.utils.ApiKeyUtils;
+import com.supertrace.aitrace.vo.PageVO;
 import com.supertrace.aitrace.vo.trace.GetTraceVO;
 import com.supertrace.aitrace.vo.trace.TrackVO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,10 +56,15 @@ public class TraceController {
     }
 
     @GetMapping("/trace/{projectName}")
-    public ResponseEntity<APIResponse<List<GetTraceVO>>> getTrace(HttpServletRequest request, @PathVariable("projectName") String projectName) {
+    public ResponseEntity<APIResponse<PageVO<GetTraceVO>>> getTrace(
+        HttpServletRequest request,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int pageSize,
+        @PathVariable("projectName") String projectName
+    ) {
         try {
             UUID userId = (UUID) request.getAttribute("userId");
-            List<Trace> traces = this.queryService.getTraces(userId, projectName);
+            Page<Trace> traces = this.queryService.getTraces(userId, projectName, page, pageSize);
             List<GetTraceVO> getTraceVOs = traces.stream()
                 .map(trace -> GetTraceVO.builder()
                     .id(trace.getId())
@@ -71,7 +78,11 @@ public class TraceController {
                     .build()
                 )
                 .toList();
-            return ResponseEntity.ok(APIResponse.success(getTraceVOs));
+            PageVO<GetTraceVO> pageVO = PageVO.<GetTraceVO>builder()
+                .data(getTraceVOs)
+                .pageCount(traces.getTotalPages())
+                .build();
+            return ResponseEntity.ok(APIResponse.success(pageVO));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(APIResponse.error(e.getMessage()));
         }

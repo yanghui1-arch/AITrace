@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface QueryService {
@@ -24,7 +23,9 @@ public interface QueryService {
      * Get all traces of project which is owned by user uuid
      * @param userId user uuid
      * @param projectName project name
+     * @param page current page
+     * @param pageSize page size
      * @return All traces
      */
-    List<Trace> getTraces(@NotNull UUID userId, @NotBlank String projectName);
+    Page<Trace> getTraces(@NotNull UUID userId, @NotBlank String projectName, int page, int pageSize);
 }

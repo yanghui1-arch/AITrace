@@ -6,6 +6,9 @@ import com.supertrace.aitrace.factory.TraceFactory;
 import com.supertrace.aitrace.repository.TraceRepository;
 import com.supertrace.aitrace.service.domain.TraceService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,9 +35,9 @@ public class TraceServiceImpl implements TraceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public List<Trace> getTracesByProjectId(Long projectId) {
-        return this.traceRepository.findTracesByProjectId(projectId);
+    public Page<Trace> getTracesByProjectId(Long projectId, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page, pageSize);
+        return this.traceRepository.findTracesByProjectId(projectId, pageable);
     }
 
     @Override

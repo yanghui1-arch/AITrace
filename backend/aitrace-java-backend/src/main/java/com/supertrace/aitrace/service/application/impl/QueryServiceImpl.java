@@ -7,11 +7,11 @@ import com.supertrace.aitrace.service.domain.ProjectService;
 import com.supertrace.aitrace.service.application.QueryService;
 import com.supertrace.aitrace.service.domain.StepService;
 import com.supertrace.aitrace.service.domain.TraceService;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -39,10 +39,10 @@ public class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public List<Trace> getTraces(UUID userId, String projectName) {
+    public Page<Trace> getTraces(UUID userId, @NotNull String projectName, int page, int pageSize) {
         Project project = this.projectService.getProjectByUserIdAndName(userId, projectName)
             .orElseThrow(() -> new RuntimeException("Project not found: " + projectName));
         Long projectId = project.getId();
-        return this.traceService.getTracesByProjectId(projectId);
+        return this.traceService.getTracesByProjectId(projectId, page, pageSize);
     }
 }
