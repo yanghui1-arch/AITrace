@@ -41,7 +41,7 @@ export function LoginForm({
     }
 
     if (atJwt && isAtJwtExpired(atJwt) == false) {
-      navigate("/overview");
+      navigate("/projects");
     }
 
   }, [navigate])

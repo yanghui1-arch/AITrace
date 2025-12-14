@@ -35,7 +35,7 @@ export default function GitHubAuthPage() {
           localStorage.setItem(AT_JWT, data.token);
           setUser( {userName: data.userName, avatar: data.avatar} )
           setSearchParams({}, { replace: true });
-          navigate("/overview", { replace: true });
+          navigate("/projects", { replace: true });
         } else {
           toast.error("Failed to authentication with GitHub", {
             description: message ?? "Unexpected error",

@@ -39,12 +39,12 @@ const data = {
     }
   ],
   navMain: [
-    {
-      title: "Overview",
-      url: "/overview",
-      icon: IconCirclePlusFilled,
-      label: "Dashboard",
-    },
+    // {
+    //   title: "Overview",
+    //   url: "/overview",
+    //   icon: IconCirclePlusFilled,
+    //   label: "Dashboard",
+    // },
     {
       title: "Projects",
       url: "/projects",
