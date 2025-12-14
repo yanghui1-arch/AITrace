@@ -1,0 +1,2 @@
+# Kubent
+Kubent is the brain of AITrace which can keep improving your agent system. It consolidate agent workflow and concrete task type to give user a correct and effiency answer whatever in time or money.
