@@ -1,7 +1,7 @@
 import json
 from typing import Literal, List, Dict, Callable
-from pydantic import BaseModel
-from openai.types.chat import ChatCompletionMessage, ChatCompletionMessageToolCallUnion
+from pydantic import BaseModel, Field
+from openai.types.chat import ChatCompletionMessage, ChatCompletionMessageToolCallUnion, ChatCompletionMessageParam
 
 class Action(BaseModel):
     func: Callable
@@ -20,23 +20,24 @@ class Action(BaseModel):
         return self.type == 'think'
 
 class Env(BaseModel):
+    env_name: str
     action_spaces: Dict[str, Action]
-    _chains: List[Dict[str, str]] = []
+    _chains: List[Dict[str, str]] = Field(..., default_factory=list)
     steps: int = 0
     num_tool_callings: int = 0
     num_search: int = 0
-    obs: str
+    obs: List[ChatCompletionMessageParam] = Field(..., default_factory=list)
     answer: str | None = None
 
     def reset(self) -> str:
         self.steps = 0
         self.num_search = 0
         self.num_tool_callings = 0
-        self.obs = ""
+        self.obs = []
         self.answer =  None
         return self.obs
     
-    def step(self, llm_action: ChatCompletionMessage, terminate_signal: str | None = None) -> tuple[str, float, bool, Dict[str, str]]:
+    def step(self, llm_action: ChatCompletionMessage, terminate_signal: str | None = None) -> tuple[List[ChatCompletionMessageParam], float, bool, Dict[str, str]]:
         reward = 0
         terminate = False
         if terminate_signal is None:
@@ -48,34 +49,54 @@ class Env(BaseModel):
             if content.startswith(terminate_signal):
                 terminate = True
                 self.answer = content[len(terminate_signal): ]
-                self.obs += f"[Finish] {self.answer}"
+                self.obs.append(
+                    {"role": "assistant", "content": f"[Finish] {self.answer}"}
+                )
                 self._chains.append(
                     {"action_name": "<finish>", "action_result": f"[Finish] {self.answer}"}
                 )
-                return self.obs, reward, terminate, self._get_info()
+                return self.obs, reward, terminate, self._get_info(step_finish_reason="solved")
             else:
-                self.obs = f"[Think #{self.steps}] {content}" + "\n"
+                self.obs.append(
+                    {"role": "assistant", "content": f"[Think #{self.steps}] {content}" + "\n"},
+                    {"role": "user", "content": "Nice thought."}
+                )
                 self._chains.append(
                     {"action_name": "<think>", "action_result": f"[Think #{self.steps}] {content}" + "\n"}
                 )
-                return self.obs, reward, terminate, self._get_info()
+                return self.obs, reward, terminate, self._get_info(step_finish_reason="think")
 
         if tool_calls is not None:
             for tool_call in tool_calls:
                 tool_name = tool_call.function.name
+                tool_call_id = tool_call.id
                 act:Action = self.action_spaces.get(tool_name, None)
                 if act is not None:
                     func = act.func
                     arguments = tool_call.function.arguments
-                    self.obs += f"[Action #{self.num_tool_callings}] Execute tool \"{tool_name}\" with arguments {arguments}" + "\n"
+                    self.obs.append(
+                        {"role": "assistant", "content": f"[Action #{self.num_tool_callings}] Execute tool \"{tool_name}\" with arguments {arguments}"}
+                    )
                     result = "None"
                     try:
                         arguments_json: Dict = json.loads(arguments)
                         result = func(**arguments_json)
                         result_str = str(result)
-                        self.obs += f"[Observation #{self.num_tool_callings}] Execute tool {tool_name}. Result: {result_str}" + "\n"
+                        self.obs.append(
+                            {
+                                "role": "tool", 
+                                "content": f"[Observation #{self.num_tool_callings}] {result_str}", 
+                                "tool_call_id": tool_call_id
+                            }
+                        )
                     except json.JSONDecodeError as jde:
-                        self.obs += f"[Observation #{self.num_tool_callings}] Failed to execute tool {self.num_tool_callings} in step {self.steps}, which tool name is {tool_name}, because argument is not a valid json. Invalid arguments: {arguments}" + "\n"
+                        self.obs.append(
+                            {
+                                "role": "tool", 
+                                "content": f"[Observation #{self.num_tool_callings}] Failed to execute tool {self.num_tool_callings} in step {self.steps}, which tool name is {tool_name}, because argument is not a valid json. Invalid arguments: {arguments}",
+                                "tool_call_id": tool_call_id
+                            }
+                        )
                         result = "Invalid arguments."
                     finally:
                         self.num_tool_callings += 1
@@ -83,13 +104,24 @@ class Env(BaseModel):
                             {"action_name": tool_name, "action_result": result}
                         )
                 else:
-                    self.obs += f"[Observation #{self.num_tool_callings}] Call invaild tool: {tool_name} which can not found in agent action space." + "\n"
+                    self.obs.append(
+                        {
+                            "role": "tool",
+                            "content": f"[Observation #{self.num_tool_callings}] Call invaild tool: {tool_name} which can not found in agent action space.",
+                            "tool_call_id": tool_call_id
+                        }
+                    )
                     self.num_tool_callings += 1
                     self._chains.append(
                         {"action_name": tool_name, "action_result": f"[Observation #{self.num_tool_callings}] Call invaild tool: {tool_name} which can not found in agent action space." + "\n"}
                     )
 
-        return self.obs, reward, terminate, self._get_info()
+        return self.obs, reward, terminate, self._get_info(step_finish_reason="action")
 
-    def _get_info(self):
-        return {"steps": self.steps, "num_tool_callings": self.num_tool_callings, "answer": self.answer}
+    def _get_info(self, step_finish_reason:Literal["solved", "think", "action"]):
+        return {
+            "step_finish_reason": step_finish_reason,
+            "steps": self.steps,
+            "num_tool_callings": self.num_tool_callings, 
+            "answer": self.answer
+        }
