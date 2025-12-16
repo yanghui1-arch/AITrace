@@ -1,7 +1,8 @@
 import json
 from typing import Literal, List, Dict, Callable
 from pydantic import BaseModel, Field
-from openai.types.chat import ChatCompletionMessage, ChatCompletionMessageToolCallUnion, ChatCompletionMessageParam
+from openai.types.chat import ChatCompletionFunctionToolParam, ChatCompletionMessage, ChatCompletionMessageToolCallUnion, ChatCompletionMessageParam
+from .agent.tools import TOOL_KITS, Tool
 
 class Action(BaseModel):
     func: Callable
@@ -21,8 +22,8 @@ class Action(BaseModel):
 
 class Env(BaseModel):
     env_name: str
-    action_spaces: Dict[str, Action]
-    _chains: List[Dict[str, str]] = Field(..., default_factory=list)
+    action_spaces: Dict[str, Action] = {}
+    chains: List[Dict[str, str]] = Field(..., default_factory=list)
     steps: int = 0
     num_tool_callings: int = 0
     num_search: int = 0
@@ -52,16 +53,18 @@ class Env(BaseModel):
                 self.obs.append(
                     {"role": "assistant", "content": f"[Finish] {self.answer}"}
                 )
-                self._chains.append(
+                self.chains.append(
                     {"action_name": "<finish>", "action_result": f"[Finish] {self.answer}"}
                 )
                 return self.obs, reward, terminate, self._get_info(step_finish_reason="solved")
             else:
-                self.obs.append(
-                    {"role": "assistant", "content": f"[Think #{self.steps}] {content}" + "\n"},
-                    {"role": "user", "content": "Nice thought."}
+                self.obs.extend(
+                    [
+                        {"role": "assistant", "content": f"[Think #{self.steps}] {content}" + "\n"},
+                        {"role": "user", "content": "Nice thought."}
+                    ]
                 )
-                self._chains.append(
+                self.chains.append(
                     {"action_name": "<think>", "action_result": f"[Think #{self.steps}] {content}" + "\n"}
                 )
                 return self.obs, reward, terminate, self._get_info(step_finish_reason="think")
@@ -100,7 +103,7 @@ class Env(BaseModel):
                         result = "Invalid arguments."
                     finally:
                         self.num_tool_callings += 1
-                        self._chains.append(
+                        self.chains.append(
                             {"action_name": tool_name, "action_result": result}
                         )
                 else:
@@ -112,11 +115,20 @@ class Env(BaseModel):
                         }
                     )
                     self.num_tool_callings += 1
-                    self._chains.append(
+                    self.chains.append(
                         {"action_name": tool_name, "action_result": f"[Observation #{self.num_tool_callings}] Call invaild tool: {tool_name} which can not found in agent action space." + "\n"}
                     )
 
         return self.obs, reward, terminate, self._get_info(step_finish_reason="action")
+
+    def update_space_action(self, tool: ChatCompletionFunctionToolParam):
+        tool_name = tool['function']['name']
+        if tool_name in TOOL_KITS.keys():
+            toolkit:Tool = TOOL_KITS.get(tool_name)
+            action = Action(func=toolkit.func, type=toolkit.type)
+            self.action_spaces[tool_name] = action
+        else:
+            print(f"[Error] Failed to update space action: Can't find {tool_name} in tool kits.")
 
     def _get_info(self, step_finish_reason:Literal["solved", "think", "action"]):
         return {
