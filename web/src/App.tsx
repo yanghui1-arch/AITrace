@@ -10,6 +10,7 @@ import LoginPage from "./pages/login";
 import GitHubAuthPage from "./pages/auth/github";
 import { APIKeyPage } from "./pages/apikey";
 import { UserProvider } from "./components/user-provider";
+import KubentPage from "./pages/kubent";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
               <Route path="/projects" element={<ProjectsPage />} />
               <Route path="/projects/:name" element={<ProjectDetailPage />} />
               <Route path="/apikey" element={<APIKeyPage />} />
+              <Route path="/kubent" element={<KubentPage />} />
             </Route>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/auth/github/callback" element={<GitHubAuthPage />} />
