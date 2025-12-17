@@ -119,6 +119,7 @@ class Env(BaseModel):
                         {"action_name": tool_name, "action_result": f"[Observation #{self.num_tool_callings}] Call invaild tool: {tool_name} which can not found in agent action space." + "\n"}
                     )
 
+        self.steps += 1
         return self.obs, reward, terminate, self._get_info(step_finish_reason="action")
 
     def update_space_action(self, tool: ChatCompletionFunctionToolParam):
