@@ -14,7 +14,7 @@ type ChatInputProps = {
 type ChatInputToolBarProps = {
   onSend: () => void;
   disabled?: boolean;
-}
+};
 
 export function ChatInputToolBar({ onSend, disabled }: ChatInputToolBarProps) {
   return (
@@ -69,7 +69,7 @@ export function ChatInput({
         rows={rows}
         className="border-0 bg-transparent pt-3 pb-2 shadow-none focus-visible:ring-0 resize-none max-h-[20vh] min-h-[2.75rem] overflow-y-auto"
       />
-      <ChatInputToolBar onSend={onSend} disabled={disabled}/>
+      <ChatInputToolBar onSend={onSend} disabled={disabled} />
     </div>
   );
 }
