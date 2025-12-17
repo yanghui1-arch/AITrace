@@ -1,5 +1,4 @@
 "use client";
-
 import { type Icon } from "@tabler/icons-react";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -11,6 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import type { LucideIcon } from 'lucide-react';
 
 export function NavMain({
   items,
@@ -18,7 +18,7 @@ export function NavMain({
   items: {
     title: string;
     url: string;
-    icon?: Icon;
+    icon?: Icon | LucideIcon;
     label: string;
   }[];
 }) {

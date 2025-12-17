@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/sidebar"
 import { NavMain } from "./nav/nav-main"
 import { useUser } from "./user-provider/use-user"
+import { BotIcon } from "lucide-react"
 
 const data = {
   user: {
@@ -50,6 +51,12 @@ const data = {
       url: "/projects",
       icon: IconFolder,
       label: "Observability"
+    },
+    {
+      title: "Kubent",
+      url: "/kubent",
+      icon: BotIcon,
+      label: "Optimizer"
     },
     {
       title: "API key",
