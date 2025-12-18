@@ -20,6 +20,11 @@ export default defineConfig({
         target: "http://localhost:8080",
         changeOrigin: true,
         rewrite: (path) => path,
+      },
+      "/kubent/api": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+        rewrite: (path) => path,
       }
     }
   }
