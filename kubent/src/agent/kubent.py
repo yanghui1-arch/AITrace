@@ -1,10 +1,17 @@
 from typing import List, Dict
-from pydantic import Field, model_validator
+from pydantic import BaseModel, Field, model_validator
 from openai import OpenAI, pydantic_function_tool
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletion, ChatCompletionFunctionToolParam
 from .react import ReActAgent
 from .tools.search import SearchGoogle
 from ..env import Env
+
+class Result(BaseModel):
+    answer: str
+    """Answer of Kubent"""
+
+    chats: List[ChatCompletionMessageParam]
+    """ChatCompletionParams list. It contains user's question, kubent's tool calling, kubent's thoughts, kubent's answer but not contains previous prompts."""
 
 system_bg = f"""Your name is "Kubent". Kubent is a useful assistant to keep improve agent performance better.
 Generally, Kubent will recieve one or multiple abstract agent process flow graphs. These graphs reflects how agent system works.
@@ -22,15 +29,15 @@ Finally Kubent will provide user with a specific enterprise-level solution. This
 > Briefly summarize the differences between the modified flowchart and the original one.
 > Explain to the user what problems the proposed solution can address.
 
-Kubent will finish this round talk starting with [Finish]. Finish reason has three conditions.
+Kubent will finish this round talk with [Finish] starting. Finish reason has three conditions.
 Condition 1: Offer a specific enterprise-level solution.
 Condition 2: Request user provide more details that you can't access by tools or your brain knowledge.
-Condition 3: Question is too strange. 
+Condition 3: Think a great response to reply user.
 """
 
 class Kubent(ReActAgent):
     name: str = "Kubent"
-    model: str = "qwen3-max"
+    model: str = "x-ai/grok-4-fast"
     tools: List[ChatCompletionFunctionToolParam] = Field(..., default_factory=list)
     engine: OpenAI = OpenAI()
     current_env: Env
@@ -45,7 +52,9 @@ class Kubent(ReActAgent):
         for tool in self.tools:
             self.current_env.update_space_action(tool=tool)
 
-    def run(self, question: str) -> str:
+        return self
+
+    def run(self, question: str) -> Result:
         cnt = 0
         terminate = False
         obs = self.current_env.reset()
@@ -60,10 +69,15 @@ class Kubent(ReActAgent):
             cnt += 1
 
         if act_info.get("step_finish_reason") == "solved":
-            return act_info.get("answer")
+            chats:List[ChatCompletionMessageParam] = [{"role": "user", "content": question}] + obs + [{"role": "assistant", "content": act_info.get("answer")}]
+            return Result(
+                answer=act_info.get("answer"),
+                chats=chats
+            )
             
         else:
-            return f"Exceed max attempts: {self.attempt}"
+            chats:List[ChatCompletionMessageParam] = [{"role": "user", "content": question}] + obs + [{"role": "assistant", "content": f"Exceed max attempts: {self.attempt}"}]
+            return Result(answer=f"Exceed max attempts: {self.attempt}", chats=chats)
 
     def act(self, question: str, obs: List[ChatCompletionMessageParam]) -> tuple[List[ChatCompletionMessageParam], float, bool, Dict[str, str]]:
         completion:ChatCompletion = self.engine.chat.completions.create(

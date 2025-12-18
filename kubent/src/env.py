@@ -22,13 +22,34 @@ class Action(BaseModel):
 
 class Env(BaseModel):
     env_name: str
+    """Enviroment name"""
+
     action_spaces: Dict[str, Action] = {}
+    """Avaliable actions in the env. Generally it's agent tools and think action"""
+
     chains: List[Dict[str, str]] = Field(..., default_factory=list)
+    """An executing chains for solving the question"""
+
     steps: int = 0
+    """Execute one question steps"""
+
     num_tool_callings: int = 0
+    """Calling tool function number"""
+
     num_search: int = 0
+    """Serach number"""
+
     obs: List[ChatCompletionMessageParam] = Field(..., default_factory=list)
+    """Obs is a list of chat completion message param.
+    
+    It contains all messages which is need for the next agent.run(question). However it doesn't contain three parts.
+    > user's question
+    > assistant's answer
+    > previous prompts
+    """
+
     answer: str | None = None
+    """Agent final answer"""
 
     def reset(self) -> str:
         self.steps = 0
@@ -38,7 +59,11 @@ class Env(BaseModel):
         self.answer =  None
         return self.obs
     
-    def step(self, llm_action: ChatCompletionMessage, terminate_signal: str | None = None) -> tuple[List[ChatCompletionMessageParam], float, bool, Dict[str, str]]:
+    def step(
+        self, 
+        llm_action: ChatCompletionMessage, 
+        terminate_signal: str | None = None
+    ) -> tuple[List[ChatCompletionMessageParam], float, bool, Dict[str, str]]:
         reward = 0
         terminate = False
         if terminate_signal is None:
@@ -50,12 +75,10 @@ class Env(BaseModel):
             if content.startswith(terminate_signal):
                 terminate = True
                 self.answer = content[len(terminate_signal): ]
-                self.obs.append(
-                    {"role": "assistant", "content": f"[Finish] {self.answer}"}
-                )
                 self.chains.append(
                     {"action_name": "<finish>", "action_result": f"[Finish] {self.answer}"}
                 )
+                self.steps += 1
                 return self.obs, reward, terminate, self._get_info(step_finish_reason="solved")
             else:
                 self.obs.extend(
@@ -67,6 +90,7 @@ class Env(BaseModel):
                 self.chains.append(
                     {"action_name": "<think>", "action_result": f"[Think #{self.steps}] {content}" + "\n"}
                 )
+                self.steps += 1
                 return self.obs, reward, terminate, self._get_info(step_finish_reason="think")
 
         if tool_calls is not None:
@@ -87,7 +111,7 @@ class Env(BaseModel):
                         result_str = str(result)
                         self.obs.append(
                             {
-                                "role": "tool", 
+                                "role": "tool",
                                 "content": f"[Observation #{self.num_tool_callings}] {result_str}", 
                                 "tool_call_id": tool_call_id
                             }

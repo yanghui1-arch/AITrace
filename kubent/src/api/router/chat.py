@@ -1,12 +1,13 @@
 from uuid import UUID
-from fastapi import APIRouter, Header, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends
 from src.env import Env
 from src.repository import kubent_chat_session
 from src.repository.models import KubentChatSession
 from src.repository.db.conn import get_db, AsyncSession
 from src.api.schemas import ChatRequest, ChatResponse, ResponseModel
 from src.api.jwt import verify_at_token
-from src.agent.kubent import Kubent
+from src.agent.kubent import Kubent, Result
+from src.api.background_task import add_chat
 
 chat_router = APIRouter(prefix="/chat", tags=["Chat"])
 
@@ -17,6 +18,7 @@ chat_router = APIRouter(prefix="/chat", tags=["Chat"])
 )
 async def optimize_agent_system(
     req:ChatRequest,
+    background_task:BackgroundTasks,
     user_id: UUID = Depends(verify_at_token),
     db:AsyncSession = Depends(get_db)
 ):
@@ -34,6 +36,8 @@ async def optimize_agent_system(
         session_id = UUID(req.session_id)
     env = Env(env_name=f"optimize_{user_id}")
     kubent = Kubent(current_env=env)
-    optimize_solution:str = kubent.run(question=message)
+    kubent_result:Result = kubent.run(question=message)
+    optimize_solution:str = kubent_result.answer
+    background_task.add_task(add_chat, session_id=session_id, user_id=user_id, messages=kubent_result.chats)
     return ResponseModel.success(data=ChatResponse(message=optimize_solution))
     
