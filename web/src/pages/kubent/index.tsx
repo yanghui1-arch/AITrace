@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { AssistantChatBubble, UserChatBubble } from "@/components/chat/bubble";
 import { ChatInput } from "@/components/chat/input";
 import { Label } from "@/components/ui/label";
+import { kubentChatApi } from "@/api/kubent/kubent-chat";
 
 type ChatMessage = {
   role: "assistant" | "user";
@@ -38,7 +39,7 @@ export default function KubentPage() {
   const selectProject = (projectName: string) =>
     setSelectedProjectName(projectName);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!selectedProjectName) return;
     if (!inputValue.trim()) return;
 
@@ -46,9 +47,16 @@ export default function KubentPage() {
       role: "user",
       content: inputValue.trim(),
     };
-
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
+    const response = await kubentChatApi.chat(null, inputValue);
+    if(response.data.code === 200) {
+      const assistantMessage: ChatMessage = {
+        role: "assistant",
+        content: response.data.data.message,
+      }
+      setMessages((prev) => [...prev, assistantMessage])
+    }
   };
 
   useEffect(() => {

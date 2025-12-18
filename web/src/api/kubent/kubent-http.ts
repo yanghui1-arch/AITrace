@@ -3,7 +3,6 @@ import axios from "axios";
 
 const kubentApi = axios.create({
   baseURL: import.meta.env.VITE_KUBENT_API_BASE_URL,
-  timeout: 10000,
 });
 
 kubentApi.interceptors.request.use((config) => {

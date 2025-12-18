@@ -1,8 +1,7 @@
 import kubentApi from "./kubent-http";
 
 type ChatMessage = {
-  role: "assistant" | "user";
-  content: string;
+  message: string
 };
 
 type Response<T> = {
@@ -24,10 +23,10 @@ export const kubentChatApi = {
       session_id,
     );
   },
-  chat(history_chat_message: ChatMessage[]){
+  chat(session_id: string | null, message: string){
     return kubentApi.post<Response<ChatMessage>>(
-      "/chat",
-      history_chat_message,
+      "/chat/optimize",
+      { session_id, message }
     );
   }
 }
