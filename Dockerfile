@@ -49,5 +49,13 @@ COPY --from=web-builder /aitrace/web/dist /usr/share/nginx/html
 EXPOSE 80                                                                                                               
 CMD ["nginx","-g","daemon off;"]                                                                                         
                                                                                                                          
-# Default target is the backend image; build the web image with --target web-runtime                                     
-FROM backend-runtime      
+# Postgres stage for initializing the database (build with --target postgres)                                            
+FROM postgres:18-alpine AS postgres                                                                                      
+ENV POSTGRES_DB=aitrace POSTGRES_USER=postgres POSTGRES_PASSWORD=123456                                               
+COPY docker/init.sql /docker-entrypoint-initdb.d
+EXPOSE 5432
+
+# Default target is the backend image;
+# build the web image with --target web-runtime
+# build the pgsql image with --target postgres                            
+FROM backend-runtime
