@@ -14,7 +14,7 @@ except PackageNotFoundError:
 @click.group(invoke_without_command=True, context_settings=CONTEXT_SETTINGS)
 @click.version_option(pkg_version, *("--version", "-v"))
 def cli():
-    """at CLI"""
+    """minw CLI"""
     pass
 
 @cli.command()

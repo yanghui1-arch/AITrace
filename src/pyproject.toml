@@ -21,7 +21,7 @@ authors = [{name = "yanghui", email = "dasss90ovo@gmail.com"}]
 Homepage = "https://github.com/yanghui1-arch/mwin.git"
 
 [project.scripts]
-aitrace = "mwin.cli:cli"
+mwin = "mwin.cli:cli"
 
 [tool.setuptools.packages.find]
 where = ['.']
