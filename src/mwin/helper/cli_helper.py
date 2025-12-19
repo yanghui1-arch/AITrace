@@ -43,8 +43,8 @@ def ask_for_deployment_type() -> PlatformType:
 
     while True:
         choice_str = input(query).strip()
-        if choice_str not in ("1", ""):
-            print(f"Wrong choice. Valid choice is 1 and ''. User input: {choice_str}")
+        if choice_str not in ("", "1", "2"):
+            print(f"Wrong choice. Valid choice is 1, 2 and ''. User input: {choice_str}")
             continue
         if choice_str == '':
             choice = 1
