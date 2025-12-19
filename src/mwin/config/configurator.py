@@ -66,11 +66,8 @@ class ATConfigurator:
 
     def _configure_local(self):
         """configure AT local"""
-        # configure local doesn't need an apikey
-        # maybe someone want need so placeholder
-        # sometimes localhost url is different with default url
-        self._apikey = None
-        
+        if not self._apikey:
+            self._ask_for_apikey()
 
     def _ask_for_apikey(self):
         """ask user to input apikey and store it in OS."""

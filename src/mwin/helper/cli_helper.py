@@ -1,7 +1,8 @@
 from enum import Enum
 
 class PlatformType(Enum):
-    CLOUD = (1, "AT Cloud Platform (default)")
+    CLOUD = (1, "mwin Cloud Platform (default)")
+    LOCAL = (2, "mwin Local Platform")
 
     @classmethod
     def find_platform(cls, value: int) -> "PlatformType":

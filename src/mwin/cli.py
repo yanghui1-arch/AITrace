@@ -33,6 +33,10 @@ def configure(
         platform_type: cli_helper.PlatformType = cli_helper.ask_for_deployment_type()
         if platform_type == cli_helper.PlatformType.CLOUD:
             mwin_config.configure()
+        elif platform_type == cli_helper.PlatformType.LOCAL:
+            mwin_config.configure(
+                use_local=True
+            )
 
         else:
             print("Invalid platform type is selected.")
