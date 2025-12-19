@@ -1,11 +1,11 @@
-<p align="center"><img src='./images/logo.webp'/></p>
+<!-- <p align="center"><img src='./images/logo.webp'/></p> -->
 
-# AI Trace
-AI Trace: Track, log, and evaluate AI models. Supports OpenAI, Claude, Google API and custom PyTorch models.<br/>
+# mwin
+mwin: Track OpenAI, Claude, Gemini and OpenAI-compatible models then give solutions to improve your agent system.<br/>
 Our goal is to make llm application more valuable and effortlessly improve llm capabilities.
 
 # Quickstart
-AItrace is very easy to start. You need to install docker before deployment. After installing it you build docker images and then run containers, you can see track contents on web `http://localhost:5173/`.
+Mwin is very easy to start. You need to install docker before deployment. After installing it you build docker images and then run containers, you can see track contents on web `http://localhost:5173/`.
 ## Deployment
 First build docker image.
 ```docker
@@ -20,8 +20,8 @@ docker run -d --name aitrace-web -p 5173:80 -e BACKEND_HOST=host.docker.internal
 docker run -d --name aitrace-backend -e DB_URL=jdbc:postgresql://host.docker.internal:16432/aitrace -p 8080:8080 aitrace-backend
 ```
 ## Python-sdk
-AITrace python sdk need an api key. So you have to be sure that you deploys successfully. Then enter `http://localhost:5173/` to get your api key. <br/>
-[Click here to know how to use AITrace python-sdk.](src/README.md)
+Mwin python sdk need an api key. So you have to be sure that you deploys successfully. Then enter `http://localhost:5173/` to get your api key. <br/>
+[Click here to know how to use mwin python-sdk.](src/README.md)
 
 # Development
 AT project package manager is uv. If you are a beginner uver, please click uv link: [uv official link](https://docs.astral.sh/uv/guides/projects/#creating-a-new-project)
