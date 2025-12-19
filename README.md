@@ -5,61 +5,22 @@ AI Trace: Track, log, and evaluate AI models. Supports OpenAI, Claude, Google AP
 Our goal is to make llm application more valuable and effortlessly improve llm capabilities.
 
 # Quickstart
-You can use pip install AT. (It's not implemented now.)
-```bash
-pip install aitrace
+AITrace is composed by three parts - web, backend crud python-sdk and kubent.
+## Deployment
+First build docker image.
+```docker
+docker build -t aitrace-backend .
+docker build --target web-runtime -t aitrace-web .
+docker build --target postgres -t aitrace-postgres .
 ```
-OR pip install from source.
-```bash
-git clone https://github.com/yanghui1-arch/AITrace.git
-cd src
-pip install -e .
+Then run docker container
+```docker
+docker run -d --name aitrace-postgres -p 16432:5432 -v aitrace_pgdata:/var/lib/postgresql/data aitrace-postgres
+docker run -d --name aitrace-web -p 5173:80 -e BACKEND_HOST=host.docker.internal aitrace-web
+docker run -d --name aitrace-backend -e DB_URL=jdbc:postgresql://host.docker.internal:16432/aitrace -p 8080:8080 aitrace-backend
 ```
-Then you need to configure AT through CLI.
-```bash
-aitrace configure
-```
-It needs an AITrace API key. You can get the apikey after logging `http://localhost:5173`.
-Finally use `@track` to track your llm input and output
-```python
-from aitrace import track
-from openai import OpenAI
-
-openai_apikey = 'YOUR API KEY'
-
-
-@track(
-    project_name="aitrace_demo",
-    tags=['test', 'demo'],
-    track_llm=LLMProvider.OPENAI,    
-)
-def llm_classification(film_comment: str):
-    prompt = "Please classify the film comment into happy, sad or others. Just tell me result. Don't output anything."
-    cli = OpenAI(base_url='https://api.deepseek.com', api_key=openai_apikey)
-    cli.chat.completions.create(
-        messages=[{"role": "user", "content": f"{prompt}\nfilm_comment: {film_comment}"}],
-        model="deepseek-chat"
-    ).choices[0].message.content
-    llm_counts(film_comment=film_comment)
-    return "return value"
-
-@track(
-    project_name="aitrace_demo",
-    tags=['test', 'demo', 'second_demo'],
-    track_llm=LLMProvider.OPENAI,
-)
-def llm_counts(film_comment: str):
-    prompt = "Count the film comment words. just output word number. Don't output anything others."
-    cli = OpenAI(base_url='https://api.deepseek.com', api_key=openai_apikey)
-    return cli.chat.completions.create(
-        messages=[{"role": "user", "content": f"{prompt}\nfilm_comment: {film_comment}"}],
-        model="deepseek-chat"
-    ).choices[0].message.content
-
-llm_classification("Wow! It sucks.")
-```
-
-Then it will output your llm trace. It is not supported to visualize now. I am developing it more and more quickly. Welcome to all contributions.
+## Python-sdk
+[Click here](src/README.md)
 
 # Development
 AT project package manager is uv. If you are a beginner uver, please click uv link: [uv official link](https://docs.astral.sh/uv/guides/projects/#creating-a-new-project)
