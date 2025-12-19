@@ -5,7 +5,7 @@ AI Trace: Track, log, and evaluate AI models. Supports OpenAI, Claude, Google AP
 Our goal is to make llm application more valuable and effortlessly improve llm capabilities.
 
 # Quickstart
-AITrace is composed by three parts - web, backend crud python-sdk and kubent.
+AItrace is very easy to start. You need to install docker before deployment. After installing it you build docker images and then run containers, you can see track contents on web `http://localhost:5173/`.
 ## Deployment
 First build docker image.
 ```docker
@@ -20,7 +20,8 @@ docker run -d --name aitrace-web -p 5173:80 -e BACKEND_HOST=host.docker.internal
 docker run -d --name aitrace-backend -e DB_URL=jdbc:postgresql://host.docker.internal:16432/aitrace -p 8080:8080 aitrace-backend
 ```
 ## Python-sdk
-[Click here](src/README.md)
+AITrace python sdk need an api key. So you have to be sure that you deploys successfully. Then enter `http://localhost:5173/` to get your api key. <br/>
+[Click here to know how to use AITrace python-sdk.](src/README.md)
 
 # Development
 AT project package manager is uv. If you are a beginner uver, please click uv link: [uv official link](https://docs.astral.sh/uv/guides/projects/#creating-a-new-project)
