@@ -112,7 +112,7 @@ export function TraceTable({ table }: TraceTableProps) {
                     cost={1}
                   />
                 ))}
-                <TraceDialogMain data={rowData}/>
+                <TraceDialogMain data={rowData} tracks={tracks}/>
               </div>
             );
           }}

@@ -1,29 +1,18 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import type { Trace } from "@/pages/projects/track/trace-columns";
 import { TraceDialogIOPanel } from "./trace-dialog-io";
 import { TraceDialogProcessPanel } from "./trace-dailog-process-flow";
-import { traceApi, type Track } from "@/api/trace";
+import { type Track } from "@/api/trace";
 
 interface TraceDialogMainProps {
   data: Trace;
+  tracks: Track[];
 }
 
-export function TraceDialogMain({ data }: TraceDialogMainProps) {
+export function TraceDialogMain({ data, tracks }: TraceDialogMainProps) {
   const [displayType, setDisplayType] = useState<"io" | "process">("io");
-  const [tracks, setTracks] = useState<Track[]>([]);
-
-  useEffect(() => {
-    const getTracks = async () => {
-      const response = await traceApi.getTracks(data.id);
-      if (response.data.code === 200) {
-        setTracks(response.data.data);
-      }
-      else setTracks([]);
-    }
-    getTracks();
-  }, [setTracks, data])
 
   return (
     <div className="flex gap-4 flex-col">
