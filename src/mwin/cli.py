@@ -1,13 +1,13 @@
 import click
 from importlib.metadata import version, PackageNotFoundError
 
-from . import config as at_config
+from . import config as mwin_config
 from .helper import cli_helper
 
 CONTEXT_SETTINGS = {'help_option_names': ['--help', '-h']}
 
 try:
-    pkg_version = version('aitrace')
+    pkg_version = version('mwin')
 except PackageNotFoundError:
     pkg_version = 'unknown'
 
@@ -25,14 +25,14 @@ def configure(
     use_local: bool
 ):
     if use_local:
-        at_config.configure(
+        mwin_config.configure(
             use_local=True
         )
 
     else:
         platform_type: cli_helper.PlatformType = cli_helper.ask_for_deployment_type()
         if platform_type == cli_helper.PlatformType.CLOUD:
-            at_config.configure()
+            mwin_config.configure()
 
         else:
             print("Invalid platform type is selected.")

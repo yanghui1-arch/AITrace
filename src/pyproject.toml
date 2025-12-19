@@ -3,9 +3,9 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "aitrace"
+name = "mwin"
 version = "0.1.1"
-description = "Track, log, and evaluate AI models. Supports OpenAI, Claude, Google API and custom Pytorch models."
+description = "Track OpenAI, Claude, Gemini and OpenAI-compatible models then give solutions to improve your agent system."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -15,14 +15,14 @@ dependencies = [
     "requests>=2.32.5",
     "uuid6>=2025.0.1",
 ]
-authors = [{name = "yanghui"}]
+authors = [{name = "yanghui", email = "dasss90ovo@gmail.com"}]
 
 [project.urls]
-Homepage = "https://github.com/yanghui1-arch/AITrace.git"
+Homepage = "https://github.com/yanghui1-arch/mwin.git"
 
 [project.scripts]
-aitrace = "aitrace.cli:cli"
+aitrace = "mwin.cli:cli"
 
 [tool.setuptools.packages.find]
 where = ['.']
-include = ['aitrace*']
+include = ['mwin*']

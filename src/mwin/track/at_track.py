@@ -1,11 +1,6 @@
 from typing import override, Callable, Tuple, Dict, Any
-from more_itertools import peekable
-from openai import Stream
-from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from .base import BaseTracker, TrackerOptions
-from ._types import STREAM_CONSUMED
 from ..helper import args_helper, inspect_helper
-from ..helper.llm import openai_helper
 
 class AITraceTracker(BaseTracker):
     """AITraceTracker is to track the agent inputs and outputs"""
