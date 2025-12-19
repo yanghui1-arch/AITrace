@@ -3,7 +3,7 @@ spring:
     name: springboot
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/aitrace
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/aitrace}
     username: postgres
     password: 123456
     driver-class-name: org.postgresql.Driver
