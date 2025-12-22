@@ -1,8 +1,10 @@
 from uuid import UUID
+from typing import List
 from fastapi import APIRouter, BackgroundTasks, Depends
+from openai.types.chat import ChatCompletionMessageParam
 from src.env import Env
-from src.repository import kubent_chat_session
-from src.repository.models import KubentChatSession
+from src.repository import kubent_chat_session, kubent_chat
+from src.repository.models import KubentChatSession, KubentChat
 from src.repository.db.conn import get_db, AsyncSession
 from src.api.schemas import ChatRequest, ChatResponse, ResponseModel
 from src.api.jwt import verify_at_token
@@ -23,6 +25,7 @@ async def optimize_agent_system(
     db:AsyncSession = Depends(get_db)
 ):
     message:str = req.message
+    chat_hist:List[ChatCompletionMessageParam]|None = None
     if not req.session_id:
         chat_session:KubentChatSession = await kubent_chat_session.create_new_chat_session(
             db=db, 
@@ -34,9 +37,12 @@ async def optimize_agent_system(
         session_id = chat_session.id
     else:
         session_id = UUID(req.session_id)
+        chats:List[KubentChat] = await kubent_chat.select_chat(db=db, session_id=session_id)
+        chat_hist = [chat.payload for chat in chats if chat.role != "system" and chat.role != "developer"]
+
     env = Env(env_name=f"optimize_{user_id}")
     kubent = Kubent(current_env=env)
-    kubent_result:Result = kubent.run(question=message)
+    kubent_result:Result = kubent.run(question=message, chat_hist=chat_hist)
     optimize_solution:str = kubent_result.answer
     background_task.add_task(add_chat, session_id=session_id, user_id=user_id, messages=kubent_result.chats)
     return ResponseModel.success(data=ChatResponse(message=optimize_solution))
