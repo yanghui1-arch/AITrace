@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 type ChatMessage = {
   role: "assistant" | "user";
   content: string;
+  startTimestamp: string;
 };
 
 type Session = {
@@ -26,31 +27,43 @@ type Session = {
   userId: string;
   topic: string | undefined;
   lastUpdateTimestamp: string;
-}
+};
 
 export default function KubentPage() {
   const [projectNames, setProjectNames] = useState<string[]>([]);
   const [selectedProjectName, setSelectedProjectName] = useState<string>();
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [selectedSession, setSelectedSession] = useState<string | undefined>(undefined);
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: "user",
-      content: "Great. I want to reduce latency for my order-processing agent.",
-    },
-    {
-      role: "assistant",
-      content:
-        "Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.Hi! Select a project and tell me what you need optimized. I will review your agent setup and suggest changes.",
-    },
-  ]);
+  const [selectedSession, setSelectedSession] = useState<string | undefined>(
+    undefined
+  );
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
 
   const selectProject = (projectName: string) =>
     setSelectedProjectName(projectName);
 
-  const selectSession = (sessionId: string) =>
-    setSelectedSession(sessionId)
+  const selectSession = async (sessionId: string) => {
+    setSelectedSession(sessionId);
+    try {
+      const response = await kubentChatApi.queryChats(sessionId);
+      if (response.data.code === 200) {
+        const data = response.data.data;
+        setMessages(data
+          .sort((a, b) => new Date(a.start_timestamp).getTime() - new Date(b.start_timestamp).getTime())
+          .map(chat => {
+          return {
+            role: chat.role,
+            content: chat.content,
+            startTimestamp: chat.start_timestamp,
+          }
+        }));
+      } else {
+        console.error(response.data.message)
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleSend = async () => {
     if (!selectedProjectName) return;
@@ -59,16 +72,18 @@ export default function KubentPage() {
     const userMessage: ChatMessage = {
       role: "user",
       content: inputValue.trim(),
+      startTimestamp: new Date().toLocaleString("sv-SE"),
     };
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
     const response = await kubentChatApi.chat(null, inputValue);
-    if(response.data.code === 200) {
+    if (response.data.code === 200) {
       const assistantMessage: ChatMessage = {
         role: "assistant",
         content: response.data.data.message,
-      }
-      setMessages((prev) => [...prev, assistantMessage])
+        startTimestamp: new Date().toLocaleString("sv-SE"),
+      };
+      setMessages((prev) => [...prev, assistantMessage]);
     }
   };
 
@@ -93,19 +108,23 @@ export default function KubentPage() {
         const response = await kubentChatApi.session();
         if (response.data.code === 200) {
           const sessions = response.data.data;
-          setSessions(sessions.map(session => { 
-            return {id: session.id,
-            userId: session.user_id,
-            topic: session.topic,
-            lastUpdateTimestamp: session.last_update_timestamp,}
-          }))
+          setSessions(
+            sessions.map((session) => {
+              return {
+                id: session.id,
+                userId: session.user_id,
+                topic: session.topic,
+                lastUpdateTimestamp: session.last_update_timestamp,
+              };
+            })
+          );
         } else {
-          console.error(response.data.message)
+          console.error(response.data.message);
         }
       } catch (error) {
-        console.error(error)
+        console.error(error);
       }
-    }
+    };
     fetchProjects();
     fetchSessions();
   }, []);
@@ -141,7 +160,9 @@ export default function KubentPage() {
       </div>
       <div className="flex gap-2 w-full">
         <div className="flex h-[69vh] w-[20%] flex-col min-w-0 gap-1 p-2">
-          <Label className="text-muted-foreground text-xs font-bold px-1">Recent</Label>
+          <Label className="text-muted-foreground text-xs font-bold px-1">
+            Recent
+          </Label>
           <ScrollArea className="flex-1 min-h-0">
             <div className="flex w-full flex-col gap-1 pr-4">
               {sessions.map((session, i) => (
@@ -157,7 +178,8 @@ export default function KubentPage() {
                       active:bg-accent/80
                       truncate
                     `,
-                    selectedSession === session.id && "bg-accent text-accent-foreground"
+                    selectedSession === session.id &&
+                      "bg-accent text-accent-foreground"
                   )}
                   onClick={() => selectSession(session.id)}
                 >

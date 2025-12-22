@@ -1,6 +1,7 @@
-from typing import Dict, Any
+from typing import Dict, List, Any
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from .models import KubentChat
 
 async def create_new_chat(
@@ -15,5 +16,9 @@ async def create_new_chat(
     await db.flush()
     return chat
 
-async def select_chat(db: AsyncSession):
-    ...
+async def select_chat(db: AsyncSession, session_id: UUID) -> List[KubentChat]:
+    stmt = select(KubentChat).where(
+        KubentChat.session_uuid == session_id
+    )
+    result = await db.execute(stmt)
+    return result.scalars().all()
