@@ -31,6 +31,8 @@ def parse_to_dict_input(
     # Create binding of arguments to parameters
     bound_args = sig.bind(*args, **kwargs)
     bound_args.apply_defaults()
+    if "self" in bound_args.arguments.keys():
+        del bound_args.arguments["self"]
     
     return dict(bound_args.arguments)
 
