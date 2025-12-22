@@ -10,17 +10,18 @@ type Response<T> = {
   data: T
 }
 
-type Session = {
+type KubentChatSession = {
   id: string;
-  chat_history: ChatMessage[];
+  user_id: string;
+  topic: string | undefined;
+  last_update_timestamp: string;
 }
 
 export const kubentChatApi = {
   /* Get chat session */
-  session(session_id: string){
-    return kubentApi.post<Response<Session>>(
-      "/session",
-      session_id,
+  session(){
+    return kubentApi.get<Response<KubentChatSession[]>>(
+      "/query/session",
     );
   },
   chat(session_id: string | null, message: string){

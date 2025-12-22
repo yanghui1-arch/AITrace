@@ -14,15 +14,25 @@ import { AssistantChatBubble, UserChatBubble } from "@/components/chat/bubble";
 import { ChatInput } from "@/components/chat/input";
 import { Label } from "@/components/ui/label";
 import { kubentChatApi } from "@/api/kubent/kubent-chat";
+import { cn } from "@/lib/utils";
 
 type ChatMessage = {
   role: "assistant" | "user";
   content: string;
 };
 
+type Session = {
+  id: string;
+  userId: string;
+  topic: string | undefined;
+  lastUpdateTimestamp: string;
+}
+
 export default function KubentPage() {
   const [projectNames, setProjectNames] = useState<string[]>([]);
   const [selectedProjectName, setSelectedProjectName] = useState<string>();
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [selectedSession, setSelectedSession] = useState<string | undefined>(undefined);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "user",
@@ -38,6 +48,9 @@ export default function KubentPage() {
 
   const selectProject = (projectName: string) =>
     setSelectedProjectName(projectName);
+
+  const selectSession = (sessionId: string) =>
+    setSelectedSession(sessionId)
 
   const handleSend = async () => {
     if (!selectedProjectName) return;
@@ -75,7 +88,26 @@ export default function KubentPage() {
         console.error(error);
       }
     };
+    const fetchSessions = async () => {
+      try {
+        const response = await kubentChatApi.session();
+        if (response.data.code === 200) {
+          const sessions = response.data.data;
+          setSessions(sessions.map(session => { 
+            return {id: session.id,
+            userId: session.user_id,
+            topic: session.topic,
+            lastUpdateTimestamp: session.last_update_timestamp,}
+          }))
+        } else {
+          console.error(response.data.message)
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
     fetchProjects();
+    fetchSessions();
   }, []);
 
   return (
@@ -112,23 +144,24 @@ export default function KubentPage() {
           <Label className="text-muted-foreground text-xs font-bold px-1">Recent</Label>
           <ScrollArea className="flex-1 min-h-0">
             <div className="flex w-full flex-col gap-1 pr-4">
-              {[
-                "Hello, it is the first project detail information. User want to know more.",
-                "Don't have enough information to offer an enterprise-level suggestion to improve agent system."
-              ].map((message, i) => (
+              {sessions.map((session, i) => (
                 <div
                   key={i}
-                  className="
-                    min-w-0
-                    w-[170px] px-1 py-2 rounded-md
-                    cursor-pointer select-none
-                    text-sm
-                    hover:bg-accent hover:text-accent-foreground
-                    active:bg-accent/80
-                    truncate
-                  "
+                  className={cn(
+                    `
+                      min-w-0
+                      w-[170px] px-1 py-2 rounded-md
+                      cursor-pointer select-none
+                      text-sm
+                      hover:bg-accent hover:text-accent-foreground
+                      active:bg-accent/80
+                      truncate
+                    `,
+                    selectedSession === session.id && "bg-accent text-accent-foreground"
+                  )}
+                  onClick={() => selectSession(session.id)}
                 >
-                  {message}
+                  {session.id}
                 </div>
               ))}
             </div>
