@@ -24,7 +24,7 @@ Mwin python sdk need an api key. So you have to be sure that you deploys success
 [Click here to know how to use mwin python-sdk.](src/README.md)
 
 # Development
-AT project package manager is uv. If you are a beginner uver, please click uv link: [uv official link](https://docs.astral.sh/uv/guides/projects/#creating-a-new-project)
+Mwin project package manager is uv. If you are a beginner uver, please click uv link: [uv official link](https://docs.astral.sh/uv/guides/projects/#creating-a-new-project)
 ```bash
 cd src
 uv install
