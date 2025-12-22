@@ -33,8 +33,8 @@ export default function KubentPage() {
   const [projectNames, setProjectNames] = useState<string[]>([]);
   const [selectedProjectName, setSelectedProjectName] = useState<string>("");
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [selectedSession, setSelectedSession] = useState<string | undefined>(
-    undefined
+  const [selectedSession, setSelectedSession] = useState<string | null>(
+    null
   );
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -76,7 +76,7 @@ export default function KubentPage() {
     };
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
-    const response = await kubentChatApi.chat(null, inputValue);
+    const response = await kubentChatApi.chat(selectedSession, inputValue);
     if (response.data.code === 200) {
       const assistantMessage: ChatMessage = {
         role: "assistant",
