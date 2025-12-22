@@ -21,5 +21,9 @@ public class GithubAuthResponse implements AuthResponse {
 
     private String avatarUrl;
 
+    // GitHub username
     private String name;
+
+    // GitHub login name
+    private String login;
 }

@@ -43,6 +43,8 @@ public class AuthController {
      * The process of AITrace authentication (using GitHub) is passing GitHub authentication first and then check whether existing GitHub account id.
      * It means a new user with GitHub sign in AITrace if GitHub account id is not existed.
      * Else it's a registered user of AITrace.
+     * It is worth noting that GitHub's username and login name are two different things. Here, the priority is to check if a username exists;
+     * if it does, it is used as the username. If username is null, then the login name is used as the username.
      *
      * @param code GitHub code
      * @param state GitHub state
@@ -62,8 +64,9 @@ public class AuthController {
                 user = this.userService.findUserByUserId(userId).orElseThrow(UserIdNotFoundException::new);
                 responseMessage = "GitHub authenticate successfully.";
             } else {
+                String userName = Optional.ofNullable(response.getName()).orElse(response.getLogin());
                 user = this.userService.createUser(
-                    response.getName(),
+                    userName,
                     response.getEmail(),
                     response.getAvatarUrl(),
                     AuthPlatform.GitHub,
