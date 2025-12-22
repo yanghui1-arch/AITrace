@@ -81,10 +81,9 @@ class Env(BaseModel):
                 self.steps += 1
                 return self.obs, reward, terminate, self._get_info(step_finish_reason="solved")
             else:
-                self.obs.extend(
+                self.obs.append(
                     [
-                        {"role": "assistant", "content": f"[Think #{self.steps}] {content}" + "\n"},
-                        {"role": "user", "content": "Nice thought."}
+                        {"role": "tool", "content": f"[Think #{self.steps}] {content}" + "\n"}
                     ]
                 )
                 self.chains.append(
