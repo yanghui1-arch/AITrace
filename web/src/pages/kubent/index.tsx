@@ -31,7 +31,7 @@ type Session = {
 
 export default function KubentPage() {
   const [projectNames, setProjectNames] = useState<string[]>([]);
-  const [selectedProjectName, setSelectedProjectName] = useState<string>();
+  const [selectedProjectName, setSelectedProjectName] = useState<string>("");
   const [sessions, setSessions] = useState<Session[]>([]);
   const [selectedSession, setSelectedSession] = useState<string | undefined>(
     undefined
@@ -107,9 +107,11 @@ export default function KubentPage() {
       try {
         const response = await kubentChatApi.session();
         if (response.data.code === 200) {
-          const sessions = response.data.data;
+          const sessionData = response.data.data;
           setSessions(
-            sessions.map((session) => {
+            sessionData
+            .sort((a, b) => new Date(b.last_update_timestamp).getTime() - new Date(a.last_update_timestamp).getTime())
+            .map((session) => {
               return {
                 id: session.id,
                 userId: session.user_id,
@@ -118,6 +120,9 @@ export default function KubentPage() {
               };
             })
           );
+          if (sessionData.length > 0) {
+            selectSession(sessionData[0].id);
+          }
         } else {
           console.error(response.data.message);
         }
