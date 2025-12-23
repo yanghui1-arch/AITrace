@@ -1,5 +1,6 @@
 package com.supertrace.aitrace.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -38,9 +39,11 @@ public class Project {
     private BigDecimal cost;
 
     @Column(name = "created_timestamp", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdTimestamp;
 
     @Column(name = "last_update_timestamp", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastUpdateTimestamp;
 
     @PrePersist
