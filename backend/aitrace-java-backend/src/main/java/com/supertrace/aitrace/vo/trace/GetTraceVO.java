@@ -1,5 +1,6 @@
 package com.supertrace.aitrace.vo.trace;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -26,8 +27,10 @@ public class GetTraceVO {
 
     private String errorInfo;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startTime;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastUpdateTimestamp;
 
 }

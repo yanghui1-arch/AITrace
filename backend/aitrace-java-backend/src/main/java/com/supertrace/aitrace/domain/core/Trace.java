@@ -1,5 +1,6 @@
 package com.supertrace.aitrace.domain.core;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -67,8 +68,10 @@ public class Trace {
     private String errorInfo;
 
     @Column(name = "start_time")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startTime;
 
     @Column(name = "last_update_timestamp")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastUpdateTimestamp;
 }
