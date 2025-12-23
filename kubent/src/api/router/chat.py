@@ -38,7 +38,7 @@ async def optimize_agent_system(
     else:
         session_id = UUID(req.session_id)
         chats:List[KubentChat] = await kubent_chat.select_chat(db=db, session_id=session_id)
-        chat_hist = [chat.payload for chat in chats if chat.role != "system" and chat.role != "developer"]
+        chat_hist = [chat.payload for chat in chats]
 
     env = Env(env_name=f"optimize_{user_id}")
     kubent = Kubent(current_env=env)
