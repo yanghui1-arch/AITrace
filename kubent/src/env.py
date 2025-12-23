@@ -33,6 +33,9 @@ class Env(BaseModel):
     steps: int = 0
     """Execute one question steps"""
 
+    num_think: int = 0
+    """Think counts"""
+
     num_tool_callings: int = 0
     """Calling tool function number"""
 
@@ -43,15 +46,15 @@ class Env(BaseModel):
     """Obs is a list of chat completion message param.
     
     It contains all messages which is need for the next agent.run(question). However it doesn't contain three parts.
-    > user's question
-    > assistant's answer
-    > previous prompts
+    > User's question
+    > Assistant's final answer
+    > Previous chat history
     """
 
     answer: str | None = None
     """Agent final answer"""
 
-    def reset(self) -> str:
+    def reset(self) -> List[ChatCompletionMessageParam]:
         self.steps = 0
         self.num_search = 0
         self.num_tool_callings = 0
@@ -60,8 +63,8 @@ class Env(BaseModel):
         return self.obs
     
     def step(
-        self, 
-        llm_action: ChatCompletionMessage, 
+        self,
+        llm_action: ChatCompletionMessage,
         terminate_signal: str | None = None
     ) -> tuple[List[ChatCompletionMessageParam], float, bool, Dict[str, str]]:
         reward = 0
@@ -80,17 +83,6 @@ class Env(BaseModel):
                 )
                 self.steps += 1
                 return self.obs, reward, terminate, self._get_info(step_finish_reason="solved")
-            else:
-                self.obs.append(
-                    [
-                        {"role": "tool", "content": f"[Think #{self.steps}] {content}" + "\n"}
-                    ]
-                )
-                self.chains.append(
-                    {"action_name": "<think>", "action_result": f"[Think #{self.steps}] {content}" + "\n"}
-                )
-                self.steps += 1
-                return self.obs, reward, terminate, self._get_info(step_finish_reason="think")
 
         if tool_calls is not None:
             for tool_call in tool_calls:
@@ -108,24 +100,43 @@ class Env(BaseModel):
                         arguments_json: Dict = json.loads(arguments)
                         result = func(**arguments_json)
                         result_str = str(result)
-                        self.obs.append(
-                            {
-                                "role": "tool",
-                                "content": f"[Observation #{self.num_tool_callings}] {result_str}", 
-                                "tool_call_id": tool_call_id
-                            }
-                        )
+                        if act.is_think():
+                            self.obs.append(
+                                {
+                                    "role": "tool",
+                                    "content": f"[Think #{self.num_think}] {result_str}",
+                                    "tool_call_id": tool_call_id
+                                }
+                            )
+                            self.num_think += 1
+                        else:
+                            self.obs.append(
+                                {
+                                    "role": "tool",
+                                    "content": f"[Observation #{self.num_tool_callings}] {result_str}", 
+                                    "tool_call_id": tool_call_id
+                                }
+                            )
+                            self.num_tool_callings += 1
                     except json.JSONDecodeError as jde:
-                        self.obs.append(
-                            {
-                                "role": "tool", 
-                                "content": f"[Observation #{self.num_tool_callings}] Failed to execute tool {self.num_tool_callings} in step {self.steps}, which tool name is {tool_name}, because argument is not a valid json. Invalid arguments: {arguments}",
-                                "tool_call_id": tool_call_id
-                            }
-                        )
-                        result = "Invalid arguments."
+                        if act.is_think():
+                            self.obs.append(
+                                {
+                                    "role": "tool",
+                                    "content": f"[Think #{self.num_think} Exception] Failed to think question because {arguments} is not string type.",
+                                    "tool_call_id": tool_call_id
+                                }
+                            )
+                        else:
+                            self.obs.append(
+                                {
+                                    "role": "tool", 
+                                    "content": f"[Observation #{self.num_tool_callings}] Failed to execute tool {self.num_tool_callings} in step {self.steps}, which tool name is {tool_name}, because argument is not a valid json. Invalid arguments: {arguments}",
+                                    "tool_call_id": tool_call_id
+                                }
+                            )
+                        result = f"Invalid arguments: {arguments}"
                     finally:
-                        self.num_tool_callings += 1
                         self.chains.append(
                             {"action_name": tool_name, "action_result": result}
                         )
