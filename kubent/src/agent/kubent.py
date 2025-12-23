@@ -2,8 +2,10 @@ from typing import List, Dict
 from pydantic import BaseModel, Field, model_validator
 from openai import OpenAI, pydantic_function_tool
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletion, ChatCompletionFunctionToolParam
+from mwin import track, LLMProvider
 from .react import ReActAgent
 from .tools.search import SearchGoogle
+from .tools.kubent_think import KubentThink
 from ..env import Env
 
 class Result(BaseModel):
@@ -11,7 +13,7 @@ class Result(BaseModel):
     """Answer of Kubent"""
 
     chats: List[ChatCompletionMessageParam]
-    """ChatCompletionParams list. It contains user's question, kubent's tool calling, kubent's thoughts, kubent's answer but not contains previous prompts."""
+    """ChatCompletionParams list. It contains user's question, kubent's tool calling & kubent's thoughts and kubent's answer but not contains previous chat history."""
 
 system_bg = f"""Your name is "Kubent". Kubent is a useful assistant to keep improve agent performance better.
 Generally, Kubent will recieve one or multiple abstract agent process flow graphs. These graphs reflects how agent system works.
@@ -29,15 +31,17 @@ Finally Kubent will provide user with a specific enterprise-level solution. This
 > Briefly summarize the differences between the modified flowchart and the original one.
 > Explain to the user what problems the proposed solution can address.
 
-Kubent will finish this round talk with [Finish] starting. Finish reason has three conditions.
+When Kubent believes this round of conversation has ended, he will start with [Finish], followed by the response content for the user.
+Finish reason has three conditions.
 Condition 1: Offer a specific enterprise-level solution.
 Condition 2: Request user provide more details that you can't access by tools or your brain knowledge.
 Condition 3: Think a great response to reply user.
+Condition 4: Daily chat.
 """
 
 class Kubent(ReActAgent):
     name: str = "Kubent"
-    model: str = "x-ai/grok-4-fast"
+    model: str = "x-ai/grok-4.1-fast"
     tools: List[ChatCompletionFunctionToolParam] = Field(..., default_factory=list)
     engine: OpenAI = OpenAI()
     current_env: Env
@@ -48,13 +52,23 @@ class Kubent(ReActAgent):
 
     @model_validator(mode="after")
     def load_tools_and_set_env_action_space(self):
-        self.tools = [SearchGoogle().json_schema]
+        self.tools = [SearchGoogle().json_schema, KubentThink().json_schema]
         for tool in self.tools:
             self.current_env.update_space_action(tool=tool)
 
         return self
 
-    def run(self, question: str) -> Result:
+    def run(self, question: str, chat_hist: List[ChatCompletionMessageParam] | None = None) -> Result:
+        """Kubent start to solve a question
+        
+        Args:
+            question(str): question
+            chat_hist(List[ChatCompletionMessageParam]|None): chat history with Kubent. Default to `None`.
+        
+        Returns:
+            Result that Kubent gives
+        """
+
         cnt = 0
         terminate = False
         obs = self.current_env.reset()
@@ -65,7 +79,7 @@ class Kubent(ReActAgent):
             "answer": ""
         }
         while terminate is False and cnt < self.attempt:
-            obs, reward, terminate, act_info = self.act(question=question, obs=obs)
+            obs, reward, terminate, act_info = self.act(question=question, obs=obs, chat_hist=chat_hist)
             cnt += 1
 
         if act_info.get("step_finish_reason") == "solved":
@@ -79,13 +93,18 @@ class Kubent(ReActAgent):
             chats:List[ChatCompletionMessageParam] = [{"role": "user", "content": question}] + obs + [{"role": "assistant", "content": f"Exceed max attempts: {self.attempt}"}]
             return Result(answer=f"Exceed max attempts: {self.attempt}", chats=chats)
 
-    def act(self, question: str, obs: List[ChatCompletionMessageParam]) -> tuple[List[ChatCompletionMessageParam], float, bool, Dict[str, str]]:
+    @track(project_name="Kubent", track_llm=LLMProvider.OPENAI)
+    def act(
+        self, 
+        question: str | None,
+        obs: List[ChatCompletionMessageParam],
+        chat_hist: List[ChatCompletionMessageParam] | None
+    ) -> tuple[List[ChatCompletionMessageParam], float, bool, Dict[str, str]]:
+        if chat_hist is None:
+            chat_hist = []
         completion:ChatCompletion = self.engine.chat.completions.create(
             model=self.model,
-            messages=[
-                {"role": "system", "content": system_bg},
-                {"role": "user", "content": question},
-            ] + obs,
+            messages=[{"role": "system", "content": system_bg}] + chat_hist + [{"role": "user", "content": question}] + obs,
             tools=self.tools,
             parallel_tool_calls=True,
         )
