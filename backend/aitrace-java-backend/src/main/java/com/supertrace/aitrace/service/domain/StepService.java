@@ -4,6 +4,7 @@ import com.supertrace.aitrace.domain.core.step.Step;
 import com.supertrace.aitrace.dto.step.LogStepRequest;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +35,18 @@ public interface StepService {
      * @return all pagination information about steps.
      */
     Page<Step> findStepsByProjectId(Long projectId, int page, int pageSize);
+
+    /**
+     * Pagination search steps by a project id
+     * Designed for sort search steps.
+     *
+     * @param projectId project id.
+     * @param page current page
+     * @param pageSize page size
+     * @param sort sort rule
+     * @return one pagination information about steps.
+     */
+    Page<Step> findStepsByProjectId(Long projectId, int page, int pageSize, Sort sort);
 
     /**
      * Find all related steps by trace id

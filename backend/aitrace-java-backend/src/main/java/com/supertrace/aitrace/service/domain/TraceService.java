@@ -3,6 +3,7 @@ package com.supertrace.aitrace.service.domain;
 import com.supertrace.aitrace.domain.core.Trace;
 import com.supertrace.aitrace.dto.trace.LogTraceRequest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.UUID;
@@ -33,6 +34,17 @@ public interface TraceService {
      * @return all traces
      */
     Page<Trace> getTracesByProjectId(Long projectId, int page, int pageSize);
+
+    /**
+     * Pagination search traces by a project id with given sort rule.
+     *
+     * @param projectId project id
+     * @param page current page
+     * @param pageSize page size
+     * @param sort sort rule
+     * @return all traces
+     */
+    Page<Trace> getTracesByProjectId(Long projectId, int page, int pageSize, Sort sort);
 
     /**
      * Delete trace by trace id

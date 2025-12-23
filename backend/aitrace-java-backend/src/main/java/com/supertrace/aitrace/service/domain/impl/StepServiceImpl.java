@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,8 +48,7 @@ public class StepServiceImpl implements StepService {
                 logStepRequest.getModel(),
                 logStepRequest.getUsage()
             );
-        }
-        else {
+        } else {
             // Create a new step belongs to project. Create a new project without project in database.
             newStep = stepFactory.createStep(logStepRequest, projectId);
         }
@@ -65,6 +65,12 @@ public class StepServiceImpl implements StepService {
     @Override
     public Page<Step> findStepsByProjectId(Long projectId, int page, int pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize);
+        return this.stepRepository.findStepsByProjectId(projectId, pageable);
+    }
+
+    @Override
+    public Page<Step> findStepsByProjectId(Long projectId, int page, int pageSize, Sort sort) {
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
         return this.stepRepository.findStepsByProjectId(projectId, pageable);
     }
 

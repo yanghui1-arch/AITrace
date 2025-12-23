@@ -10,6 +10,7 @@ import com.supertrace.aitrace.service.domain.TraceService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -22,7 +23,8 @@ public class QueryServiceImpl implements QueryService {
     private final ProjectService projectService;
 
     /**
-     * Get all steps of project which is owned by user uuid
+     * Get a page steps of project which is owned by user uuid.
+     * The search logic: start time later display higher priority.
      *
      * @param userId user uuid
      * @param projectName project name
@@ -35,7 +37,8 @@ public class QueryServiceImpl implements QueryService {
         Project project = this.projectService.getProjectByUserIdAndName(userId, projectName)
             .orElseThrow(() -> new RuntimeException("Project not found: " + projectName));
         Long projectId = project.getId();
-        return this.stepService.findStepsByProjectId(projectId, page, pageSize);
+        Sort sort = Sort.by(Sort.Direction.DESC, "startTime");
+        return this.stepService.findStepsByProjectId(projectId, page, pageSize, sort);
     }
 
     @Override
@@ -43,6 +46,7 @@ public class QueryServiceImpl implements QueryService {
         Project project = this.projectService.getProjectByUserIdAndName(userId, projectName)
             .orElseThrow(() -> new RuntimeException("Project not found: " + projectName));
         Long projectId = project.getId();
-        return this.traceService.getTracesByProjectId(projectId, page, pageSize);
+        Sort sort = Sort.by(Sort.Direction.DESC, "startTime");
+        return this.traceService.getTracesByProjectId(projectId, page, pageSize, sort);
     }
 }

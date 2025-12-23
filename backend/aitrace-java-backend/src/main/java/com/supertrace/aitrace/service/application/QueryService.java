@@ -20,7 +20,8 @@ public interface QueryService {
     Page<Step> getSteps(@NotNull UUID userId, @NotBlank String projectName, int page, int pageSize);
 
     /**
-     * Get all traces of project which is owned by user uuid
+     * Pagination search traces of project which is owned by user uuid.
+     * Search rule: start time later priority higher.
      * @param userId user uuid
      * @param projectName project name
      * @param page current page
