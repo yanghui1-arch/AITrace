@@ -94,7 +94,7 @@ export function TraceTable({ table }: TraceTableProps) {
             );
 
             return (
-              <div className="flex gap-4 flex-col">
+              <div className="flex gap-4 flex-col break-all">
                 <div className="ml-auto font-mono text-xs flex gap-1">
                   <Clock size={"16px"} />
                   {(() => {

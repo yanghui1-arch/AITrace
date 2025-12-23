@@ -30,7 +30,7 @@ export function StepTable({ table }: StepTableProps) {
           {(rowData) => {
             const tags = rowData.tags.map(tag => <Badge className="bg-sidebar-primary" variant="outline">{tag}</Badge>)
             return (
-              <div className="flex gap-4 flex-col">
+              <div className="flex gap-4 flex-col break-all">
                 <div className="flex">
                   <div className="mr-auto flex gap-2 font-mono">
                     {tags}
