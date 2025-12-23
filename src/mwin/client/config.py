@@ -43,18 +43,18 @@ def build_client_config(
 
     # project_name: args > env > default
     if project_name is None:
-        env_project = os.environ.get("AITRACE_PROJECT_NAME")
+        env_project = os.environ.get("MWIN_PROJECT_NAME")
         if env_project:
             project_name = env_project
         else:
             warnings.warn(
-                f"[AITrace] Project name is empty. AITrace will set it `{DEFAULT_PROJECT_NAME}`."
+                f"[mwin] Project name is empty. Mwin will set it `{DEFAULT_PROJECT_NAME}`."
             )
             project_name = DEFAULT_PROJECT_NAME
 
     # host_url: args > env > file > default
     if host_url is None:
-        env_host = os.environ.get("AITRACE_HOST_URL")
+        env_host = os.environ.get("MWIN_HOST_URL")
         if env_host:
             host_url = env_host
         else:
@@ -63,13 +63,13 @@ def build_client_config(
                 host_url = cfg.url
             else:
                 warnings.warn(
-                    f"[AITrace] host_url is empty. AITrace will set it `{DEFAULT_HOST_URL}`"
+                    f"[mwin] host_url is empty. Mwin will set it `{DEFAULT_HOST_URL}`"
                 )
                 host_url = DEFAULT_HOST_URL
 
     # apikey: args > env > file > default
     if apikey is None:
-        env_key = os.environ.get("AITRACE_API_KEY")
+        env_key = os.environ.get("MWIN_API_KEY")
         if env_key:
             apikey = env_key
         else:
@@ -78,7 +78,7 @@ def build_client_config(
                 apikey = cfg.apikey
             else:
                 warnings.warn(
-                    f"[AITrace] Fail to load apikey. It will run wronly if you are not deploy it in local. AITrace will set apikey to `{DEFAULT_API_KEY}`"
+                    f"[mwin] Fail to load apikey. It will run wronly if you are not deploy it in local. Mwin will set apikey to `{DEFAULT_API_KEY}`"
                 )
                 apikey = DEFAULT_API_KEY
 

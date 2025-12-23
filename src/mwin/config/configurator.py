@@ -3,7 +3,7 @@ import os
 import getpass
 from typing import Final, Dict
 
-from .types import ATConfig
+from .types import MwinConfig
 from .loader import save_config
 from .._client import client as at_client
 from .._exception import APIKeyException
@@ -11,7 +11,7 @@ from .._exception import APIKeyException
 CLOUD_BASE_URL: Final[str] = "http://localhost:8080/api/v0"
 localhost_base_url: str  = "http://localhost:8080/api/v0"
 
-class ATConfigurator:
+class MwinConfigurator:
     """AI trace configurator
     Use api key to connect with cloud serve or host local serve. Otherwise be unable to use anything
     about AT.
@@ -24,8 +24,8 @@ class ATConfigurator:
         url: str | None = None,
         use_local: bool = False,
     ):
-        """Initialize ATConfigurator
-        ATConfigurator duty is to configure apikey, url and whether user start local option.
+        """Initialize MwinConfigurator
+        MwinConfigurator duty is to configure apikey, url and whether user start local option.
 
         Args:
             api_key(str | None): AT api key.
@@ -49,13 +49,13 @@ class ATConfigurator:
             self._configure_cloud()
         else:
             self._configure_local()
-        config = ATConfig(
+        config = MwinConfig(
             apikey=self._apikey,
             url=self._url,
             use_local=self._use_local
         )
         save_config(config=config)
-        sys.stdout.write("Congrats to configure aitrace.")
+        sys.stdout.write("Congrats to configure mwin.")
 
     def _configure_cloud(self):
         """configure AT cloud"""
@@ -155,7 +155,7 @@ def configure(
         url(str | None): connect url
     """
 
-    configurator = ATConfigurator(
+    configurator = MwinConfigurator(
         api_key=api_key,
         use_local=use_local,
         url=url

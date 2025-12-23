@@ -1,10 +1,10 @@
-from .types import ATConfig
+from .types import MwinConfig
 from .loader import load_config
-from .configurator import ATConfigurator, configure
+from .configurator import MwinConfigurator, configure
 
 __all__ = [
-    'ATConfig',
+    'MwinConfig',
     'load_config',
-    'ATConfigurator',
+    'MwinConfigurator',
     'configure',
 ]
