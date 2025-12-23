@@ -27,7 +27,7 @@ Mwin python sdk need an api key. So you have to be sure that you deploys success
 Mwin project package manager is uv. If you are a beginner uver, please click uv link: [uv official link](https://docs.astral.sh/uv/guides/projects/#creating-a-new-project)
 ```bash
 cd src
-uv install
+uv sync
 uv .venv/Script/activate
 ```
 You can watch more detailed debug information by using `--log-level=DEBUG` or `set AT_LOG_LEVEL=DEBUG` for Windows or `export AT_LOG_LEVEL=DEBUG` for Linux and Mac.

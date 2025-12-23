@@ -68,7 +68,7 @@ llm_classification("Wow! It sucks.")
 # Development
 Mwin project package manager is uv. If you are a beginner uver, please click uv link: [uv official link](https://docs.astral.sh/uv/guides/projects/#creating-a-new-project)
 ```bash
-uv install
+uv sync
 uv .venv/Script/activate
 ```
 You can watch more detailed debug information by using `--log-level=DEBUG` or `set AT_LOG_LEVEL=DEBUG` for Windows or `export AT_LOG_LEVEL=DEBUG` for Linux and Mac.
