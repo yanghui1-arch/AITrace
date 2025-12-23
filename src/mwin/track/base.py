@@ -320,7 +320,6 @@ class BaseTracker(ABC):
         if current_step.output is None:
             current_step.output = {}
         current_step.output['func_output'] = end_args.output.get('func_output', '<Error happens while accessing function inputs>')
-        print(f"current_step.output: {current_step.output}")
 
         current_step.error_info = end_args.error_info
         current_step.end_time = datetime.now()
@@ -347,8 +346,6 @@ class BaseTracker(ABC):
             current_trace.error_info = error_info
 
         context.set_storage_trace(current_trace=current_trace)
-        # print(f"current_trace: {current_trace}")
-        # print(f"current step: {current_step}")
 
         # TODO: Post a request to server
         client: sync_client.SyncClient = sync_client.get_cached_sync_client()
