@@ -6,9 +6,10 @@ from typing_extensions import Self, override
 
 from openai import resources, AsyncStream
 from openai.types.completion_usage import CompletionUsage
+from openai.types.chat import ChatCompletion
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk, Choice, ChoiceDelta, ChoiceDeltaToolCall
 
-from ..std import PatchStreamResponse, ToolFunctionCall, Function
+from ..std import PatchStreamResponse, ToolFunctionCall, Function, patch_std_output
 from ...models import Step, LLMProvider
 from ...track.options import TrackerOptions
 from ...context.func_context import current_function_name_context
@@ -27,7 +28,7 @@ def patch_async_openai_chat_completions(step: Step, tracker_options: TrackerOpti
         if caller_name != current_function_name_context.get():
             return await raw_async_openai_create(self, *args, **kwargs)
 
-        resp = await raw_async_openai_create(self, *args, **kwargs)
+        resp:ChatCompletion | AsyncStream = await raw_async_openai_create(self, *args, **kwargs)
         raw_openai_inputs = inspect_helper.parse_to_dict_input(raw_async_openai_create, args=(self, *args), kwargs=kwargs)
         raw_openai_inputs.pop('self', 'no self')
         async_openai_inputs: Dict[str, Any] = openai_helper.remove_chat_completion_input_fields(
@@ -52,7 +53,7 @@ def patch_async_openai_chat_completions(step: Step, tracker_options: TrackerOpti
                 step_type=step.type,
                 tags=step.tags,
                 input={"llm_inputs": async_openai_inputs},
-                output={"llm_outputs": resp},
+                output={"llm_outputs": patch_std_output(resp)},
                 error_info=step.error_info,
                 model=step.model,
                 usage=resp.usage,
@@ -94,7 +95,6 @@ class ProxyAsyncStream(AsyncStream):
                 role="assistant",
                 content=llm_output,
                 tool_calls=llm_tool_calls_output,
-                usage=llm_usage,
             )
             client: SyncClient = get_cached_sync_client()
             client.log_step(
@@ -131,7 +131,6 @@ class ProxyAsyncStream(AsyncStream):
                     role="assistant",
                     content=llm_output,
                     tool_calls=llm_tool_calls_output,
-                    usage=llm_usage,
                 )
                 client: SyncClient = get_cached_sync_client()
                 client.log_step(
