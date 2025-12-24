@@ -124,7 +124,6 @@ class ProxyStream(Stream):
                 role="assistant",
                 content=llm_output,
                 tool_calls=llm_tool_calls_output,
-                usage=llm_usage,
             )
             client: SyncClient = get_cached_sync_client()
             client.log_step(
@@ -163,7 +162,6 @@ class ProxyStream(Stream):
                     role="assistant",
                     content=llm_output,
                     tool_calls=llm_tool_calls_output,
-                    usage=llm_usage,
                 )
                 client: SyncClient = get_cached_sync_client()
                 client.log_step(
