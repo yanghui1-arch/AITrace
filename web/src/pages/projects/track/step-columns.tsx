@@ -176,48 +176,6 @@ export const stepColumns: ColumnDef<Step>[] = [
     },
   },
   {
-    accessorKey: "llm_input",
-    header: () => (
-      <div className="w-full flex justify-center">
-        <span className="font-semibold">LLM Input</span>
-      </div>
-    ),
-    cell: ({ row }) => {
-      const LLMInput = row.original.input.llm_inputs;
-
-      return (
-        <div className="flex gap-2 justify-center">
-          <ScrollArea className="h-20 w-58 rounded-md p-4 ">
-            <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
-              <code>{JSON.stringify(LLMInput, null, 2)}</code>
-            </pre>
-          </ScrollArea>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "llm_output",
-    header: () => (
-      <div className="w-full flex justify-center">
-        <span className="font-semibold">LLM Output</span>
-      </div>
-    ),
-    cell: ({ row }) => {
-      const LLMOutput = row.original.output.llm_outputs;
-
-      return (
-        <div className="flex gap-2 justify-center">
-          <ScrollArea className="h-20 w-58 rounded-md p-4 ">
-            <pre className="text-sm font-mono whitespace-pre-wrap wrap-break-words text-left">
-              <code>{JSON.stringify(LLMOutput, null, 2)}</code>
-            </pre>
-          </ScrollArea>
-        </div>
-      );
-    },
-  },
-  {
     accessorKey: "startTime",
     header: () => (
       <div className="w-full flex justify-center">
