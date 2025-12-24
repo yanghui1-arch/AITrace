@@ -24,8 +24,6 @@ class PatchStreamResponse(BaseModel):
     role: Literal['assistant', 'tool']
     content: str
     tool_calls: List[ToolFunctionCall] | None = None
-    audio: ChatCompletionAudio | None = None
-    usage: CompletionUsage | None = None
 
 def patch_std_output(openai_output: ChatCompletion) -> PatchResponse | None:
     choices = openai_output.choices
