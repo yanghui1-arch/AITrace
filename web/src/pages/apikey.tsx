@@ -39,14 +39,14 @@ export function APIKeyPage() {
   const copyCompleteApiKey = async () => {
     navigator.clipboard.writeText(completeApiKey);
     setCopyCompleteApiKeyFlag(true);
-    toast("Successfully copy AITrace API key", {
+    toast("Successfully copy Mwin API key", {
       description: "Don't let others know your API key.",
     });
   };
 
   return (
     <div className="flex flex-col gap-4 px-4 lg:px-6">
-      <h2 className="text-xl font-semibold">Get your AITrace API key</h2>
+      <h2 className="text-xl font-semibold">Get your Mwin API key</h2>
       <div className="flex gap-2 w-[50%]">
         <div className="flex gap-2 h-9 items-center rounded-md border border-input bg-background px-3 text-sm w-[50%]">
           <IconKey />
@@ -61,7 +61,7 @@ export function APIKeyPage() {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>AITrace API Key</DialogTitle>
+                <DialogTitle>Mwin API Key</DialogTitle>
               </DialogHeader>
               <div className="flex gap-2">
                 <div className="flex gap-2 h-9 items-center rounded-md border border-input bg-background px-3 text-sm">

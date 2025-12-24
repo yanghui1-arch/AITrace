@@ -26,7 +26,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { AT_JWT } from "@/types/storage-const"
+import { MWIN_JWT } from "@/types/storage-const"
 
 export function NavUser({
   user,
@@ -40,7 +40,7 @@ export function NavUser({
   const { isMobile } = useSidebar()
 
   const logOut = () => {
-    localStorage.removeItem(AT_JWT);
+    localStorage.removeItem(MWIN_JWT);
     window.location.href = "/login";
   }
 

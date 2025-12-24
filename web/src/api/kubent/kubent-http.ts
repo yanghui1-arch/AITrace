@@ -1,4 +1,4 @@
-import { AT_JWT } from "@/types/storage-const";
+import { MWIN_JWT } from "@/types/storage-const";
 import axios from "axios";
 
 const kubentApi = axios.create({
@@ -6,7 +6,7 @@ const kubentApi = axios.create({
 });
 
 kubentApi.interceptors.request.use((config) => {
-  const token = localStorage.getItem(AT_JWT);
+  const token = localStorage.getItem(MWIN_JWT);
   if (token) {
     config.headers["AT-token"] = token;
   }
@@ -24,7 +24,7 @@ kubentApi.interceptors.response.use(
     /* 401 means not authenticated */
     if (status == 401) {
       /* Clear stale token and avoid redirect loop when already on /login */
-      localStorage.removeItem(AT_JWT);
+      localStorage.removeItem(MWIN_JWT);
       const currentPath = window.location.pathname;
       if (currentPath !== "/login") {
         window.location.href = "/login";

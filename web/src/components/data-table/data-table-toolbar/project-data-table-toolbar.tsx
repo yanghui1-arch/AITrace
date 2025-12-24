@@ -87,7 +87,7 @@ export function ProjectDataTableToolbar<TData>({
                 <DialogHeader>
                   <DialogTitle>Create Project</DialogTitle>
                   <DialogDescription>
-                    Create a new project for AITrace
+                    Create a new project for Mwin
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4">

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { userProviderContext, type User } from "./use-user";
-import { AT_JWT } from "@/types/storage-const";
+import { MWIN_JWT } from "@/types/storage-const";
 import { authApi } from "@/api/auth";
 
 type UserProviderProps = {
@@ -17,7 +17,7 @@ export function UserProvider({ children }: UserProviderProps) {
   }
 
   useEffect(() => {
-    const token = localStorage.getItem(AT_JWT);
+    const token = localStorage.getItem(MWIN_JWT);
     if (token && !isAtJwtExpired(token)) {
       const getUserFromJwt = async () => {
         const response = await authApi.me();

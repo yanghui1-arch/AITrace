@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { AT_JWT } from "@/types/storage-const";
+import { MWIN_JWT } from "@/types/storage-const";
 
 export function LoginForm({
   className,
@@ -33,7 +33,7 @@ export function LoginForm({
 
   /* jwt is valid then navigate to overview page */
   useEffect(() => {
-    const atJwt = localStorage.getItem(AT_JWT);
+    const atJwt = localStorage.getItem(MWIN_JWT);
     const isAtJwtExpired = (atJwt: string) => {
       const payload = JSON.parse(atob(atJwt.split('.')[1]));
       const exp = payload.exp * 1000;
