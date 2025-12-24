@@ -8,7 +8,7 @@ from openai import resources, AsyncStream
 from openai.types.completion_usage import CompletionUsage
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk, Choice, ChoiceDelta, ChoiceDeltaToolCall
 
-from ..stream import PatchStreamResponse, ToolFunctionCall, Function
+from ..std import PatchStreamResponse, ToolFunctionCall, Function
 from ...models import Step, LLMProvider
 from ...track.options import TrackerOptions
 from ...context.func_context import current_function_name_context
