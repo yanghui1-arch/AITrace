@@ -14,8 +14,9 @@ from typing import Any, List, Dict
 from typing_extensions import Self, override
 from openai import resources, Stream
 from openai.types.completion_usage import CompletionUsage
+from openai.types.chat import ChatCompletion
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk, Choice, ChoiceDelta, ChoiceDeltaToolCall
-from ..stream import PatchStreamResponse, ToolFunctionCall, Function
+from ..std import PatchStreamResponse, ToolFunctionCall, Function, patch_std_output
 from ...track.options import TrackerOptions
 from ...models import Step, LLMProvider
 from ...helper import inspect_helper
@@ -44,7 +45,7 @@ def patch_openai_chat_completions(step: Step, tracker_options: TrackerOptions, f
         if caller_name != current_function_name_context.get():
             return raw_openai_create(self, *args, **kwargs)
 
-        resp = raw_openai_create(self, *args, **kwargs)
+        resp:ChatCompletion | Stream = raw_openai_create(self, *args, **kwargs)
         raw_openai_inputs = inspect_helper.parse_to_dict_input(raw_openai_create, args=(self, *args), kwargs=kwargs)
         raw_openai_inputs.pop('self', 'no self')
         openai_inputs: Dict[str, Any] = openai_helper.remove_chat_completion_input_fields(
@@ -73,7 +74,7 @@ def patch_openai_chat_completions(step: Step, tracker_options: TrackerOptions, f
                 step_type=step.type,
                 tags=tags,
                 input={"llm_inputs": openai_inputs},
-                output={"llm_outputs": resp},
+                output={"llm_outputs": patch_std_output(resp)},
                 error_info=step.error_info,
                 model=model,
                 usage=resp.usage,
