@@ -4,9 +4,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from .models import Trace
 
-async def select_latest_traces_id_by_project_id(db: AsyncSession, project_id: int, counts: int = 3) -> List[UUID]:
+async def select_latest_traces_id_by_project_id(db: AsyncSession, project_id: int, counts: int = 1) -> List[UUID]:
     """Select latest traces id by project id.
-    Default to search three traces.
+    Default to search one trace.
 
     Args:
         db(AsyncSession): db conn

@@ -16,10 +16,11 @@ class Result(BaseModel):
     """ChatCompletionParams list. It contains user's question, kubent's tool calling & kubent's thoughts and kubent's answer but not contains previous chat history."""
 
 system_bg = f"""Your name is "Kubent". Kubent is a useful assistant to keep improve agent performance better.
-Generally, Kubent will recieve one or multiple abstract agent process flow graphs. These graphs reflects how agent system works.
-It's possible that more than two graphs works as the same. Kubent can think them as a pattern or a fixed route.
+Generally, Kubent will recieve one or multiple abstract agent process flow graphs which will be closure in <Agent> XML tags. 
+These graphs reflects how agent system works. It's possible that more than two graphs works as the same. Kubent can think them as a pattern or a fixed route.
+Kubent's task is to response user's question based on agent system workflow.
 
-All we know, every agent system works for a certain purpose.
+As we all know, every agent system works for a certain purpose.
 For example one people designs a phone agent that can give strange a phone and recommend its product. Another designs an office-word agent that can handle word documents.
 Due to the complexity of various agent purposes, their process flow graph is different. In the same time, make their performance better will be different.
 Kubent need to pose a concrete and specifically optimized for the task solution to make agent system performance upgrade about ~1% at least than before.
@@ -58,7 +59,12 @@ class Kubent(ReActAgent):
 
         return self
 
-    def run(self, question: str, chat_hist: List[ChatCompletionMessageParam] | None = None) -> Result:
+    def run(
+        self, 
+        question: str, 
+        chat_hist: List[ChatCompletionMessageParam] | None = None,
+        agent_workflows: List[str] | None = None,
+    ) -> Result:
         """Kubent start to solve a question
         
         Args:
@@ -79,7 +85,7 @@ class Kubent(ReActAgent):
             "answer": ""
         }
         while terminate is False and cnt < self.attempt:
-            obs, reward, terminate, act_info = self.act(question=question, obs=obs, chat_hist=chat_hist)
+            obs, reward, terminate, act_info = self.act(question=question, obs=obs, chat_hist=chat_hist, agent_workflows=agent_workflows)
             cnt += 1
 
         if act_info.get("step_finish_reason") == "solved":
@@ -98,13 +104,19 @@ class Kubent(ReActAgent):
         self, 
         question: str | None,
         obs: List[ChatCompletionMessageParam],
-        chat_hist: List[ChatCompletionMessageParam] | None
+        chat_hist: List[ChatCompletionMessageParam] | None,
+        agent_workflows: List[str] | None,
     ) -> tuple[List[ChatCompletionMessageParam], float, bool, Dict[str, str]]:
         if chat_hist is None:
             chat_hist = []
+        user_content = question
+        if agent_workflows is not None and len(agent_workflows) > 0:
+            workflows_desc = [f"<AgentExecutionGraph>\n{workflow}\n</AgentExecutionGraph>" for workflow in agent_workflows]
+            user_content = f"<Agent>\n{"\n".join(workflows_desc)}\n</Agent>" + "\n" + f"<Question>\n{question}\n</Question>"
+
         completion:ChatCompletion = self.engine.chat.completions.create(
             model=self.model,
-            messages=[{"role": "system", "content": system_bg}] + chat_hist + [{"role": "user", "content": question}] + obs,
+            messages=[{"role": "system", "content": system_bg}] + chat_hist + [{"role": "user", "content": user_content}] + obs,
             tools=self.tools,
             parallel_tool_calls=True,
         )
