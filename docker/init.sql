@@ -45,7 +45,7 @@ create table kubent_chat_session
         constraint kubent_chat_record_pk
             primary key,
     user_uuid             uuid                                not null,
-    topic                 text,
+    title                 text,
     start_timestamp       timestamp default CURRENT_TIMESTAMP not null,
     last_update_timestamp timestamp default CURRENT_TIMESTAMP not null,
     total_tokens          integer
@@ -57,7 +57,7 @@ comment on column kubent_chat_session.id is 'chat session id';
 
 comment on column kubent_chat_session.user_uuid is 'User uuid';
 
-comment on column kubent_chat_session.topic is 'Core of the whole chat. It''s a summary.';
+comment on column kubent_chat_session.title is 'Core of the whole chat. It''s a summary.';
 
 alter table kubent_chat_session
     owner to postgres;

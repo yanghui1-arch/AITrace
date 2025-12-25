@@ -7,12 +7,12 @@ from .models import KubentChatSession
 async def create_new_chat_session(
     db: AsyncSession,
     user_uuid: UUID,
-    topic: str | None,
+    title: str | None,
     total_tokens: int | None,
 ) -> KubentChatSession:
     session = KubentChatSession(
         user_uuid=user_uuid,
-        topic=topic,
+        title=title,
         total_tokens=total_tokens,
     )
     db.add(session)

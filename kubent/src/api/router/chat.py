@@ -40,7 +40,7 @@ async def optimize_agent_system(
         chat_session:KubentChatSession = await kubent_chat_session.create_new_chat_session(
             db=db, 
             user_uuid=user_id,
-            topic=None, 
+            title=None, 
             total_tokens=None
         )
         await db.commit()

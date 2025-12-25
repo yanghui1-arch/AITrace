@@ -10,7 +10,7 @@ class KubentChatSession(Base):
     
     id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
     user_uuid: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), nullable=False)
-    topic: Mapped[str | None] = mapped_column(Text, nullable=True)
+    title: Mapped[str | None] = mapped_column(Text, nullable=True)
     start_timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=False), nullable=False, server_default=text("CURRENT_TIMESTAMP"))
     last_update_timestamp: Mapped[datetime] = mapped_column(
         DateTime(timezone=False), 
