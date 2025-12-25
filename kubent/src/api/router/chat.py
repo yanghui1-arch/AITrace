@@ -15,13 +15,33 @@ from src.repository.models import (
     KubentChat,
 )
 from src.repository.db.conn import get_db, AsyncSession
-from src.api.schemas import ChatRequest, ChatResponse, ResponseModel
+from src.api.schemas import ChatRequest, ChatResponse, ChatSessionTitleRequest, ResponseModel
 from src.api.jwt import verify_at_token
 from src.api.background_task import add_chat
+from src.service import chat
 from src.utils import mermaid
 from src.agent.kubent import Kubent, Result
 
 chat_router = APIRouter(prefix="/chat", tags=["Chat"])
+
+@chat_router.post(
+    "/create_chat_session",
+    description="Create a new chat session.",
+    response_model=ResponseModel[str],
+)
+async def create_new_chat_session(
+    user_id: UUID = Depends(verify_at_token),
+    db:AsyncSession = Depends(get_db)
+):
+    chat_session:KubentChatSession = await kubent_chat_session.create_new_chat_session(
+        db=db, 
+        user_uuid=user_id,
+        title=None, 
+        total_tokens=None
+    )
+    await db.commit()
+    session_id = chat_session.id
+    return ResponseModel.success(data=session_id)
 
 @chat_router.post(
     "/optimize", 
@@ -63,3 +83,31 @@ async def optimize_agent_system(
     background_task.add_task(add_chat, session_id=session_id, user_id=user_id, messages=kubent_result.chats)
     return ResponseModel.success(data=ChatResponse(message=optimize_solution))
     
+@chat_router.get(
+    "/title", 
+    description="Set title for this chat session", 
+    response_model=ResponseModel[str],
+)
+async def optimize_agent_system(
+    req: ChatSessionTitleRequest,
+    user_id: UUID = Depends(verify_at_token),
+    db:AsyncSession = Depends(get_db)
+):
+    try:
+        session_id = UUID(req.session_id)
+        chat_session: KubentChatSession | None = await kubent_chat_session.select_chat_session_by_id(db=db, session_id=session_id)
+        if not chat_session:
+            return ResponseModel.error(message="Not existing session id.")
+        if chat_session.user_uuid != user_id:
+            return ResponseModel.error(message=f"No authentication to access {session_id}")
+        if chat_session.title is None:
+            title: str = chat.title(message=req.message)
+            success: bool = await kubent_chat_session.update_chat_session_title(db=db, session_id=session_id, title=title)
+            if not success:
+                raise Exception("Fail to get chat session title.")
+            await db.commit()
+        return ResponseModel.success(data=chat_session.title)
+    except ValueError as ve:
+        return ResponseModel.error(message="Failed to parse session id.")
+    except Exception as exce:
+        return ResponseModel.error(message=exce)

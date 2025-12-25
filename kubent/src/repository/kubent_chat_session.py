@@ -1,6 +1,6 @@
 from uuid import UUID
 from typing import List
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from .models import KubentChatSession
 
@@ -48,3 +48,29 @@ async def select_chat_session_by_user_id(
     ).limit(limit=limit)
     result = await db.execute(stmt)
     return result.scalars().all()
+
+async def update_chat_session_title(db: AsyncSession, session_id: UUID, title: str) -> bool:
+    """Update chat session title
+    
+    Args:
+        db(AsyncSession): db conn
+        session_id(UUID): session id
+        title(str): title to update
+    
+    Retunrs:
+        True is success and False is failed.
+    """
+    
+    stmt = (
+        update(KubentChatSession)
+        .where(KubentChatSession.id == session_id)
+        .values(title=title)
+        .returning(KubentChatSession.id)
+    )
+
+    result = await db.execute(stmt)
+    update_id = result.scalar_one_or_none()
+    if update_id is None:
+        return False
+    await db.flush()
+    return True

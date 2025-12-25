@@ -8,3 +8,7 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     message: str
+
+class ChatSessionTitleRequest(BaseModel):
+    message: str
+    session_id: str
