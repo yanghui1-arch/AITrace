@@ -130,7 +130,6 @@ create table trace
     tags                  jsonb     default '[]'::jsonb       not null,
     input                 jsonb     default '{}'::jsonb,
     output                jsonb     default '{}'::jsonb,
-    tracks                jsonb     default '[]'::jsonb,
     error_info            varchar(255),
     start_time            timestamp default CURRENT_TIMESTAMP not null,
     last_update_timestamp timestamp,
