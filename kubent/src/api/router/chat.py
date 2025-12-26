@@ -41,7 +41,7 @@ async def create_new_chat_session(
     )
     await db.commit()
     session_id = chat_session.id
-    return ResponseModel.success(data=session_id)
+    return ResponseModel.success(data=str(session_id))
 
 @chat_router.post(
     "/optimize", 
