@@ -92,9 +92,6 @@ class Env(BaseModel):
                 if act is not None:
                     func = act.func
                     arguments = tool_call.function.arguments
-                    self.obs.append(
-                        {"role": "assistant", "content": f"[Action #{self.num_tool_callings}] Execute tool \"{tool_name}\" with arguments {arguments}"}
-                    )
                     result = "None"
                     try:
                         arguments_json: Dict = json.loads(arguments)
@@ -127,6 +124,7 @@ class Env(BaseModel):
                                     "tool_call_id": tool_call_id
                                 }
                             )
+                            self.num_think += 1
                         else:
                             self.obs.append(
                                 {
