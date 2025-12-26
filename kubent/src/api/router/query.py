@@ -23,15 +23,15 @@ async def query_session(
         chat_sessions:List[KubentChatSession] = await kubent_chat_session.select_chat_session_by_user_id(db=db, user_id=user_id)
         query_chat_sessions:List[QueryKubentChatSession] = [
             QueryKubentChatSession(
-                id=session.id, 
+                id=session.id,
                 user_uuid=session.user_uuid,
-                topic=session.topic,
+                title=session.title,
                 last_update_timestamp=session.last_update_timestamp
             ) for session in chat_sessions
         ]
         return ResponseModel.success(data=query_chat_sessions)
     except Exception as exce:
-        return ResponseModel.error(exce)
+        return ResponseModel.error(str(exce))
     
 @query_router.get("/chats")
 async def query_chats(
