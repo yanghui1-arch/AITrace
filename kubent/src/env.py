@@ -74,17 +74,19 @@ class Env(BaseModel):
 
         content:str | None = llm_action.content
         tool_calls:List[ChatCompletionMessageToolCallUnion] | None = llm_action.tool_calls
-        if content is not None:
-            if content.startswith(terminate_signal):
-                terminate = True
-                self.answer = content[len(terminate_signal): ]
-                self.chains.append(
-                    {"action_name": "<finish>", "action_result": f"[Finish] {self.answer}"}
-                )
-                self.steps += 1
-                return self.obs, reward, terminate, self._get_info(step_finish_reason="solved")
+        if content is not None and tool_calls is None:
+            terminate = True
+            self.answer = content
+            self.chains.append(
+                {"action_name": "<finish>", "action_result": f"[Finish] {self.answer}"}
+            )
+            self.steps += 1
+            return self.obs, reward, terminate, self._get_info(step_finish_reason="solved")
 
         if tool_calls is not None:
+            self.obs.append(
+                {"role": "assistant", "content": content, "tool_calls": tool_calls}
+            )
             for tool_call in tool_calls:
                 tool_name = tool_call.function.name
                 tool_call_id = tool_call.id
