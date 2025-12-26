@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Any
 from pydantic import BaseModel, Field, model_validator
 from openai import OpenAI, pydantic_function_tool
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletion, ChatCompletionFunctionToolParam
@@ -12,7 +12,7 @@ class Result(BaseModel):
     answer: str
     """Answer of Kubent"""
 
-    chats: List[ChatCompletionMessageParam]
+    chats: List[Dict[str, Any]]
     """ChatCompletionParams list. It contains user's question, kubent's tool calling & kubent's thoughts and kubent's answer but not contains previous chat history."""
 
 system_bg = f"""Your name is "Kubent". Kubent is a useful assistant to keep improve agent performance better.
@@ -42,7 +42,7 @@ Condition 4: Daily chat.
 
 class Kubent(ReActAgent):
     name: str = "Kubent"
-    model: str = "x-ai/grok-4.1-fast"
+    model: str = "anthropic/claude-haiku-4.5"
     tools: List[ChatCompletionFunctionToolParam] = Field(..., default_factory=list)
     engine: OpenAI = OpenAI()
     current_env: Env
@@ -132,26 +132,3 @@ class Kubent(ReActAgent):
 
     def change_env(self, new_env: Env):
         self.current_env = new_env
-
-if __name__ == "__main__":
-    env = Env(env_name="test")
-    kubent = Kubent(current_env=env)
-    solution = kubent.run(question=f"""Can you improve my process flow? My process flow is:
-                step_id                     step_name                               parent_step_id
-    019b0c98-8fd9-7617-9288-222147b71c87 llm_counts                       019b0c98-87e0-70d2-89ff-ddd8466224c2                                
-    019b0c98-9e12-70a6-9d7a-1f1cbed7fd88 llm_test_my_class                019b0c98-87e0-70d2-89ff-ddd8466224c2  
-    019b0c98-a36f-7eb7-8538-24bee2b18a5f llm_test_pass_class              019b0c98-87e0-70d2-89ff-ddd8466224c2          
-    019b0c98-ab46-7a00-90fa-9f5bb5d2ac15 llm_test_zero_attr_class         019b0c98-87e0-70d2-89ff-ddd8466224c2      
-    019b0c98-ab80-73d8-8f75-9eb4e6f4ec78 llm_test_several_conversations   019b0c98-87e0-70d2-89ff-ddd8466224c2                   
-    019b0c98-b1fa-72b8-868b-db2973b553ec with_llm_sync_stream             019b0c98-87e0-70d2-89ff-ddd8466224c2      
-    019b0c98-cf94-7f90-a8fc-f3284b0c69eb llm_async_not_stream                           null                
-    019b0c98-ca3c-743c-906d-12621228a06f llm_stream                                     null   
-    019b0c98-d636-7d40-ad7d-e5b51c890f4f async_not_stream_inner_1         019b0c98-cf94-7f90-a8fc-f3284b0c69eb                                                              
-    019b0c99-1736-7e26-ae5b-f938b14d88d2 async_not_stream_inner_2         019b0c98-cf94-7f90-a8fc-f3284b0c69eb                  
-    019b0c99-6c42-7b48-808a-d2599c9a61de llm_async_stream                               null             
-    019b0c99-766c-7ae0-a50e-4dc9759a51b5 with_llm_async_stream                          null                     
-    019b0c98-8ff1-7530-ab77-43899bab8322 llm_test_my_class                019b0c98-8fd9-7617-9288-222147b71c87                                              
-    019b0c98-87e0-70d2-89ff-ddd8466224c2 llm_classification                                                                                             
-    """)
-    print(f"chains: {env.chains}")
-    print(solution)

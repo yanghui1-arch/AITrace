@@ -85,7 +85,11 @@ class Env(BaseModel):
 
         if tool_calls is not None:
             self.obs.append(
-                {"role": "assistant", "content": content, "tool_calls": tool_calls}
+                {"role": "assistant", "content": content, "tool_calls": [
+                        {"id": tool_call.id, "type": tool_call.type, "function": tool_call.function.model_dump()}
+                        for tool_call in tool_calls
+                    ]
+                }
             )
             for tool_call in tool_calls:
                 tool_name = tool_call.function.name
