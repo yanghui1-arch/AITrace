@@ -166,9 +166,6 @@ export default function KubentPage() {
                 };
               })
           );
-          if (sessionData.length > 0) {
-            selectSession(sessionData[0].id);
-          }
         } else {
           console.error(response.data.message);
         }
@@ -240,7 +237,7 @@ export default function KubentPage() {
             </div>
           </ScrollArea>
         </div>
-        <div className="flex h-[69vh] min-w-0 flex-col gap-4 p-2">
+        <div className="flex h-[69vh] w-[80%] min-w-0 flex-col gap-4 p-2">
           <ScrollArea className="flex-1 min-h-0">
             <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 py-2">
               {messages.map((message) =>
