@@ -32,7 +32,7 @@ type Session = {
 type Project = {
   id: number;
   name: string;
-}
+};
 
 export default function KubentPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -53,17 +53,23 @@ export default function KubentPage() {
       const response = await kubentChatApi.queryChats(sessionId);
       if (response.data.code === 200) {
         const data = response.data.data;
-        setMessages(data
-          .sort((a, b) => new Date(a.start_timestamp).getTime() - new Date(b.start_timestamp).getTime())
-          .map(chat => {
-          return {
-            role: chat.role,
-            content: chat.content,
-            startTimestamp: chat.start_timestamp,
-          }
-        }));
+        setMessages(
+          data
+            .sort(
+              (a, b) =>
+                new Date(a.start_timestamp).getTime() -
+                new Date(b.start_timestamp).getTime()
+            )
+            .map((chat) => {
+              return {
+                role: chat.role,
+                content: chat.content,
+                startTimestamp: chat.start_timestamp,
+              };
+            })
+        );
       } else {
-        console.error(response.data.message)
+        console.error(response.data.message);
       }
     } catch (error) {
       console.error(error);
@@ -93,12 +99,14 @@ export default function KubentPage() {
           lastUpdateTimestamp: newSession.last_update_timestamp,
         };
       } else {
-        throw new Error("Failed to create a new chat. Please retry after a moment.")
+        throw new Error(
+          "Failed to create a new chat. Please retry after a moment."
+        );
       }
     }
     const [chatResponse, titleResponse] = await Promise.all([
       kubentChatApi.chat(session.id, inputValue, selectedProject.id),
-      kubentChatApi.title(session.id, inputValue.trim())
+      kubentChatApi.title(session.id, inputValue.trim()),
     ]);
     if (chatResponse.data.code === 200) {
       const assistantMessage: ChatMessage = {
@@ -111,8 +119,8 @@ export default function KubentPage() {
 
     if (titleResponse.data.code === 200) {
       const title: string = titleResponse.data.data;
-      session = {...session, title}
-      setSelectedSession(session)
+      session = { ...session, title };
+      setSelectedSession(session);
     }
   };
 
@@ -126,7 +134,7 @@ export default function KubentPage() {
             return {
               id: p.projectId,
               name: p.projectName,
-            }
+            };
           });
           setProjects(availableProjects);
           if (availableProjects.length > 0) {
@@ -144,15 +152,19 @@ export default function KubentPage() {
           const sessionData = response.data.data;
           setSessions(
             sessionData
-            .sort((a, b) => new Date(b.last_update_timestamp).getTime() - new Date(a.last_update_timestamp).getTime())
-            .map((session) => {
-              return {
-                id: session.id,
-                userId: session.user_id,
-                title: session.title,
-                lastUpdateTimestamp: session.last_update_timestamp,
-              };
-            })
+              .sort(
+                (a, b) =>
+                  new Date(b.last_update_timestamp).getTime() -
+                  new Date(a.last_update_timestamp).getTime()
+              )
+              .map((session) => {
+                return {
+                  id: session.id,
+                  userId: session.user_id,
+                  title: session.title,
+                  lastUpdateTimestamp: session.last_update_timestamp,
+                };
+              })
           );
           if (sessionData.length > 0) {
             selectSession(sessionData[0].id);
@@ -202,15 +214,15 @@ export default function KubentPage() {
           <Label className="text-muted-foreground text-xs font-bold px-1">
             Recent
           </Label>
-          <ScrollArea className="flex-1 min-h-0">
-            <div className="flex w-full flex-col gap-1 pr-4">
+          <ScrollArea className="w-full h-full rounded-md  [&>[data-radix-scroll-area-viewport]>div]:block! [&>[data-radix-scroll-area-viewport]>div]:w-full!">
+            <div className="flex w-full flex-col gap-1">
               {sessions.map((session, i) => (
                 <div
                   key={i}
                   className={cn(
                     `
-                      min-w-0
-                      w-[170px] px-1 py-2 rounded-md
+                      min-w-full min-h-9
+                      w-full px-1 py-2 rounded-md
                       cursor-pointer select-none
                       text-sm
                       hover:bg-accent hover:text-accent-foreground
@@ -228,7 +240,7 @@ export default function KubentPage() {
             </div>
           </ScrollArea>
         </div>
-        <div className="flex h-[69vh] w-full flex-col gap-4 p-2">
+        <div className="flex h-[69vh] min-w-0 flex-col gap-4 p-2">
           <ScrollArea className="flex-1 min-h-0">
             <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 py-2">
               {messages.map((message) =>
