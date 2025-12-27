@@ -15,7 +15,7 @@ from src.repository.models import (
     KubentChat,
 )
 from src.repository.db.conn import get_db, AsyncSession
-from src.api.schemas import ChatRequest, ChatResponse, ChatSessionTitleRequest, ResponseModel
+from src.api.schemas import ChatRequest, ChatResponse, ChatSessionResponse, ChatSessionTitleRequest, ResponseModel
 from src.api.jwt import verify_at_token
 from src.api.background_task import add_chat
 from src.service import chat
@@ -27,7 +27,7 @@ chat_router = APIRouter(prefix="/chat", tags=["Chat"])
 @chat_router.post(
     "/create_chat_session",
     description="Create a new chat session.",
-    response_model=ResponseModel[str],
+    response_model=ResponseModel[ChatSessionResponse],
 )
 async def create_new_chat_session(
     user_id: UUID = Depends(verify_at_token),
@@ -40,8 +40,7 @@ async def create_new_chat_session(
         total_tokens=None
     )
     await db.commit()
-    session_id = chat_session.id
-    return ResponseModel.success(data=str(session_id))
+    return ResponseModel.success(data=ChatSessionResponse(id=chat_session.id, user_uuid=user_id, title=chat_session.title, last_update_timestamp=chat_session.last_update_timestamp))
 
 @chat_router.post(
     "/optimize", 
@@ -83,12 +82,12 @@ async def optimize_agent_system(
     background_task.add_task(add_chat, session_id=session_id, user_id=user_id, messages=kubent_result.chats)
     return ResponseModel.success(data=ChatResponse(message=optimize_solution))
     
-@chat_router.get(
+@chat_router.post(
     "/title", 
     description="Set title for this chat session", 
     response_model=ResponseModel[str],
 )
-async def optimize_agent_system(
+async def summary_title(
     req: ChatSessionTitleRequest,
     user_id: UUID = Depends(verify_at_token),
     db:AsyncSession = Depends(get_db)

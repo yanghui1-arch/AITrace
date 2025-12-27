@@ -1,4 +1,5 @@
-from typing import Literal
+from uuid import UUID
+from datetime import datetime
 from pydantic import BaseModel
 
 class ChatRequest(BaseModel):
@@ -8,6 +9,12 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     message: str
+
+class ChatSessionResponse(BaseModel):
+    id: UUID
+    user_uuid: UUID
+    title: str | None
+    last_update_timestamp: datetime
 
 class ChatSessionTitleRequest(BaseModel):
     message: str
