@@ -15,6 +15,7 @@ import { ChatInput } from "@/components/chat/input";
 import { Label } from "@/components/ui/label";
 import { kubentChatApi } from "@/api/kubent/kubent-chat";
 import { cn } from "@/lib/utils";
+import SiderbarMoreActions from "./siderbar/more-actions";
 
 type ChatMessage = {
   role: "assistant" | "user";
@@ -73,6 +74,22 @@ export default function KubentPage() {
       }
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleDeleteSession = async (sessionId: string) => {
+    const response = {data: {code: 200, message: "Success"}}
+    if (response.data.code !== 200) {
+      throw new Error(response.data.message || "Failed to delete session.");
+    }
+
+    const nextSessions = sessions.filter((session) => session.id !== sessionId);
+    setSessions(nextSessions);
+    // Delete session is current session
+    if (selectedSession?.id === sessionId) {
+      console.log("clear")
+      setSelectedSession(undefined);
+      setMessages([]);
     }
   };
 
@@ -212,26 +229,33 @@ export default function KubentPage() {
             Recent
           </Label>
           <ScrollArea className="w-full h-full rounded-md  [&>[data-radix-scroll-area-viewport]>div]:block! [&>[data-radix-scroll-area-viewport]>div]:w-full!">
-            <div className="flex w-full flex-col gap-1">
-              {sessions.map((session, i) => (
+            <div className="flex flex-col gap-1">
+              {sessions.map((session) => (
                 <div
-                  key={i}
+                  key={session.id}
                   className={cn(
                     `
-                      min-w-full min-h-9
-                      w-full px-1 py-2 rounded-md
+                      flex items-center justify-between gap-2
+                      min-h-9
+                      px-1 py-2 rounded-md
                       cursor-pointer select-none
                       text-sm
                       hover:bg-accent hover:text-accent-foreground
                       active:bg-accent/80
-                      truncate
                     `,
                     selectedSession?.id === session.id &&
                       "bg-accent text-accent-foreground"
                   )}
-                  onClick={() => selectSession(session.id)}
                 >
-                  {session.title ?? ""}
+                  <div className="min-w-0 flex-1 truncate" onClick={() => selectSession(session.id)}>
+                    {session.title ?? ""}
+                  </div>
+                  <div className="shrink-0">
+                    <SiderbarMoreActions
+                      session={session}
+                      onDeleteSession={handleDeleteSession}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
