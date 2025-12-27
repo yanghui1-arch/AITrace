@@ -25,25 +25,30 @@ type ChatMessage = {
 type Session = {
   id: string;
   userId: string;
-  topic: string | undefined;
+  title: string | undefined;
   lastUpdateTimestamp: string;
 };
 
+type Project = {
+  id: number;
+  name: string;
+}
+
 export default function KubentPage() {
-  const [projectNames, setProjectNames] = useState<string[]>([]);
-  const [selectedProjectName, setSelectedProjectName] = useState<string>("");
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [selectedProject, setSelectedProject] = useState<Project>();
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [selectedSession, setSelectedSession] = useState<string | null>(
-    null
+  const [selectedSession, setSelectedSession] = useState<Session | undefined>(
+    undefined
   );
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
 
   const selectProject = (projectName: string) =>
-    setSelectedProjectName(projectName);
+    setSelectedProject(projects.find((p: Project) => p.name === projectName));
 
   const selectSession = async (sessionId: string) => {
-    setSelectedSession(sessionId);
+    setSelectedSession(sessions.find((session) => session.id === sessionId));
     try {
       const response = await kubentChatApi.queryChats(sessionId);
       if (response.data.code === 200) {
@@ -66,7 +71,7 @@ export default function KubentPage() {
   };
 
   const handleSend = async () => {
-    if (!selectedProjectName) return;
+    if (!selectedProject) return;
     if (!inputValue.trim()) return;
 
     const userMessage: ChatMessage = {
@@ -76,14 +81,38 @@ export default function KubentPage() {
     };
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
-    const response = await kubentChatApi.chat(selectedSession, inputValue);
-    if (response.data.code === 200) {
+    let session: Session | undefined = selectedSession;
+    if (!session) {
+      const createSessionResponse = await kubentChatApi.createSession();
+      if (createSessionResponse.data.code === 200) {
+        const newSession = createSessionResponse.data.data;
+        session = {
+          id: newSession.id,
+          userId: newSession.user_id,
+          title: newSession.title,
+          lastUpdateTimestamp: newSession.last_update_timestamp,
+        };
+      } else {
+        throw new Error("Failed to create a new chat. Please retry after a moment.")
+      }
+    }
+    const [chatResponse, titleResponse] = await Promise.all([
+      kubentChatApi.chat(session.id, inputValue, selectedProject.id),
+      kubentChatApi.title(session.id, inputValue.trim())
+    ]);
+    if (chatResponse.data.code === 200) {
       const assistantMessage: ChatMessage = {
         role: "assistant",
-        content: response.data.data.message,
+        content: chatResponse.data.data.message,
         startTimestamp: new Date().toLocaleString("sv-SE"),
       };
       setMessages((prev) => [...prev, assistantMessage]);
+    }
+
+    if (titleResponse.data.code === 200) {
+      const title: string = titleResponse.data.data;
+      session = {...session, title}
+      setSelectedSession(session)
     }
   };
 
@@ -93,10 +122,15 @@ export default function KubentPage() {
         const response = await projectApi.getAllProjects();
         if (response.data.code === 200) {
           const userProjects = response.data.data;
-          const projectNames: string[] = userProjects.map((p) => p.projectName);
-          setProjectNames(projectNames);
-          if (projectNames.length > 0) {
-            setSelectedProjectName(projectNames[0]);
+          const availableProjects: Project[] = userProjects.map((p) => {
+            return {
+              id: p.projectId,
+              name: p.projectName,
+            }
+          });
+          setProjects(availableProjects);
+          if (availableProjects.length > 0) {
+            setSelectedProject(availableProjects[0]);
           }
         }
       } catch (error) {
@@ -115,7 +149,7 @@ export default function KubentPage() {
               return {
                 id: session.id,
                 userId: session.user_id,
-                topic: session.topic,
+                title: session.title,
                 lastUpdateTimestamp: session.last_update_timestamp,
               };
             })
@@ -139,24 +173,24 @@ export default function KubentPage() {
       <div>
         <h2 className="text-xl font-semibold">Kubent</h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          {selectedProjectName
-            ? `Chatting about ${selectedProjectName}.`
+          {selectedProject?.name
+            ? `Chatting about ${selectedProject.name}.`
             : "Select a project to chat with Kubent to optimize your agent system."}
         </p>
       </div>
 
       <div className="flex gap-2 lg:flex-row lg:items-center">
         <Label>Select one project</Label>
-        <Select onValueChange={selectProject} value={selectedProjectName}>
+        <Select onValueChange={selectProject} value={selectedProject?.name}>
           <SelectTrigger className="w-full lg:w-[150px]">
             <SelectValue placeholder="Select a project to optimize" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
               <SelectLabel>Projects</SelectLabel>
-              {projectNames.map((projectName: string) => (
-                <SelectItem key={projectName} value={projectName}>
-                  {projectName}
+              {projects.map((project: Project) => (
+                <SelectItem key={project.id} value={project.name}>
+                  {project.name}
                 </SelectItem>
               ))}
             </SelectGroup>
@@ -183,12 +217,12 @@ export default function KubentPage() {
                       active:bg-accent/80
                       truncate
                     `,
-                    selectedSession === session.id &&
+                    selectedSession?.id === session.id &&
                       "bg-accent text-accent-foreground"
                   )}
                   onClick={() => selectSession(session.id)}
                 >
-                  {session.id}
+                  {session.title ?? ""}
                 </div>
               ))}
             </div>
@@ -213,11 +247,11 @@ export default function KubentPage() {
               onChange={setInputValue}
               onSend={handleSend}
               placeholder={
-                selectedProjectName
-                  ? `Ask Kubent about ${selectedProjectName}`
+                selectedProject?.name
+                  ? `Ask Kubent about ${selectedProject.name}`
                   : "Select a project to start chatting with Kubent"
               }
-              disabled={!selectedProjectName}
+              disabled={!selectedProject}
             />
           </div>
         </div>
